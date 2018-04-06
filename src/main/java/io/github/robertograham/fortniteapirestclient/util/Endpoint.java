@@ -29,10 +29,10 @@ public class Endpoint {
 
     public static String lookup(String username) {
         try {
-            return "https://persona-public-service-prod06.ol.epicgames.com/persona/api/public/account/getPlayer?q=" + new URI(null, null, username, null).getRawPath();
+            return "https://persona-public-service-prod06.ol.epicgames.com/persona/api/public/account/lookup?q=" + new URI(null, null, username, null).getRawPath();
         } catch (URISyntaxException e) {
             LOG.error("URISyntaxException while encoding username: {}", username, e);
-            return "https://persona-public-service-prod06.ol.epicgames.com/persona/api/public/account/getPlayer?q=" + username;
+            return "https://persona-public-service-prod06.ol.epicgames.com/persona/api/public/account/lookup?q=" + username;
         }
     }
 
