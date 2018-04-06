@@ -7,9 +7,11 @@ import io.github.robertograham.fortniteapirestclient.util.Endpoint;
 import io.github.robertograham.fortniteapirestclient.util.StatsHelper;
 import io.github.robertograham.fortniteapirestclient.util.mapper.impl.UserJsonPlayerMapper;
 import org.apache.http.HttpHeaders;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.fluent.Form;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.impl.client.BasicResponseHandler;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,10 +35,12 @@ public class FortniteApiRestClient {
     private LocalDateTime expiresAt;
     private String refreshToken;
     private String accessToken;
+    private ResponseHandler<String> responseHandler;
 
     public FortniteApiRestClient(Credentials credentials) {
         this.credentials = credentials;
 
+        responseHandler = new BasicResponseHandler();
         userJsonPlayerMapper = new UserJsonPlayerMapper();
         scheduler = Executors.newScheduledThreadPool(1);
         checkTokenFuture = checkToken();
@@ -68,8 +72,7 @@ public class FortniteApiRestClient {
                             .addHeader(HttpHeaders.AUTHORIZATION, "basic " + credentials.getFortniteClientToken())
                             .addHeader(HttpHeaders.CONTENT_TYPE, URLEncodedUtils.CONTENT_TYPE)
                             .execute()
-                            .returnContent()
-                            .asString();
+                            .handleResponse(responseHandler);
 
                     JSONObject jsonObject = new JSONObject(response);
 
@@ -93,8 +96,7 @@ public class FortniteApiRestClient {
                 .addHeader(HttpHeaders.AUTHORIZATION, "basic " + credentials.getEpicGamesLauncherToken())
                 .addHeader(HttpHeaders.CONTENT_TYPE, URLEncodedUtils.CONTENT_TYPE)
                 .execute()
-                .returnContent()
-                .asString();
+                .handleResponse(responseHandler);
 
         JSONObject usernameAndPasswordDerivedTokenObject = new JSONObject(usernameAndPasswordDerivedTokenObjectJson);
 
@@ -105,8 +107,7 @@ public class FortniteApiRestClient {
         String exchangeCodeObjectJson = Request.Get(Endpoint.OAUTH_EXCHANGE)
                 .addHeader(HttpHeaders.AUTHORIZATION, "bearer " + accessToken)
                 .execute()
-                .returnContent()
-                .asString();
+                .handleResponse(responseHandler);
 
         JSONObject exchangeCodeObject = new JSONObject(exchangeCodeObjectJson);
 
@@ -124,8 +125,7 @@ public class FortniteApiRestClient {
                 .addHeader(HttpHeaders.AUTHORIZATION, "basic " + credentials.getFortniteClientToken())
                 .addHeader(HttpHeaders.CONTENT_TYPE, URLEncodedUtils.CONTENT_TYPE)
                 .execute()
-                .returnContent()
-                .asString();
+                .handleResponse(responseHandler);
     }
 
     private void login() throws IOException {
@@ -149,8 +149,7 @@ public class FortniteApiRestClient {
             result = Request.Get(Endpoint.lookup(username))
                     .addHeader(HttpHeaders.AUTHORIZATION, "bearer " + accessToken)
                     .execute()
-                    .returnContent()
-                    .asString();
+                    .handleResponse(responseHandler);
         } catch (IOException e) {
             LOG.error("IOException while looking up user: {}", username, e);
         }
@@ -168,8 +167,7 @@ public class FortniteApiRestClient {
                 String response = Request.Get(Endpoint.statsBattleRoyale(player.getId()))
                         .addHeader(HttpHeaders.AUTHORIZATION, "bearer " + accessToken)
                         .execute()
-                        .returnContent()
-                        .asString();
+                        .handleResponse(responseHandler);
 
                 if (StatsHelper.statsExistForPlatform(response, platform))
                     result[0] = StatsHelper.buildBattleRoyaleStats(response, player, platform);
