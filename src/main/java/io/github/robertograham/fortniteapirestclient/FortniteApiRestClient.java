@@ -5,17 +5,11 @@ import io.github.robertograham.fortniteapirestclient.domain.Credentials;
 import io.github.robertograham.fortniteapirestclient.domain.Player;
 import io.github.robertograham.fortniteapirestclient.util.Endpoint;
 import io.github.robertograham.fortniteapirestclient.util.StatsHelper;
-import io.github.robertograham.fortniteapirestclient.util.StringResponseHandler;
 import io.github.robertograham.fortniteapirestclient.util.mapper.impl.UserJsonPlayerMapper;
-import org.apache.http.Consts;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.HttpHeaders;
+import org.apache.http.client.fluent.Form;
+import org.apache.http.client.fluent.Request;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,8 +18,6 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -33,13 +25,11 @@ import java.util.concurrent.TimeUnit;
 
 public class FortniteApiRestClient {
 
+    private static final Logger LOG = LoggerFactory.getLogger(FortniteApiRestClient.class);
     private final Credentials credentials;
     private final ScheduledExecutorService scheduler;
-    private final CloseableHttpClient httpClient;
-    private static final Logger LOG = LoggerFactory.getLogger(FortniteApiRestClient.class);
     private final UserJsonPlayerMapper userJsonPlayerMapper;
     private ScheduledFuture<?> checkTokenFuture;
-    private ResponseHandler<String> stringResponseHandler;
     private LocalDateTime expiresAt;
     private String refreshToken;
     private String accessToken;
@@ -48,8 +38,6 @@ public class FortniteApiRestClient {
         this.credentials = credentials;
 
         userJsonPlayerMapper = new UserJsonPlayerMapper();
-        stringResponseHandler = new StringResponseHandler();
-        httpClient = HttpClients.createDefault();
         scheduler = Executors.newScheduledThreadPool(1);
         checkTokenFuture = checkToken();
 
@@ -71,18 +59,17 @@ public class FortniteApiRestClient {
 
                     expiresAt = null;
 
-                    List<NameValuePair> form = new ArrayList<>();
-                    form.add(new BasicNameValuePair("grant_type", "refresh_token"));
-                    form.add(new BasicNameValuePair("refresh_token", refreshToken));
-                    form.add(new BasicNameValuePair("includePerms", "true"));
-
-                    UrlEncodedFormEntity entity = new UrlEncodedFormEntity(form, Consts.UTF_8);
-
-                    HttpPost httpPost = new HttpPost(Endpoint.OAUTH_TOKEN);
-                    httpPost.setEntity(entity);
-                    httpPost.setHeader("Authorization", "basic " + credentials.getFortniteClientToken());
-
-                    String response = httpClient.execute(httpPost, stringResponseHandler);
+                    String response = Request.Post(Endpoint.OAUTH_TOKEN)
+                            .bodyForm(Form.form()
+                                    .add("grant_type", "refresh_token")
+                                    .add("refresh_token", refreshToken)
+                                    .add("includePerms", "true")
+                                    .build())
+                            .addHeader(HttpHeaders.AUTHORIZATION, "basic " + credentials.getFortniteClientToken())
+                            .addHeader(HttpHeaders.CONTENT_TYPE, URLEncodedUtils.CONTENT_TYPE)
+                            .execute()
+                            .returnContent()
+                            .asString();
 
                     JSONObject jsonObject = new JSONObject(response);
 
@@ -96,51 +83,49 @@ public class FortniteApiRestClient {
     }
 
     private String getUsernameAndPasswordDerivedAccessToken() throws IOException {
-        List<NameValuePair> form = new ArrayList<>();
+        String usernameAndPasswordDerivedTokenObjectJson = Request.Post(Endpoint.OAUTH_TOKEN)
+                .bodyForm(Form.form()
+                        .add("grant_type", "password")
+                        .add("username", credentials.getEpicGamesEmailAddress())
+                        .add("password", credentials.getEpicGamesPassword())
+                        .add("includePerms", "true")
+                        .build())
+                .addHeader(HttpHeaders.AUTHORIZATION, "basic " + credentials.getEpicGamesLauncherToken())
+                .addHeader(HttpHeaders.CONTENT_TYPE, URLEncodedUtils.CONTENT_TYPE)
+                .execute()
+                .returnContent()
+                .asString();
 
-        form.add(new BasicNameValuePair("grant_type", "password"));
-        form.add(new BasicNameValuePair("username", credentials.getEpicGamesEmailAddress()));
-        form.add(new BasicNameValuePair("password", credentials.getEpicGamesPassword()));
-        form.add(new BasicNameValuePair("includePerms", "true"));
-
-        UrlEncodedFormEntity entity = new UrlEncodedFormEntity(form, Consts.UTF_8);
-
-        HttpPost httpPost = new HttpPost(Endpoint.OAUTH_TOKEN);
-
-        httpPost.setEntity(entity);
-        httpPost.setHeader("Authorization", "basic " + credentials.getEpicGamesLauncherToken());
-
-        JSONObject usernameAndPasswordDerivedTokenObject = new JSONObject(httpClient.execute(httpPost, stringResponseHandler));
+        JSONObject usernameAndPasswordDerivedTokenObject = new JSONObject(usernameAndPasswordDerivedTokenObjectJson);
 
         return usernameAndPasswordDerivedTokenObject.getString("access_token");
     }
 
     private String getExchangeCode() throws IOException {
-        HttpGet httpGet = new HttpGet(Endpoint.OAUTH_EXCHANGE);
+        String exchangeCodeObjectJson = Request.Get(Endpoint.OAUTH_EXCHANGE)
+                .addHeader(HttpHeaders.AUTHORIZATION, "bearer " + accessToken)
+                .execute()
+                .returnContent()
+                .asString();
 
-        httpGet.setHeader("Authorization", "bearer " + accessToken);
-
-        JSONObject exchangeCodeObject = new JSONObject(httpClient.execute(httpGet, stringResponseHandler));
+        JSONObject exchangeCodeObject = new JSONObject(exchangeCodeObjectJson);
 
         return exchangeCodeObject.getString("code");
     }
 
     private String getFortniteApiTokenObjectJsonFromExchangeCode(String exchangeCode) throws IOException {
-        List<NameValuePair> form = new ArrayList<>();
-
-        form.add(new BasicNameValuePair("grant_type", "exchange_code"));
-        form.add(new BasicNameValuePair("exchange_code", exchangeCode));
-        form.add(new BasicNameValuePair("token_type", "egl"));
-        form.add(new BasicNameValuePair("includePerms", "true"));
-
-        UrlEncodedFormEntity entity = new UrlEncodedFormEntity(form, Consts.UTF_8);
-
-        HttpPost httpPost = new HttpPost(Endpoint.OAUTH_TOKEN);
-
-        httpPost.setEntity(entity);
-        httpPost.setHeader("Authorization", "basic " + credentials.getFortniteClientToken());
-
-        return httpClient.execute(httpPost, stringResponseHandler);
+        return Request.Post(Endpoint.OAUTH_TOKEN)
+                .bodyForm(Form.form()
+                        .add("grant_type", "exchange_code")
+                        .add("exchange_code", exchangeCode)
+                        .add("token_type", "egl")
+                        .add("includePerms", "true")
+                        .build())
+                .addHeader(HttpHeaders.AUTHORIZATION, "basic " + credentials.getFortniteClientToken())
+                .addHeader(HttpHeaders.CONTENT_TYPE, URLEncodedUtils.CONTENT_TYPE)
+                .execute()
+                .returnContent()
+                .asString();
     }
 
     private void login() throws IOException {
@@ -161,10 +146,11 @@ public class FortniteApiRestClient {
         String result = null;
 
         try {
-            HttpGet httpGet = new HttpGet(Endpoint.lookup(username));
-            httpGet.setHeader("Authorization", "bearer " + accessToken);
-
-            result = httpClient.execute(httpGet, stringResponseHandler);
+            result = Request.Get(Endpoint.lookup(username))
+                    .addHeader(HttpHeaders.AUTHORIZATION, "bearer " + accessToken)
+                    .execute()
+                    .returnContent()
+                    .asString();
         } catch (IOException e) {
             LOG.error("IOException while looking up user: {}", username, e);
         }
@@ -179,10 +165,11 @@ public class FortniteApiRestClient {
 
         if (player != null)
             try {
-                HttpGet httpGet = new HttpGet(Endpoint.statsBattleRoyale(player.getId()));
-                httpGet.setHeader("Authorization", "bearer " + accessToken);
-
-                String response = httpClient.execute(httpGet, stringResponseHandler);
+                String response = Request.Get(Endpoint.statsBattleRoyale(player.getId()))
+                        .addHeader(HttpHeaders.AUTHORIZATION, "bearer " + accessToken)
+                        .execute()
+                        .returnContent()
+                        .asString();
 
                 if (StatsHelper.statsExistForPlatform(response, platform))
                     result[0] = StatsHelper.buildBattleRoyaleStats(response, player, platform);
@@ -195,12 +182,6 @@ public class FortniteApiRestClient {
 
     public void close() {
         LOG.debug("Closing FortniteApiRestClient");
-
-        try {
-            httpClient.close();
-        } catch (IOException e) {
-            LOG.error("IOException while closing CloseableHttpClient", e);
-        }
 
         checkTokenFuture.cancel(false);
         scheduler.shutdown();
