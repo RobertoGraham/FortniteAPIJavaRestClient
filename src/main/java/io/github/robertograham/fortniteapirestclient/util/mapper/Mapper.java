@@ -1,6 +1,6 @@
 package io.github.robertograham.fortniteapirestclient.util.mapper;
 
-public interface Mapper<F, T> {
+public interface Mapper<FROM, TO> {
 
-    T map(F f);
+    TO mapFrom(FROM from);
 }

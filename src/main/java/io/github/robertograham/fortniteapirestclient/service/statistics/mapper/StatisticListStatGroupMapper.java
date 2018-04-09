@@ -1,63 +1,61 @@
-package io.github.robertograham.fortniteapirestclient.util.mapper.impl;
+package io.github.robertograham.fortniteapirestclient.service.statistics.mapper;
 
 import io.github.robertograham.fortniteapirestclient.domain.Stats;
 import io.github.robertograham.fortniteapirestclient.domain.StatsGroup;
+import io.github.robertograham.fortniteapirestclient.domain.constant.PartyType;
+import io.github.robertograham.fortniteapirestclient.service.statistics.model.Statistic;
 import io.github.robertograham.fortniteapirestclient.util.mapper.Mapper;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.IntSupplier;
 import java.util.function.ToIntFunction;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
-public class StatsJsonStatsGroupMapper implements Mapper<String, StatsGroup> {
+public class StatisticListStatGroupMapper implements Mapper<List<Statistic>, StatsGroup> {
 
-    private final String platformCode;
+    private final String platform;
 
-    public StatsJsonStatsGroupMapper(String platformCode) {
-        this.platformCode = platformCode;
+    public StatisticListStatGroupMapper(String platform) {
+        this.platform = platform;
     }
 
     @Override
-    public StatsGroup map(String statsJson) {
+    public StatsGroup mapFrom(List<Statistic> statistics) {
         Stats solo = new Stats();
         Stats duo = new Stats();
         Stats squad = new Stats();
         Stats lifetime = new Stats();
 
-        StreamSupport.stream(new JSONArray(statsJson).spliterator(), false)
-                .map(JSONObject.class::cast)
-                .forEach(statsObject -> {
-                    String key = statsObject.getString("name");
-                    IntSupplier valueSupplier = () -> statsObject.getInt("value");
-                    Function<String, Stats> keyToStatsFunction = statsName -> statsName.contains("_p2") ? solo : statsName.contains("_p10") ? duo : squad;
+        statistics.forEach(statistic -> {
+            String key = statistic.getName();
+            IntSupplier valueFunction = statistic::getValue;
+            Function<String, Stats> keyToStatsFunction = statsName -> statsName.contains(PartyType.SOLO) ? solo : statsName.contains(PartyType.DUO) ? duo : squad;
 
-                    if (attemptConsumeValue(key, "placetop1", Stats::setWins, keyToStatsFunction, valueSupplier))
-                        return;
-                    if (attemptConsumeValue(key, "placetop3", Stats::setTop3, keyToStatsFunction, valueSupplier))
-                        return;
-                    if (attemptConsumeValue(key, "placetop5", Stats::setTop5, keyToStatsFunction, valueSupplier))
-                        return;
-                    if (attemptConsumeValue(key, "placetop6", Stats::setTop6, keyToStatsFunction, valueSupplier))
-                        return;
-                    if (attemptConsumeValue(key, "placetop10", Stats::setTop10, keyToStatsFunction, valueSupplier))
-                        return;
-                    if (attemptConsumeValue(key, "placetop12", Stats::setTop12, keyToStatsFunction, valueSupplier))
-                        return;
-                    if (attemptConsumeValue(key, "placetop25", Stats::setTop25, keyToStatsFunction, valueSupplier))
-                        return;
-                    if (attemptConsumeValue(key, "matchesplayed", Stats::setMatches, keyToStatsFunction, valueSupplier))
-                        return;
-                    if (attemptConsumeValue(key, "kills", Stats::setKills, keyToStatsFunction, valueSupplier))
-                        return;
-                    if (attemptConsumeValue(key, "minutesplayed", Stats::setTimePlayed, keyToStatsFunction, valueSupplier))
-                        return;
-                    attemptConsumeValue(key, "score", Stats::setScore, keyToStatsFunction, valueSupplier);
-                });
+            if (attemptConsumeValue(key, "placetop1", Stats::setWins, keyToStatsFunction, valueFunction))
+                return;
+            if (attemptConsumeValue(key, "placetop3", Stats::setTop3, keyToStatsFunction, valueFunction))
+                return;
+            if (attemptConsumeValue(key, "placetop5", Stats::setTop5, keyToStatsFunction, valueFunction))
+                return;
+            if (attemptConsumeValue(key, "placetop6", Stats::setTop6, keyToStatsFunction, valueFunction))
+                return;
+            if (attemptConsumeValue(key, "placetop10", Stats::setTop10, keyToStatsFunction, valueFunction))
+                return;
+            if (attemptConsumeValue(key, "placetop12", Stats::setTop12, keyToStatsFunction, valueFunction))
+                return;
+            if (attemptConsumeValue(key, "placetop25", Stats::setTop25, keyToStatsFunction, valueFunction))
+                return;
+            if (attemptConsumeValue(key, "matchesplayed", Stats::setMatches, keyToStatsFunction, valueFunction))
+                return;
+            if (attemptConsumeValue(key, "kills", Stats::setKills, keyToStatsFunction, valueFunction))
+                return;
+            if (attemptConsumeValue(key, "minutesplayed", Stats::setTimePlayed, keyToStatsFunction, valueFunction))
+                return;
+            attemptConsumeValue(key, "score", Stats::setScore, keyToStatsFunction, valueFunction);
+        });
 
         lifetime.setWins(summedIntegerPropertyOfStatsInstances(Stats::getWins, solo, duo, squad));
         lifetime.setTop3(summedIntegerPropertyOfStatsInstances(Stats::getTop3, solo, duo, squad));
@@ -103,7 +101,7 @@ public class StatsJsonStatsGroupMapper implements Mapper<String, StatsGroup> {
     }
 
     private boolean attemptConsumeValue(String key, String desiredKeyFragment, BiConsumer<Stats, Integer> statsAndValueBiConsumer, Function<String, Stats> keyToStatsFunction, IntSupplier valueSupplier) {
-        if (key.contains(String.format("%s_%s", desiredKeyFragment, platformCode))) {
+        if (key.contains(String.format("%s_%s", desiredKeyFragment, platform))) {
             statsAndValueBiConsumer.accept(keyToStatsFunction.apply(key), valueSupplier.getAsInt());
 
             return true;
