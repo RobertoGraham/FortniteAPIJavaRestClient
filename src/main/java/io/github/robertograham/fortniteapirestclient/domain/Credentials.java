@@ -48,4 +48,45 @@ public class Credentials {
                 ", fortniteClientToken='" + fortniteClientToken + '\'' +
                 '}';
     }
+
+    public static class Builder {
+
+        private Credentials credentials;
+
+        private Builder() {
+            credentials = new Credentials();
+        }
+
+        public static Builder newInstance() {
+            return new Builder();
+        }
+
+        public Builder epicGamesEmailAddress(String epicGamesEmailAddress) {
+            credentials.setEpicGamesEmailAddress(epicGamesEmailAddress);
+
+            return this;
+        }
+
+        public Builder epicGamesPassword(String epicGamesPassword) {
+            credentials.setEpicGamesPassword(epicGamesPassword);
+
+            return this;
+        }
+
+        public Builder epicGamesLauncherToken(String epicGamesLauncherToken) {
+            credentials.setEpicGamesLauncherToken(epicGamesLauncherToken);
+
+            return this;
+        }
+
+        public Builder fortniteClientToken(String fortniteClientToken) {
+            credentials.setFortniteClientToken(fortniteClientToken);
+
+            return this;
+        }
+
+        public Credentials build() {
+            return credentials;
+        }
+    }
 }
