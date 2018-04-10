@@ -3,35 +3,26 @@ package io.github.robertograham.fortniteapirestclient.service.statistics.impl;
 import io.github.robertograham.fortniteapirestclient.domain.StatsGroup;
 import io.github.robertograham.fortniteapirestclient.service.statistics.StatisticsService;
 import io.github.robertograham.fortniteapirestclient.service.statistics.mapper.StatisticListStatGroupMapper;
-import io.github.robertograham.fortniteapirestclient.service.statistics.mapper.StatisticsJsonStatisticsListMapper;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.Statistic;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetBattleRoyaleStatisticsRequest;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest;
 import io.github.robertograham.fortniteapirestclient.util.Endpoint;
+import io.github.robertograham.fortniteapirestclient.util.ObjectMapperResponseHandler;
 import org.apache.http.HttpHeaders;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.fluent.Request;
-import org.apache.http.impl.client.BasicResponseHandler;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 public class StatisticsServiceImpl implements StatisticsService {
 
-    private ResponseHandler<String> responseHandler;
-    private StatisticsJsonStatisticsListMapper statisticsJsonStatisticsListMapper;
-
-    public StatisticsServiceImpl() {
-        responseHandler = new BasicResponseHandler();
-        statisticsJsonStatisticsListMapper = new StatisticsJsonStatisticsListMapper();
-    }
-
     @Override
     public List<Statistic> getBattleRoyaleStatistics(GetBattleRoyaleStatisticsRequest getBattleRoyaleStatisticsRequest) throws IOException {
-        return statisticsJsonStatisticsListMapper.mapFrom(Request.Get(Endpoint.statsBattleRoyale(getBattleRoyaleStatisticsRequest.getAccountId()))
+        return Arrays.asList(Request.Get(Endpoint.statsBattleRoyale(getBattleRoyaleStatisticsRequest.getAccountId()))
                 .addHeader(HttpHeaders.AUTHORIZATION, getBattleRoyaleStatisticsRequest.getAuthHeaderValue())
                 .execute()
-                .handleResponse(responseHandler));
+                .handleResponse(ObjectMapperResponseHandler.thatProduces(Statistic[].class)));
     }
 
     @Override

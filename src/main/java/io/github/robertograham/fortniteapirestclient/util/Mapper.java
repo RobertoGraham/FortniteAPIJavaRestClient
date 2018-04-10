@@ -1,4 +1,4 @@
-package io.github.robertograham.fortniteapirestclient.util.mapper;
+package io.github.robertograham.fortniteapirestclient.util;
 
 public interface Mapper<FROM, TO> {
 

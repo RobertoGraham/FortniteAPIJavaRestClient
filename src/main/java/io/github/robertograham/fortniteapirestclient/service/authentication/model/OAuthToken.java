@@ -1,25 +1,40 @@
 package io.github.robertograham.fortniteapirestclient.service.authentication.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
 public class OAuthToken {
 
+    @JsonProperty("access_token")
     private String accessToken;
+    @JsonProperty("expires_in")
     private Long expiresIn;
+    @JsonProperty("expires_at")
     private LocalDateTime expiresAt;
+    @JsonProperty("token_type")
     private String tokenType;
+    @JsonProperty("refresh_token")
     private String refreshToken;
+    @JsonProperty("refresh_expires")
     private Long refreshExpires;
+    @JsonProperty("refresh_expires_at")
     private LocalDateTime refreshExpiresAt;
+    @JsonProperty("account_id")
     private String accountId;
+    @JsonProperty("client_id")
     private String clientId;
+    @JsonProperty("internal_client")
     private Boolean internalClient;
+    @JsonProperty("client_service")
     private String clientService;
     private LocalDateTime lastPasswordValidation;
-    private String app;
-    private String inAppId;
+    @JsonProperty("perms")
     private List<Permission> perms;
+    private String app;
+    @JsonProperty("in_app_id")
+    private String inAppId;
 
     public List<Permission> getPerms() {
         return perms;
