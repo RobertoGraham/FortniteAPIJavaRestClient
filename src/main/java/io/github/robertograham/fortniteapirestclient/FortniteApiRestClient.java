@@ -12,6 +12,7 @@ import io.github.robertograham.fortniteapirestclient.service.authentication.mode
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.OAuthToken;
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.request.GetExchangeCodeRequest;
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.request.GetOAuthTokenRequest;
+import io.github.robertograham.fortniteapirestclient.service.authentication.model.request.KillSessionRequest;
 import io.github.robertograham.fortniteapirestclient.service.statistics.StatisticsService;
 import io.github.robertograham.fortniteapirestclient.service.statistics.impl.StatisticsServiceImpl;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.Statistic;
@@ -167,9 +168,21 @@ public class FortniteApiRestClient {
         return null;
     }
 
+    private void killSession() {
+        try {
+            authenticationService.killSession(KillSessionRequest.Builder.newInstance()
+                    .accessToken(accessToken)
+                    .authHeaderValue("bearer " + accessToken)
+                    .build());
+        } catch (IOException e) {
+            LOG.error("IOException while killing session for accessToken: {}", accessToken, e);
+        }
+    }
+
     public void close() {
         LOG.debug("Closing FortniteApiRestClient");
 
+        killSession();
         checkTokenFuture.cancel(false);
         scheduler.shutdown();
     }

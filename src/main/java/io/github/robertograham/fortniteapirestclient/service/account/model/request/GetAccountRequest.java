@@ -1,5 +1,7 @@
 package io.github.robertograham.fortniteapirestclient.service.account.model.request;
 
+import io.github.robertograham.fortniteapirestclient.util.IBuilder;
+
 public class GetAccountRequest {
 
     private String accountName;
@@ -21,7 +23,7 @@ public class GetAccountRequest {
         this.accountName = accountName;
     }
 
-    public static class Builder {
+    public static class Builder implements IBuilder<GetAccountRequest> {
 
         private GetAccountRequest getAccountRequest;
 
@@ -45,6 +47,7 @@ public class GetAccountRequest {
             return this;
         }
 
+        @Override
         public GetAccountRequest build() {
             return getAccountRequest;
         }

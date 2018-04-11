@@ -1,5 +1,7 @@
 package io.github.robertograham.fortniteapirestclient.service.statistics.model.request;
 
+import io.github.robertograham.fortniteapirestclient.util.IBuilder;
+
 public class GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest {
 
     private String accountId;
@@ -30,7 +32,7 @@ public class GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest {
         this.authHeaderValue = authHeaderValue;
     }
 
-    public static class Builder {
+    public static class Builder implements IBuilder<GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest> {
 
         private GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest;
 
@@ -60,6 +62,7 @@ public class GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest {
             return this;
         }
 
+        @Override
         public GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest build() {
             return getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest;
         }

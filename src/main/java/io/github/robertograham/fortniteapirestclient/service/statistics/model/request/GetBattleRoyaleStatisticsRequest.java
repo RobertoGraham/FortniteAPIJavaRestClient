@@ -1,5 +1,7 @@
 package io.github.robertograham.fortniteapirestclient.service.statistics.model.request;
 
+import io.github.robertograham.fortniteapirestclient.util.IBuilder;
+
 public class GetBattleRoyaleStatisticsRequest {
 
     private String accountId;
@@ -21,7 +23,7 @@ public class GetBattleRoyaleStatisticsRequest {
         this.authHeaderValue = authHeaderValue;
     }
 
-    public static class Builder {
+    public static class Builder implements IBuilder<GetBattleRoyaleStatisticsRequest> {
 
         private GetBattleRoyaleStatisticsRequest getBattleRoyaleStatisticsRequest;
 
@@ -45,6 +47,7 @@ public class GetBattleRoyaleStatisticsRequest {
             return this;
         }
 
+        @Override
         public GetBattleRoyaleStatisticsRequest build() {
             return getBattleRoyaleStatisticsRequest;
         }

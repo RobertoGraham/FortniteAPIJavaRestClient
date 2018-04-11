@@ -1,6 +1,7 @@
 package io.github.robertograham.fortniteapirestclient.service.authentication.model.request;
 
 
+import io.github.robertograham.fortniteapirestclient.util.IBuilder;
 import org.apache.http.NameValuePair;
 
 public class GetOAuthTokenRequest {
@@ -33,7 +34,7 @@ public class GetOAuthTokenRequest {
         this.additionalFormEntries = additionalFormEntries;
     }
 
-    public static class Builder {
+    public static class Builder implements IBuilder<GetOAuthTokenRequest> {
 
         private GetOAuthTokenRequest getOAuthTokenRequest;
 
@@ -63,6 +64,7 @@ public class GetOAuthTokenRequest {
             return this;
         }
 
+        @Override
         public GetOAuthTokenRequest build() {
             return getOAuthTokenRequest;
         }

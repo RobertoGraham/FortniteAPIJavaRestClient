@@ -44,4 +44,13 @@ public class Endpoint {
             return "https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/stats/accountId/" + accountId + "/bulk/window/alltime";
         }
     }
+
+    public static String killSession(String accessToken) {
+        try {
+            return "https://account-public-service-prod03.ol.epicgames.com/account/api/oauth/sessions/kill/" + new URI(null, null, accessToken, null).getRawPath();
+        } catch (URISyntaxException e) {
+            LOG.error("URISyntaxException while encoding accessToken: {}", accessToken, e);
+            return "https://account-public-service-prod03.ol.epicgames.com/account/api/oauth/sessions/kill/" + accessToken;
+        }
+    }
 }

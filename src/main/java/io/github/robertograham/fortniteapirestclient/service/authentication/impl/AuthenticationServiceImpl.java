@@ -5,12 +5,14 @@ import io.github.robertograham.fortniteapirestclient.service.authentication.mode
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.OAuthToken;
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.request.GetExchangeCodeRequest;
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.request.GetOAuthTokenRequest;
+import io.github.robertograham.fortniteapirestclient.service.authentication.model.request.KillSessionRequest;
 import io.github.robertograham.fortniteapirestclient.util.Endpoint;
 import io.github.robertograham.fortniteapirestclient.util.ObjectMapperResponseHandler;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.fluent.Form;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.impl.client.BasicResponseHandler;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -41,5 +43,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .addHeader(HttpHeaders.AUTHORIZATION, getExchangeCodeRequest.getAuthHeaderValue())
                 .execute()
                 .handleResponse(ObjectMapperResponseHandler.thatProduces(ExchangeCode.class));
+    }
+
+    @Override
+    public void killSession(KillSessionRequest killSessionRequest) throws IOException {
+        Request.Delete(Endpoint.killSession(killSessionRequest.getAccessToken()))
+                .addHeader(HttpHeaders.AUTHORIZATION, killSessionRequest.getAuthHeaderValue())
+                .execute()
+                .handleResponse(new BasicResponseHandler());
     }
 }

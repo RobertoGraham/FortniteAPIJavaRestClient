@@ -1,5 +1,7 @@
 package io.github.robertograham.fortniteapirestclient.service.authentication.model.request;
 
+import io.github.robertograham.fortniteapirestclient.util.IBuilder;
+
 public class GetExchangeCodeRequest {
 
     private String authHeaderValue;
@@ -12,7 +14,7 @@ public class GetExchangeCodeRequest {
         this.authHeaderValue = authHeaderValue;
     }
 
-    public static class Builder {
+    public static class Builder implements IBuilder<GetExchangeCodeRequest> {
 
         private GetExchangeCodeRequest getExchangeCodeRequest;
 
@@ -30,6 +32,7 @@ public class GetExchangeCodeRequest {
             return this;
         }
 
+        @Override
         public GetExchangeCodeRequest build() {
             return getExchangeCodeRequest;
         }
