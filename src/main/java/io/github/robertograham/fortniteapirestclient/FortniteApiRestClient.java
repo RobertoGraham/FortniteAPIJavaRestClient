@@ -41,11 +41,7 @@ public class FortniteApiRestClient implements Closeable {
     private AccountService accountService;
     private StatisticsService statisticsService;
 
-    FortniteApiRestClient(Credentials credentials,
-                          AuthenticationService authenticationService,
-                          AccountService accountService,
-                          StatisticsService statisticsService,
-                          ScheduledExecutorService scheduledExecutorService) {
+    FortniteApiRestClient(Credentials credentials, AuthenticationService authenticationService, AccountService accountService, StatisticsService statisticsService, ScheduledExecutorService scheduledExecutorService) {
         this.credentials = credentials;
         this.authenticationService = authenticationService;
         this.accountService = accountService;

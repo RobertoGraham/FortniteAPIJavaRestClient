@@ -5,6 +5,7 @@ import io.github.robertograham.fortniteapirestclient.service.account.impl.Accoun
 import io.github.robertograham.fortniteapirestclient.service.authentication.impl.AuthenticationServiceImpl;
 import io.github.robertograham.fortniteapirestclient.service.statistics.impl.StatisticsServiceImpl;
 import io.github.robertograham.fortniteapirestclient.util.Builder;
+import io.github.robertograham.fortniteapirestclient.util.ObjectMappingResponseHandlerProducer;
 
 import java.util.Objects;
 import java.util.concurrent.Executors;
@@ -19,11 +20,14 @@ public class FortniteApiRestClientBuilder implements Builder<FortniteApiRestClie
 
     @Override
     public FortniteApiRestClient build() {
+        ObjectMappingResponseHandlerProducer objectMappingResponseHandlerProducer = ObjectMappingResponseHandlerProducer.builder()
+                .build();
+
         return new FortniteApiRestClient(
                 credentials,
-                new AuthenticationServiceImpl(),
-                new AccountServiceImpl(),
-                new StatisticsServiceImpl(),
+                new AuthenticationServiceImpl(objectMappingResponseHandlerProducer),
+                new AccountServiceImpl(objectMappingResponseHandlerProducer),
+                new StatisticsServiceImpl(objectMappingResponseHandlerProducer),
                 Executors.newScheduledThreadPool(1)
         );
     }

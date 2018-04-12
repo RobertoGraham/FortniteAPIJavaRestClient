@@ -7,7 +7,7 @@ import io.github.robertograham.fortniteapirestclient.service.statistics.model.St
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetBattleRoyaleStatisticsRequest;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest;
 import io.github.robertograham.fortniteapirestclient.util.Endpoint;
-import io.github.robertograham.fortniteapirestclient.util.ObjectMapperResponseHandler;
+import io.github.robertograham.fortniteapirestclient.util.ObjectMappingResponseHandlerProducer;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.fluent.Request;
 
@@ -17,12 +17,18 @@ import java.util.List;
 
 public class StatisticsServiceImpl implements StatisticsService {
 
+    private final ObjectMappingResponseHandlerProducer objectMappingResponseHandlerProducer;
+
+    public StatisticsServiceImpl(ObjectMappingResponseHandlerProducer objectMappingResponseHandlerProducer) {
+        this.objectMappingResponseHandlerProducer = objectMappingResponseHandlerProducer;
+    }
+
     @Override
     public List<Statistic> getBattleRoyaleStatistics(GetBattleRoyaleStatisticsRequest getBattleRoyaleStatisticsRequest) throws IOException {
         return Arrays.asList(Request.Get(Endpoint.statsBattleRoyale(getBattleRoyaleStatisticsRequest.getAccountId()))
                 .addHeader(HttpHeaders.AUTHORIZATION, getBattleRoyaleStatisticsRequest.getAuthHeaderValue())
                 .execute()
-                .handleResponse(ObjectMapperResponseHandler.thatProduces(Statistic[].class)));
+                .handleResponse(objectMappingResponseHandlerProducer.produceFor(Statistic[].class)));
     }
 
     @Override
