@@ -9,7 +9,6 @@ import java.util.Objects;
 public class ObjectMappingResponseHandlerProducerBuilder implements Builder<ObjectMappingResponseHandlerProducer> {
 
     private ObjectMapper objectMapper;
-    private ResponseHandler<String> responseHandler;
 
     ObjectMappingResponseHandlerProducerBuilder() {
     }
@@ -20,20 +19,11 @@ public class ObjectMappingResponseHandlerProducerBuilder implements Builder<Obje
         return this;
     }
 
-    public ObjectMappingResponseHandlerProducerBuilder responseHandler(ResponseHandler<String> responseHandler) {
-        this.responseHandler = Objects.requireNonNull(responseHandler, "Response handler mustn't be null");
-
-        return this;
-    }
-
     @Override
     public ObjectMappingResponseHandlerProducer build() {
         if (objectMapper == null)
             objectMapper = new ObjectMapper().findAndRegisterModules();
 
-        if (responseHandler == null)
-            responseHandler = new BasicResponseHandler();
-
-        return new ObjectMappingResponseHandlerProducer(objectMapper, responseHandler);
+        return new ObjectMappingResponseHandlerProducer(objectMapper);
     }
 }

@@ -13,9 +13,16 @@ import java.util.concurrent.Executors;
 public class FortniteApiRestClientBuilder implements Builder<FortniteApiRestClient> {
 
     private final Credentials credentials;
+    private boolean autoLoginDisabled;
 
     FortniteApiRestClientBuilder(Credentials credentials) {
         this.credentials = Objects.requireNonNull(credentials, "Credentials must not be null");
+    }
+
+    public FortniteApiRestClientBuilder disableAutoLogin() {
+        autoLoginDisabled = true;
+
+        return this;
     }
 
     @Override
@@ -28,7 +35,8 @@ public class FortniteApiRestClientBuilder implements Builder<FortniteApiRestClie
                 new AuthenticationServiceImpl(objectMappingResponseHandlerProducer),
                 new AccountServiceImpl(objectMappingResponseHandlerProducer),
                 new StatisticsServiceImpl(objectMappingResponseHandlerProducer),
-                Executors.newScheduledThreadPool(1)
+                Executors.newScheduledThreadPool(1),
+                autoLoginDisabled
         );
     }
 }

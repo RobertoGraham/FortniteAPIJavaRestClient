@@ -24,69 +24,60 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class FortniteApiRestClient implements Closeable {
 
     private static final Logger LOG = LoggerFactory.getLogger(FortniteApiRestClient.class);
     private final Credentials credentials;
+    private final AuthenticationService authenticationService;
+    private final AccountService accountService;
+    private final StatisticsService statisticsService;
     private final ScheduledExecutorService scheduledExecutorService;
-    private ScheduledFuture<?> checkTokenFuture;
-    private LocalDateTime expiresAt;
-    private String refreshToken;
-    private String accessToken;
-    private AuthenticationService authenticationService;
-    private AccountService accountService;
-    private StatisticsService statisticsService;
+    private OAuthToken sessionToken;
 
-    FortniteApiRestClient(Credentials credentials, AuthenticationService authenticationService, AccountService accountService, StatisticsService statisticsService, ScheduledExecutorService scheduledExecutorService) {
+    FortniteApiRestClient(Credentials credentials, AuthenticationService authenticationService, AccountService accountService, StatisticsService statisticsService, ScheduledExecutorService scheduledExecutorService, boolean autoLoginDisabled) {
         this.credentials = credentials;
         this.authenticationService = authenticationService;
         this.accountService = accountService;
         this.statisticsService = statisticsService;
         this.scheduledExecutorService = scheduledExecutorService;
 
-        checkTokenFuture = checkToken();
+        scheduledExecutorService.scheduleWithFixedDelay(tokenRefreshRunnable(), 1, 1, TimeUnit.SECONDS);
 
-        try {
-            login();
-        } catch (IOException e) {
-            LOG.error("IOException during login process", e);
-            throw new IllegalStateException("FortniteApiRestClient could not complete login process");
-        }
+        if (!autoLoginDisabled)
+            try {
+                login();
+            } catch (IOException e) {
+                LOG.error("IOException during login process", e);
+            }
     }
 
     public static FortniteApiRestClientBuilder builder(Credentials credentials) {
         return new FortniteApiRestClientBuilder(credentials);
     }
 
-    private ScheduledFuture<?> checkToken() {
-        return scheduledExecutorService.scheduleWithFixedDelay(() -> {
+    private Runnable tokenRefreshRunnable() {
+        return () -> {
             LOG.debug("Checking if token is expired");
 
-            if (expiresAt != null && expiresAt.minusMinutes(15).isBefore(LocalDateTime.now()))
+            if (sessionToken != null && sessionToken.getExpiresAt().minusMinutes(15).isBefore(LocalDateTime.now()))
                 try {
-                    LOG.info("Token is expired");
+                    LOG.info("Token has expired - refreshing");
 
-                    expiresAt = null;
-
-                    OAuthToken oAuthToken = authenticationService.getOAuthToken(GetOAuthTokenRequest.builder()
+                    sessionToken = authenticationService.getOAuthToken(GetOAuthTokenRequest.builder()
                             .grantType("refreshToken")
                             .authHeaderValue("basic " + credentials.getFortniteClientToken())
                             .additionalFormEntries(new NameValuePair[]{
-                                    new BasicNameValuePair("refresh_token", refreshToken)
+                                    new BasicNameValuePair("refresh_token", sessionToken.getRefreshToken())
                             })
                             .build());
-
-                    expiresAt = oAuthToken.getExpiresAt();
-                    refreshToken = oAuthToken.getRefreshToken();
-                    accessToken = oAuthToken.getAccessToken();
                 } catch (IOException e) {
                     LOG.error("IOException while refreshing expired tokens", e);
                 }
-        }, 1, 1, TimeUnit.SECONDS);
+        };
     }
 
     private OAuthToken getUsernameAndPasswordDerivedOAuthToken() throws IOException {
@@ -117,23 +108,19 @@ public class FortniteApiRestClient implements Closeable {
                 .build());
     }
 
-    private void login() throws IOException {
+    public void login() throws IOException {
         OAuthToken usernameAndPasswordDerivedOAuthToken = getUsernameAndPasswordDerivedOAuthToken();
 
         ExchangeCode exchangeCode = getExchangeCode(usernameAndPasswordDerivedOAuthToken);
 
-        OAuthToken fortniteApiTokenObjectJson = getFortniteApiOAuthTokenFromExchangeCode(exchangeCode);
-
-        expiresAt = fortniteApiTokenObjectJson.getExpiresAt();
-        refreshToken = fortniteApiTokenObjectJson.getRefreshToken();
-        accessToken = fortniteApiTokenObjectJson.getAccessToken();
+        sessionToken = getFortniteApiOAuthTokenFromExchangeCode(exchangeCode);
     }
 
     public Account getAccount(String accountName) {
         try {
             return accountService.getAccount(GetAccountRequest.builder()
                     .accountName(accountName)
-                    .authHeaderValue("bearer " + accessToken)
+                    .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
                     .build());
         } catch (IOException e) {
             LOG.error("IOException while looking up account: {}", accountName, e);
@@ -146,7 +133,7 @@ public class FortniteApiRestClient implements Closeable {
         try {
             return statisticsService.getSoloDuoSquadBattleRoyaleStatisticsByPlatform(GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.builder()
                     .accountId(accountId)
-                    .authHeaderValue("bearer " + accessToken)
+                    .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
                     .platform(platform)
                     .build());
         } catch (IOException e) {
@@ -160,7 +147,7 @@ public class FortniteApiRestClient implements Closeable {
         try {
             return statisticsService.getBattleRoyaleStatistics(GetBattleRoyaleStatisticsRequest.builder()
                     .accountId(accountId)
-                    .authHeaderValue("bearer " + accessToken)
+                    .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
                     .build());
         } catch (IOException e) {
             LOG.error("IOException while looking up stats for accountId: {}", accountId, e);
@@ -172,20 +159,25 @@ public class FortniteApiRestClient implements Closeable {
     private void killSession() {
         try {
             authenticationService.killSession(KillSessionRequest.builder()
-                    .accessToken(accessToken)
-                    .authHeaderValue("bearer " + accessToken)
+                    .accessToken(sessionToken.getAccessToken())
+                    .authHeaderValue("bearer " + sessionToken.getAccessToken())
                     .build());
         } catch (IOException e) {
-            LOG.error("IOException while killing session for accessToken: {}", accessToken, e);
+            LOG.error("IOException while killing session for accessToken: {}", sessionToken.getAccessToken(), e);
         }
+    }
+
+    private OAuthToken nonNullableSessionToken() {
+        return Objects.requireNonNull(sessionToken, "Attempting to perform api operation while not logged in");
     }
 
     @Override
     public void close() {
         LOG.debug("Closing FortniteApiRestClient");
 
-        checkTokenFuture.cancel(false);
-        killSession();
         scheduledExecutorService.shutdown();
+
+        if (sessionToken != null)
+            killSession();
     }
 }
