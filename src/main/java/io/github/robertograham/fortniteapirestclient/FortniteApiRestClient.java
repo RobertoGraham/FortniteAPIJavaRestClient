@@ -184,8 +184,8 @@ public class FortniteApiRestClient implements Closeable {
     public void close() {
         LOG.debug("Closing FortniteApiRestClient");
 
-        killSession();
         checkTokenFuture.cancel(false);
+        killSession();
         scheduledExecutorService.shutdown();
     }
 }
