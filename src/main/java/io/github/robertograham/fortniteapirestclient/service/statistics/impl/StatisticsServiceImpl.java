@@ -28,7 +28,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public StatsGroup getSoloDuoSquadBattleRoyaleStatisticsByPlatform(GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest) throws IOException {
         return new StatisticListStatGroupMapper(getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.getPlatform())
-                .mapFrom(getBattleRoyaleStatistics(GetBattleRoyaleStatisticsRequest.Builder.newInstance()
+                .mapFrom(getBattleRoyaleStatistics(GetBattleRoyaleStatisticsRequest.builder()
                         .accountId(getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.getAccountId())
                         .authHeaderValue(getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.getAuthHeaderValue())
                         .build()));

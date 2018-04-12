@@ -1,55 +1,45 @@
 package io.github.robertograham.fortniteapirestclient.service.authentication.model.request;
 
-import io.github.robertograham.fortniteapirestclient.util.IBuilder;
+import java.util.Objects;
 
 public class KillSessionRequest {
 
-    private String accessToken;
-    private String authHeaderValue;
+    private final String accessToken;
+    private final String authHeaderValue;
+
+    KillSessionRequest(String accessToken, String authHeaderValue) {
+        this.accessToken = accessToken;
+        this.authHeaderValue = authHeaderValue;
+    }
+
+    public static KillSessionRequestBuilder builder() {
+        return new KillSessionRequestBuilder();
+    }
 
     public String getAccessToken() {
         return accessToken;
-    }
-
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
     }
 
     public String getAuthHeaderValue() {
         return authHeaderValue;
     }
 
-    public void setAuthHeaderValue(String authHeaderValue) {
-        this.authHeaderValue = authHeaderValue;
+    @Override
+    public boolean equals(Object object) {
+        if (this == object)
+            return true;
+
+        if (object == null || getClass() != object.getClass())
+            return false;
+
+        KillSessionRequest killSessionRequest = (KillSessionRequest) object;
+
+        return Objects.equals(accessToken, killSessionRequest.accessToken) &&
+                Objects.equals(authHeaderValue, killSessionRequest.authHeaderValue);
     }
 
-    public static class Builder implements IBuilder<KillSessionRequest> {
-
-        private KillSessionRequest killSessionRequest;
-
-        private Builder() {
-            killSessionRequest = new KillSessionRequest();
-        }
-
-        public static Builder newInstance() {
-            return new Builder();
-        }
-
-        public Builder accessToken(String accessToken) {
-            killSessionRequest.setAccessToken(accessToken);
-
-            return this;
-        }
-
-        public Builder authHeaderValue(String authHeaderValue) {
-            killSessionRequest.setAuthHeaderValue(authHeaderValue);
-
-            return this;
-        }
-
-        @Override
-        public KillSessionRequest build() {
-            return killSessionRequest;
-        }
+    @Override
+    public int hashCode() {
+        return Objects.hash(accessToken, authHeaderValue);
     }
 }

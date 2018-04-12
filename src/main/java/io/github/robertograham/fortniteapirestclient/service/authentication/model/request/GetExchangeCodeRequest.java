@@ -1,40 +1,38 @@
 package io.github.robertograham.fortniteapirestclient.service.authentication.model.request;
 
-import io.github.robertograham.fortniteapirestclient.util.IBuilder;
+import java.util.Objects;
 
 public class GetExchangeCodeRequest {
 
-    private String authHeaderValue;
+    private final String authHeaderValue;
+
+    GetExchangeCodeRequest(String authHeaderValue) {
+        this.authHeaderValue = authHeaderValue;
+    }
+
+    public static GetExchangeCodeRequestBuilder builder() {
+        return new GetExchangeCodeRequestBuilder();
+    }
 
     public String getAuthHeaderValue() {
         return authHeaderValue;
     }
 
-    public void setAuthHeaderValue(String authHeaderValue) {
-        this.authHeaderValue = authHeaderValue;
+    @Override
+    public boolean equals(Object object) {
+        if (this == object)
+            return true;
+
+        if (object == null || getClass() != object.getClass())
+            return false;
+
+        GetExchangeCodeRequest that = (GetExchangeCodeRequest) object;
+
+        return Objects.equals(authHeaderValue, that.authHeaderValue);
     }
 
-    public static class Builder implements IBuilder<GetExchangeCodeRequest> {
-
-        private GetExchangeCodeRequest getExchangeCodeRequest;
-
-        private Builder() {
-            getExchangeCodeRequest = new GetExchangeCodeRequest();
-        }
-
-        public static Builder newInstance() {
-            return new GetExchangeCodeRequest.Builder();
-        }
-
-        public Builder authHeaderValue(String authHeaderValue) {
-            getExchangeCodeRequest.setAuthHeaderValue(authHeaderValue);
-
-            return this;
-        }
-
-        @Override
-        public GetExchangeCodeRequest build() {
-            return getExchangeCodeRequest;
-        }
+    @Override
+    public int hashCode() {
+        return Objects.hash(authHeaderValue);
     }
 }

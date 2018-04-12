@@ -1,6 +1,6 @@
 package io.github.robertograham.fortniteapirestclient.util;
 
-public interface IBuilder<T> {
+public interface Builder<T> {
 
     T build();
 }

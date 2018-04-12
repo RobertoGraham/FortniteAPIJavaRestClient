@@ -1,55 +1,45 @@
 package io.github.robertograham.fortniteapirestclient.service.statistics.model.request;
 
-import io.github.robertograham.fortniteapirestclient.util.IBuilder;
+import java.util.Objects;
 
 public class GetBattleRoyaleStatisticsRequest {
 
-    private String accountId;
-    private String authHeaderValue;
+    private final String accountId;
+    private final String authHeaderValue;
+
+    GetBattleRoyaleStatisticsRequest(String accountId, String authHeaderValue) {
+        this.accountId = accountId;
+        this.authHeaderValue = authHeaderValue;
+    }
+
+    public static GetBattleRoyaleStatisticsRequestBuilder builder() {
+        return new GetBattleRoyaleStatisticsRequestBuilder();
+    }
 
     public String getAccountId() {
         return accountId;
-    }
-
-    public void setAccountId(String accountId) {
-        this.accountId = accountId;
     }
 
     public String getAuthHeaderValue() {
         return authHeaderValue;
     }
 
-    public void setAuthHeaderValue(String authHeaderValue) {
-        this.authHeaderValue = authHeaderValue;
+    @Override
+    public boolean equals(Object object) {
+        if (this == object)
+            return true;
+
+        if (object == null || getClass() != object.getClass())
+            return false;
+
+        GetBattleRoyaleStatisticsRequest getBattleRoyaleStatisticsRequest = (GetBattleRoyaleStatisticsRequest) object;
+
+        return Objects.equals(accountId, getBattleRoyaleStatisticsRequest.accountId) &&
+                Objects.equals(authHeaderValue, getBattleRoyaleStatisticsRequest.authHeaderValue);
     }
 
-    public static class Builder implements IBuilder<GetBattleRoyaleStatisticsRequest> {
-
-        private GetBattleRoyaleStatisticsRequest getBattleRoyaleStatisticsRequest;
-
-        private Builder() {
-            getBattleRoyaleStatisticsRequest = new GetBattleRoyaleStatisticsRequest();
-        }
-
-        public static Builder newInstance() {
-            return new Builder();
-        }
-
-        public Builder accountId(String accountId) {
-            getBattleRoyaleStatisticsRequest.setAccountId(accountId);
-
-            return this;
-        }
-
-        public Builder authHeaderValue(String authHeaderValue) {
-            getBattleRoyaleStatisticsRequest.setAuthHeaderValue(authHeaderValue);
-
-            return this;
-        }
-
-        @Override
-        public GetBattleRoyaleStatisticsRequest build() {
-            return getBattleRoyaleStatisticsRequest;
-        }
+    @Override
+    public int hashCode() {
+        return Objects.hash(accountId, authHeaderValue);
     }
 }

@@ -1,55 +1,46 @@
 package io.github.robertograham.fortniteapirestclient.service.account.model.request;
 
-import io.github.robertograham.fortniteapirestclient.util.IBuilder;
+import java.util.Objects;
 
 public class GetAccountRequest {
 
-    private String accountName;
-    private String authHeaderValue;
+    private final String accountName;
+    private final String authHeaderValue;
+
+    GetAccountRequest(String accountName, String authHeaderValue) {
+        this.accountName = accountName;
+        this.authHeaderValue = authHeaderValue;
+    }
+
+    public static GetAccountRequestBuilder builder() {
+        return new GetAccountRequestBuilder();
+    }
 
     public String getAuthHeaderValue() {
         return authHeaderValue;
-    }
-
-    public void setAuthHeaderValue(String authHeaderValue) {
-        this.authHeaderValue = authHeaderValue;
     }
 
     public String getAccountName() {
         return accountName;
     }
 
-    public void setAccountName(String accountName) {
-        this.accountName = accountName;
+    @Override
+    public boolean equals(Object object) {
+        if (this == object)
+            return true;
+
+        if (object == null || getClass() != object.getClass())
+            return false;
+
+        GetAccountRequest getAccountRequest = (GetAccountRequest) object;
+
+        return Objects.equals(accountName, getAccountRequest.accountName) &&
+                Objects.equals(authHeaderValue, getAccountRequest.authHeaderValue);
     }
 
-    public static class Builder implements IBuilder<GetAccountRequest> {
+    @Override
+    public int hashCode() {
 
-        private GetAccountRequest getAccountRequest;
-
-        private Builder() {
-            getAccountRequest = new GetAccountRequest();
-        }
-
-        public static Builder newInstance() {
-            return new GetAccountRequest.Builder();
-        }
-
-        public Builder accountName(String accountName) {
-            getAccountRequest.setAccountName(accountName);
-
-            return this;
-        }
-
-        public Builder authHeaderValue(String authHeaderValue) {
-            getAccountRequest.setAuthHeaderValue(authHeaderValue);
-
-            return this;
-        }
-
-        @Override
-        public GetAccountRequest build() {
-            return getAccountRequest;
-        }
+        return Objects.hash(accountName, authHeaderValue);
     }
 }

@@ -171,9 +171,10 @@ public class OAuthToken {
                 ", internalClient=" + internalClient +
                 ", clientService='" + clientService + '\'' +
                 ", lastPasswordValidation=" + lastPasswordValidation +
+                ", perms=" + perms +
                 ", app='" + app + '\'' +
                 ", inAppId='" + inAppId + '\'' +
-                ", perms=" + perms +
                 '}';
     }
+
 }
