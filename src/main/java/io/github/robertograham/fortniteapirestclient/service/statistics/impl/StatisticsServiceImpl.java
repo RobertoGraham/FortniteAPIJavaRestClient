@@ -7,28 +7,34 @@ import io.github.robertograham.fortniteapirestclient.service.statistics.model.St
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetBattleRoyaleStatisticsRequest;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest;
 import io.github.robertograham.fortniteapirestclient.util.Endpoint;
-import io.github.robertograham.fortniteapirestclient.util.ObjectMappingResponseHandlerProducer;
+import io.github.robertograham.fortniteapirestclient.util.ResponseHandlerProvider;
 import org.apache.http.HttpHeaders;
-import org.apache.http.client.fluent.Request;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class StatisticsServiceImpl implements StatisticsService {
 
-    private final ObjectMappingResponseHandlerProducer objectMappingResponseHandlerProducer;
+    private final CloseableHttpClient httpClient;
+    private final ResponseHandlerProvider responseHandlerProvider;
 
-    public StatisticsServiceImpl(ObjectMappingResponseHandlerProducer objectMappingResponseHandlerProducer) {
-        this.objectMappingResponseHandlerProducer = objectMappingResponseHandlerProducer;
+    public StatisticsServiceImpl(CloseableHttpClient httpClient, ResponseHandlerProvider responseHandlerProvider) {
+        this.httpClient = httpClient;
+        this.responseHandlerProvider = responseHandlerProvider;
     }
 
     @Override
     public List<Statistic> getBattleRoyaleStatistics(GetBattleRoyaleStatisticsRequest getBattleRoyaleStatisticsRequest) throws IOException {
-        return Arrays.asList(Request.Get(Endpoint.statsBattleRoyale(getBattleRoyaleStatisticsRequest.getAccountId()))
-                .addHeader(HttpHeaders.AUTHORIZATION, getBattleRoyaleStatisticsRequest.getAuthHeaderValue())
-                .execute()
-                .handleResponse(objectMappingResponseHandlerProducer.produceFor(Statistic[].class)));
+        HttpGet httpGet = new HttpGet(Endpoint.statsBattleRoyale(getBattleRoyaleStatisticsRequest.getAccountId()));
+        httpGet.addHeader(HttpHeaders.AUTHORIZATION, getBattleRoyaleStatisticsRequest.getAuthHeaderValue());
+
+        Statistic[] statistics = httpClient.execute(httpGet, responseHandlerProvider.handlerFor(Statistic[].class));
+
+        return statistics != null ? Arrays.asList(statistics) : new ArrayList<>();
     }
 
     @Override

@@ -40,7 +40,6 @@ public class GetAccountRequest {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(accountName, authHeaderValue);
     }
 }

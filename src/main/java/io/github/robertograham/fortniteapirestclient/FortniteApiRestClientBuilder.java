@@ -1,11 +1,10 @@
 package io.github.robertograham.fortniteapirestclient;
 
 import io.github.robertograham.fortniteapirestclient.domain.Credentials;
-import io.github.robertograham.fortniteapirestclient.service.account.impl.AccountServiceImpl;
-import io.github.robertograham.fortniteapirestclient.service.authentication.impl.AuthenticationServiceImpl;
-import io.github.robertograham.fortniteapirestclient.service.statistics.impl.StatisticsServiceImpl;
 import io.github.robertograham.fortniteapirestclient.util.Builder;
-import io.github.robertograham.fortniteapirestclient.util.ObjectMappingResponseHandlerProducer;
+import io.github.robertograham.fortniteapirestclient.util.ResponseHandlerProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 
 import java.util.Objects;
 import java.util.concurrent.Executors;
@@ -27,14 +26,15 @@ public class FortniteApiRestClientBuilder implements Builder<FortniteApiRestClie
 
     @Override
     public FortniteApiRestClient build() {
-        ObjectMappingResponseHandlerProducer objectMappingResponseHandlerProducer = ObjectMappingResponseHandlerProducer.builder()
+        ResponseHandlerProvider responseHandlerProvider = ResponseHandlerProvider.builder()
                 .build();
+
+        CloseableHttpClient httpClient = HttpClients.createDefault();
 
         return new FortniteApiRestClient(
                 credentials,
-                new AuthenticationServiceImpl(objectMappingResponseHandlerProducer),
-                new AccountServiceImpl(objectMappingResponseHandlerProducer),
-                new StatisticsServiceImpl(objectMappingResponseHandlerProducer),
+                httpClient,
+                responseHandlerProvider,
                 Executors.newScheduledThreadPool(1),
                 autoLoginDisabled
         );

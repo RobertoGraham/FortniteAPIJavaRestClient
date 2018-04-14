@@ -3,19 +3,24 @@ package io.github.robertograham.fortniteapirestclient;
 import io.github.robertograham.fortniteapirestclient.domain.Credentials;
 import io.github.robertograham.fortniteapirestclient.domain.StatsGroup;
 import io.github.robertograham.fortniteapirestclient.service.account.AccountService;
+import io.github.robertograham.fortniteapirestclient.service.account.impl.AccountServiceImpl;
 import io.github.robertograham.fortniteapirestclient.service.account.model.Account;
 import io.github.robertograham.fortniteapirestclient.service.account.model.request.GetAccountRequest;
 import io.github.robertograham.fortniteapirestclient.service.authentication.AuthenticationService;
+import io.github.robertograham.fortniteapirestclient.service.authentication.impl.AuthenticationServiceImpl;
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.ExchangeCode;
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.OAuthToken;
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.request.GetExchangeCodeRequest;
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.request.GetOAuthTokenRequest;
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.request.KillSessionRequest;
 import io.github.robertograham.fortniteapirestclient.service.statistics.StatisticsService;
+import io.github.robertograham.fortniteapirestclient.service.statistics.impl.StatisticsServiceImpl;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.Statistic;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetBattleRoyaleStatisticsRequest;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest;
+import io.github.robertograham.fortniteapirestclient.util.ResponseHandlerProvider;
 import org.apache.http.NameValuePair;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,13 +41,15 @@ public class FortniteApiRestClient implements Closeable {
     private final AccountService accountService;
     private final StatisticsService statisticsService;
     private final ScheduledExecutorService scheduledExecutorService;
+    private final CloseableHttpClient httpClient;
     private OAuthToken sessionToken;
 
-    FortniteApiRestClient(Credentials credentials, AuthenticationService authenticationService, AccountService accountService, StatisticsService statisticsService, ScheduledExecutorService scheduledExecutorService, boolean autoLoginDisabled) {
+    FortniteApiRestClient(Credentials credentials, CloseableHttpClient httpClient, ResponseHandlerProvider responseHandlerProvider, ScheduledExecutorService scheduledExecutorService, boolean autoLoginDisabled) {
         this.credentials = credentials;
-        this.authenticationService = authenticationService;
-        this.accountService = accountService;
-        this.statisticsService = statisticsService;
+        this.httpClient = httpClient;
+        this.authenticationService = new AuthenticationServiceImpl(httpClient, responseHandlerProvider);
+        this.accountService = new AccountServiceImpl(httpClient, responseHandlerProvider);
+        this.statisticsService = new StatisticsServiceImpl(httpClient, responseHandlerProvider);
         this.scheduledExecutorService = scheduledExecutorService;
 
         scheduledExecutorService.scheduleWithFixedDelay(tokenRefreshRunnable(), 1, 1, TimeUnit.SECONDS);
@@ -103,7 +110,7 @@ public class FortniteApiRestClient implements Closeable {
                 .authHeaderValue("basic " + credentials.getFortniteClientToken())
                 .additionalFormEntries(new NameValuePair[]{
                         new BasicNameValuePair("exchange_code", exchangeCode.getCode()),
-                        new BasicNameValuePair("token_type", "egl")
+                        new BasicNameValuePair("token_type", "eg1")
                 })
                 .build());
     }
@@ -179,5 +186,11 @@ public class FortniteApiRestClient implements Closeable {
 
         if (sessionToken != null)
             killSession();
+
+        try {
+            httpClient.close();
+        } catch (IOException e) {
+            LOG.error("IOException while closing CloseableHttpClient");
+        }
     }
 }
