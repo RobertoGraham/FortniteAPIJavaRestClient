@@ -1,9 +1,29 @@
 package io.github.robertograham.fortniteapirestclient.service.account.model;
 
+import java.util.Map;
+
 public class Account {
 
     private String id;
     private String displayName;
+    private Map<String, Object> links;
+    private Map<String, ExternalAuth> externalAuths;
+
+    public Map<String, Object> getLinks() {
+        return links;
+    }
+
+    public void setLinks(Map<String, Object> links) {
+        this.links = links;
+    }
+
+    public Map<String, ExternalAuth> getExternalAuths() {
+        return externalAuths;
+    }
+
+    public void setExternalAuths(Map<String, ExternalAuth> externalAuths) {
+        this.externalAuths = externalAuths;
+    }
 
     public String getId() {
         return id;
@@ -26,6 +46,8 @@ public class Account {
         return "Account{" +
                 "id='" + id + '\'' +
                 ", displayName='" + displayName + '\'' +
+                ", links=" + links +
+                ", externalAuths=" + externalAuths +
                 '}';
     }
 }

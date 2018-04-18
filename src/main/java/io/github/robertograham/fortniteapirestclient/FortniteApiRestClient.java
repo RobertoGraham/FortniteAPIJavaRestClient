@@ -1,6 +1,7 @@
 package io.github.robertograham.fortniteapirestclient;
 
 import io.github.robertograham.fortniteapirestclient.domain.Credentials;
+import io.github.robertograham.fortniteapirestclient.domain.EnhancedLeaderBoard;
 import io.github.robertograham.fortniteapirestclient.domain.StatsGroup;
 import io.github.robertograham.fortniteapirestclient.service.account.AccountService;
 import io.github.robertograham.fortniteapirestclient.service.account.impl.AccountServiceImpl;
@@ -13,6 +14,10 @@ import io.github.robertograham.fortniteapirestclient.service.authentication.mode
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.request.GetExchangeCodeRequest;
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.request.GetOAuthTokenRequest;
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.request.KillSessionRequest;
+import io.github.robertograham.fortniteapirestclient.service.leaderBoard.LeaderBoardService;
+import io.github.robertograham.fortniteapirestclient.service.leaderBoard.impl.LeaderBoardServiceImpl;
+import io.github.robertograham.fortniteapirestclient.service.leaderBoard.model.LeaderBoard;
+import io.github.robertograham.fortniteapirestclient.service.leaderBoard.model.request.GetWinsLeaderBoardRequest;
 import io.github.robertograham.fortniteapirestclient.service.statistics.StatisticsService;
 import io.github.robertograham.fortniteapirestclient.service.statistics.impl.StatisticsServiceImpl;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.Statistic;
@@ -41,15 +46,17 @@ public class FortniteApiRestClient implements Closeable {
     private final AccountService accountService;
     private final StatisticsService statisticsService;
     private final ScheduledExecutorService scheduledExecutorService;
+    private final LeaderBoardService leaderBoardService;
     private final CloseableHttpClient httpClient;
     private OAuthToken sessionToken;
 
     FortniteApiRestClient(Credentials credentials, CloseableHttpClient httpClient, ResponseHandlerProvider responseHandlerProvider, ScheduledExecutorService scheduledExecutorService, boolean autoLoginDisabled) {
         this.credentials = credentials;
         this.httpClient = httpClient;
-        this.authenticationService = new AuthenticationServiceImpl(httpClient, responseHandlerProvider);
-        this.accountService = new AccountServiceImpl(httpClient, responseHandlerProvider);
-        this.statisticsService = new StatisticsServiceImpl(httpClient, responseHandlerProvider);
+        authenticationService = new AuthenticationServiceImpl(httpClient, responseHandlerProvider);
+        accountService = new AccountServiceImpl(httpClient, responseHandlerProvider);
+        statisticsService = new StatisticsServiceImpl(httpClient, responseHandlerProvider);
+        leaderBoardService = new LeaderBoardServiceImpl(httpClient, responseHandlerProvider, accountService);
         this.scheduledExecutorService = scheduledExecutorService;
 
         scheduledExecutorService.scheduleWithFixedDelay(tokenRefreshRunnable(), 1, 1, TimeUnit.SECONDS);
@@ -158,6 +165,34 @@ public class FortniteApiRestClient implements Closeable {
                     .build());
         } catch (IOException e) {
             LOG.error("IOException while looking up stats for accountId: {}", accountId, e);
+        }
+
+        return null;
+    }
+
+    public LeaderBoard getWinsLeaderBoard(String platform, String partyType) {
+        try {
+            return leaderBoardService.getWinsLeaderBoard(GetWinsLeaderBoardRequest.builder()
+                    .platform(platform)
+                    .partyType(partyType)
+                    .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
+                    .build());
+        } catch (IOException e) {
+            LOG.error("IOException while fetching wins leaderboard for platform: {}, and partyType: {}", platform, partyType, e);
+        }
+
+        return null;
+    }
+
+    public EnhancedLeaderBoard getEnhancedWinsLeaderBoard(String platform, String partyType) {
+        try {
+            return leaderBoardService.getEnhancedWinsLeaderBoard(GetWinsLeaderBoardRequest.builder()
+                    .platform(platform)
+                    .partyType(partyType)
+                    .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
+                    .build());
+        } catch (IOException e) {
+            LOG.error("IOException while fetching enhanced wins leaderboard for platform: {}, and partyType: {}", platform, partyType, e);
         }
 
         return null;
