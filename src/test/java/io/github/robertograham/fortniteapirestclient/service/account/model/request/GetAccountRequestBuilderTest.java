@@ -1,14 +1,18 @@
 package io.github.robertograham.fortniteapirestclient.service.account.model.request;
 
-import org.junit.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.platform.runner.JUnitPlatform;
+import org.junit.runner.RunWith;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class GetAccountRequestBuilderTest {
+@RunWith(JUnitPlatform.class)
+class GetAccountRequestBuilderTest {
 
     @Test
-    public void build_correctlyBuildsGetAccountRequest() {
+    @DisplayName("Test build")
+    void build_correctlyBuildsGetAccountRequest() {
         String accountName = "accountName";
         String authHeaderValue = "authHeaderValue";
 
@@ -17,7 +21,7 @@ public class GetAccountRequestBuilderTest {
                 .authHeaderValue(authHeaderValue)
                 .build();
 
-        assertThat(getAccountRequest.getAccountName(), equalTo(accountName));
-        assertThat(getAccountRequest.getAuthHeaderValue(), equalTo(authHeaderValue));
+        assertEquals(getAccountRequest.getAccountName(), accountName);
+        assertEquals(getAccountRequest.getAuthHeaderValue(), authHeaderValue);
     }
 }
