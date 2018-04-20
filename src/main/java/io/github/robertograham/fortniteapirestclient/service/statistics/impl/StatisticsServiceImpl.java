@@ -11,14 +11,17 @@ import io.github.robertograham.fortniteapirestclient.util.ResponseHandlerProvide
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class StatisticsServiceImpl implements StatisticsService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(StatisticsServiceImpl.class);
     private final CloseableHttpClient httpClient;
     private final ResponseHandlerProvider responseHandlerProvider;
 
@@ -28,21 +31,40 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     @Override
-    public List<Statistic> getBattleRoyaleStatistics(GetBattleRoyaleStatisticsRequest getBattleRoyaleStatisticsRequest) throws IOException {
-        HttpGet httpGet = new HttpGet(Endpoint.statsBattleRoyale(getBattleRoyaleStatisticsRequest.getAccountId()));
-        httpGet.addHeader(HttpHeaders.AUTHORIZATION, getBattleRoyaleStatisticsRequest.getAuthHeaderValue());
+    public CompletableFuture<List<Statistic>> getBattleRoyaleStatistics(GetBattleRoyaleStatisticsRequest getBattleRoyaleStatisticsRequest) {
+        return CompletableFuture.supplyAsync(() -> {
+            HttpGet httpGet = new HttpGet(Endpoint.statsBattleRoyale(getBattleRoyaleStatisticsRequest.getAccountId()));
+            httpGet.addHeader(HttpHeaders.AUTHORIZATION, getBattleRoyaleStatisticsRequest.getAuthHeaderValue());
 
-        Statistic[] statistics = httpClient.execute(httpGet, responseHandlerProvider.handlerFor(Statistic[].class));
+            Statistic[] statistics;
 
-        return statistics != null ? Arrays.asList(statistics) : new ArrayList<>();
+            try {
+                statistics = httpClient.execute(httpGet, responseHandlerProvider.handlerFor(Statistic[].class));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            return statistics;
+
+        }).handle(((statistics, throwable) -> {
+            if (statistics == null) {
+                LOG.error("Error while fetching statistics for account id {}", getBattleRoyaleStatisticsRequest.getAccountId(), throwable);
+
+                return null;
+            }
+
+            return Arrays.asList(statistics);
+        }));
     }
 
     @Override
-    public StatsGroup getSoloDuoSquadBattleRoyaleStatisticsByPlatform(GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest) throws IOException {
-        return new StatisticListStatGroupMapper(getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.getPlatform())
-                .mapFrom(getBattleRoyaleStatistics(GetBattleRoyaleStatisticsRequest.builder()
-                        .accountId(getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.getAccountId())
-                        .authHeaderValue(getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.getAuthHeaderValue())
-                        .build()));
+    public CompletableFuture<StatsGroup> getSoloDuoSquadBattleRoyaleStatisticsByPlatform(GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest) {
+        return getBattleRoyaleStatistics(GetBattleRoyaleStatisticsRequest.builder()
+                .accountId(getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.getAccountId())
+                .authHeaderValue(getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.getAuthHeaderValue())
+                .build())
+                .thenApplyAsync(statistics -> statistics != null ? new StatisticListStatGroupMapper(getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.getPlatform())
+                        .mapFrom(statistics) : null);
+
     }
 }

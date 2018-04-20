@@ -9,13 +9,17 @@ import io.github.robertograham.fortniteapirestclient.util.ResponseHandlerProvide
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class AccountServiceImpl implements AccountService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(AccountServiceImpl.class);
     private final CloseableHttpClient httpClient;
     private final ResponseHandlerProvider responseHandlerProvider;
 
@@ -25,20 +29,51 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account getAccount(GetAccountRequest getAccountRequest) throws IOException {
-        HttpGet httpGet = new HttpGet(Endpoint.lookup(getAccountRequest.getAccountName()));
-        httpGet.addHeader(HttpHeaders.AUTHORIZATION, getAccountRequest.getAuthHeaderValue());
+    public CompletableFuture<Account> getAccount(GetAccountRequest getAccountRequest) {
+        return CompletableFuture.supplyAsync(() -> {
+            Account account;
 
-        return httpClient.execute(httpGet, responseHandlerProvider.handlerFor(Account.class));
+            HttpGet httpGet = new HttpGet(Endpoint.lookup(getAccountRequest.getAccountName()));
+            httpGet.addHeader(HttpHeaders.AUTHORIZATION, getAccountRequest.getAuthHeaderValue());
+
+            try {
+                account = httpClient.execute(httpGet, responseHandlerProvider.handlerFor(Account.class));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            return account;
+        }).handle((account, throwable) -> {
+            if (account == null)
+                LOG.error("Account for name {} not found", getAccountRequest.getAccountName(), throwable);
+
+            return account;
+        });
     }
 
     @Override
-    public List<Account> getAccounts(GetAccountsRequest getAccountsRequest) throws IOException {
-        HttpGet httpGet = new HttpGet(Endpoint.info(getAccountsRequest.getAccountIds()));
-        httpGet.addHeader(HttpHeaders.AUTHORIZATION, getAccountsRequest.getAuthHeaderValue());
+    public CompletableFuture<List<Account>> getAccounts(GetAccountsRequest getAccountsRequest) {
+        return CompletableFuture.supplyAsync(() -> {
+            Account[] accounts;
 
-        Account[] accounts = httpClient.execute(httpGet, responseHandlerProvider.handlerFor(Account[].class));
+            HttpGet httpGet = new HttpGet(Endpoint.info(getAccountsRequest.getAccountIds()));
+            httpGet.addHeader(HttpHeaders.AUTHORIZATION, getAccountsRequest.getAuthHeaderValue());
 
-        return accounts == null ? null : Arrays.asList(accounts);
+            try {
+                accounts = httpClient.execute(httpGet, responseHandlerProvider.handlerFor(Account[].class));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            return accounts;
+        }).handle(((accounts, throwable) -> {
+            if (accounts == null) {
+                LOG.error("Failed to fetch accounts for account ids {}", getAccountsRequest.getAccountIds(), throwable);
+
+                return null;
+            }
+
+            return Arrays.asList(accounts);
+        }));
     }
 }

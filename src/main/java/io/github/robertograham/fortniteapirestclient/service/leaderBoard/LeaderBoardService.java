@@ -5,10 +5,11 @@ import io.github.robertograham.fortniteapirestclient.service.leaderBoard.model.L
 import io.github.robertograham.fortniteapirestclient.service.leaderBoard.model.request.GetWinsLeaderBoardRequest;
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 public interface LeaderBoardService {
 
-    LeaderBoard getWinsLeaderBoard(GetWinsLeaderBoardRequest getWinsLeaderBoardRequest) throws IOException;
+    CompletableFuture<LeaderBoard> getWinsLeaderBoard(GetWinsLeaderBoardRequest getWinsLeaderBoardRequest);
 
-    EnhancedLeaderBoard getEnhancedWinsLeaderBoard(GetWinsLeaderBoardRequest getWinsLeaderBoardRequest) throws IOException;
+    CompletableFuture<EnhancedLeaderBoard> getEnhancedWinsLeaderBoard(GetWinsLeaderBoardRequest getWinsLeaderBoardRequest);
 }

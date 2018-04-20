@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -130,72 +131,47 @@ public class FortniteApiRestClient implements Closeable {
         sessionToken = getFortniteApiOAuthTokenFromExchangeCode(exchangeCode);
     }
 
-    public Account getAccount(String accountName) {
-        try {
-            return accountService.getAccount(GetAccountRequest.builder()
-                    .accountName(accountName)
-                    .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
-                    .build());
-        } catch (IOException e) {
-            LOG.error("IOException while looking up account: {}", accountName, e);
-        }
+    public CompletableFuture<Account> account(String accountName) {
+        return accountService.getAccount(GetAccountRequest.builder()
+                .accountName(accountName)
+                .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
+                .build());
 
-        return null;
     }
 
-    public StatsGroup getEnhancedBattleRoyaleStatsByPlatform(String accountId, String platform) {
-        try {
-            return statisticsService.getSoloDuoSquadBattleRoyaleStatisticsByPlatform(GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.builder()
-                    .accountId(accountId)
-                    .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
-                    .platform(platform)
-                    .build());
-        } catch (IOException e) {
-            LOG.error("IOException while looking up stats on platform: {}, for accountId: {}", platform, accountId, e);
-        }
+    public CompletableFuture<StatsGroup> enhancedBattleRoyaleStatsByPlatform(String accountId, String platform) {
+        return statisticsService.getSoloDuoSquadBattleRoyaleStatisticsByPlatform(GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.builder()
+                .accountId(accountId)
+                .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
+                .platform(platform)
+                .build());
 
-        return null;
     }
 
-    public List<Statistic> getBattleRoyaleStats(String accountId) {
-        try {
-            return statisticsService.getBattleRoyaleStatistics(GetBattleRoyaleStatisticsRequest.builder()
-                    .accountId(accountId)
-                    .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
-                    .build());
-        } catch (IOException e) {
-            LOG.error("IOException while looking up stats for accountId: {}", accountId, e);
-        }
+    public CompletableFuture<List<Statistic>> battleRoyaleStats(String accountId) {
+        return statisticsService.getBattleRoyaleStatistics(GetBattleRoyaleStatisticsRequest.builder()
+                .accountId(accountId)
+                .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
+                .build());
 
-        return null;
     }
 
-    public LeaderBoard getWinsLeaderBoard(String platform, String partyType) {
-        try {
-            return leaderBoardService.getWinsLeaderBoard(GetWinsLeaderBoardRequest.builder()
-                    .platform(platform)
-                    .partyType(partyType)
-                    .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
-                    .build());
-        } catch (IOException e) {
-            LOG.error("IOException while fetching wins leaderboard for platform: {}, and partyType: {}", platform, partyType, e);
-        }
+    public CompletableFuture<LeaderBoard> winsLeaderBoard(String platform, String partyType) {
+        return leaderBoardService.getWinsLeaderBoard(GetWinsLeaderBoardRequest.builder()
+                .platform(platform)
+                .partyType(partyType)
+                .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
+                .build());
 
-        return null;
     }
 
-    public EnhancedLeaderBoard getEnhancedWinsLeaderBoard(String platform, String partyType) {
-        try {
-            return leaderBoardService.getEnhancedWinsLeaderBoard(GetWinsLeaderBoardRequest.builder()
-                    .platform(platform)
-                    .partyType(partyType)
-                    .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
-                    .build());
-        } catch (IOException e) {
-            LOG.error("IOException while fetching enhanced wins leaderboard for platform: {}, and partyType: {}", platform, partyType, e);
-        }
+    public CompletableFuture<EnhancedLeaderBoard> enhancedWinsLeaderBoard(String platform, String partyType) {
+        return leaderBoardService.getEnhancedWinsLeaderBoard(GetWinsLeaderBoardRequest.builder()
+                .platform(platform)
+                .partyType(partyType)
+                .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
+                .build());
 
-        return null;
     }
 
     private void killSession() {
