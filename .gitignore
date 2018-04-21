@@ -39,6 +39,6 @@ buildNumber.properties
 # Avoid ignoring Maven wrapper jar file (.jar files are usually ignored)
 !/.mvn/wrapper/maven-wrapper.jar
 
-src/main/java/io/github/robertograham/fortniteapirestclient/Main.java
+src/main/java/Main.java
 
 lib/

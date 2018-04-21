@@ -192,6 +192,10 @@ public class FortniteApiRestClient implements Closeable {
         sessionToken = oAuthToken;
     }
 
+    public boolean isLoggedIn() {
+        return sessionToken != null && LocalDateTime.now().isBefore(sessionToken.getExpiresAt());
+    }
+
     @Override
     public void close() {
         LOG.debug("Closing FortniteApiRestClient");
