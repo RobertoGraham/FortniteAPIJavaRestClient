@@ -6,13 +6,13 @@ import io.github.robertograham.fortniteapirestclient.service.authentication.mode
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.request.GetOAuthTokenRequest;
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.request.KillSessionRequest;
 
-import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 public interface AuthenticationService {
 
-    OAuthToken getOAuthToken(GetOAuthTokenRequest getOAuthTokenRequest) throws IOException;
+    CompletableFuture<OAuthToken> getOAuthToken(GetOAuthTokenRequest getOAuthTokenRequest);
 
-    ExchangeCode getExchangeCode(GetExchangeCodeRequest getExchangeCodeRequest) throws IOException;
+    CompletableFuture<ExchangeCode> getExchangeCode(GetExchangeCodeRequest getExchangeCodeRequest);
 
-    void killSession(KillSessionRequest killSessionRequest) throws IOException;
+    CompletableFuture<Void> killSession(KillSessionRequest killSessionRequest);
 }

@@ -15,14 +15,18 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class AuthenticationServiceImpl implements AuthenticationService {
 
+    private static Logger LOG = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
     private final CloseableHttpClient httpClient;
     private final ResponseHandlerProvider responseHandlerProvider;
 
@@ -32,32 +36,75 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public OAuthToken getOAuthToken(GetOAuthTokenRequest getOAuthTokenRequest) throws IOException {
-        HttpPost httpPost = new HttpPost(Endpoint.OAUTH_TOKEN);
-        httpPost.setEntity(new UrlEncodedFormEntity(Stream.concat(Stream.of(
-                new BasicNameValuePair("grant_type", getOAuthTokenRequest.getGrantType()),
-                new BasicNameValuePair("includePerms", "true")
-                ),
-                Arrays.stream(getOAuthTokenRequest.getAdditionalFormEntries())
-        ).collect(Collectors.toList())));
-        httpPost.setHeader(HttpHeaders.AUTHORIZATION, getOAuthTokenRequest.getAuthHeaderValue());
+    public CompletableFuture<OAuthToken> getOAuthToken(GetOAuthTokenRequest getOAuthTokenRequest) {
+        return CompletableFuture.supplyAsync(() -> {
+            OAuthToken oAuthToken;
 
-        return httpClient.execute(httpPost, responseHandlerProvider.handlerFor(OAuthToken.class));
+            try {
+                HttpPost httpPost = new HttpPost(Endpoint.OAUTH_TOKEN);
+                httpPost.setEntity(new UrlEncodedFormEntity(Stream.concat(Stream.of(
+                        new BasicNameValuePair("grant_type", getOAuthTokenRequest.getGrantType()),
+                        new BasicNameValuePair("includePerms", "true")
+                        ),
+                        Arrays.stream(getOAuthTokenRequest.getAdditionalFormEntries())
+                ).collect(Collectors.toList())));
+                httpPost.setHeader(HttpHeaders.AUTHORIZATION, getOAuthTokenRequest.getAuthHeaderValue());
+
+                oAuthToken = httpClient.execute(httpPost, responseHandlerProvider.handlerFor(OAuthToken.class));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            return oAuthToken;
+        }).handle((oAuthToken, throwable) -> {
+            if (oAuthToken == null)
+                LOG.error("Failed to fetch oauth token for request {}", getOAuthTokenRequest, throwable);
+
+            return oAuthToken;
+        });
     }
 
     @Override
-    public ExchangeCode getExchangeCode(GetExchangeCodeRequest getExchangeCodeRequest) throws IOException {
-        HttpGet httpGet = new HttpGet(Endpoint.OAUTH_EXCHANGE);
-        httpGet.addHeader(HttpHeaders.AUTHORIZATION, getExchangeCodeRequest.getAuthHeaderValue());
+    public CompletableFuture<ExchangeCode> getExchangeCode(GetExchangeCodeRequest getExchangeCodeRequest) {
+        return CompletableFuture.supplyAsync(() -> {
+            ExchangeCode exchangeCode;
 
-        return httpClient.execute(httpGet, responseHandlerProvider.handlerFor(ExchangeCode.class));
+            HttpGet httpGet = new HttpGet(Endpoint.OAUTH_EXCHANGE);
+            httpGet.addHeader(HttpHeaders.AUTHORIZATION, getExchangeCodeRequest.getAuthHeaderValue());
+
+            try {
+                exchangeCode = httpClient.execute(httpGet, responseHandlerProvider.handlerFor(ExchangeCode.class));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            return exchangeCode;
+        }).handle(((exchangeCode, throwable) -> {
+            if (exchangeCode == null)
+                LOG.error("Failed to fetch exchange code for request {}", getExchangeCodeRequest, throwable);
+
+            return exchangeCode;
+        }));
     }
 
     @Override
-    public void killSession(KillSessionRequest killSessionRequest) throws IOException {
-        HttpDelete httpDelete = new HttpDelete(Endpoint.killSession(killSessionRequest.getAccessToken()));
-        httpDelete.addHeader(HttpHeaders.AUTHORIZATION, killSessionRequest.getAuthHeaderValue());
+    public CompletableFuture<Void> killSession(KillSessionRequest killSessionRequest) {
+        return CompletableFuture.supplyAsync(() -> {
+            HttpDelete httpDelete = new HttpDelete(Endpoint.killSession(killSessionRequest.getAccessToken()));
+            httpDelete.addHeader(HttpHeaders.AUTHORIZATION, killSessionRequest.getAuthHeaderValue());
 
-        httpClient.execute(httpDelete, responseHandlerProvider.stringHandler());
+            try {
+                httpClient.execute(httpDelete, responseHandlerProvider.stringHandler());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            return "";
+        }).handle((response, throwable) -> {
+            if (response == null)
+                LOG.error("Failed to kill session for request {}", killSessionRequest, throwable);
+
+            return null;
+        });
     }
 }

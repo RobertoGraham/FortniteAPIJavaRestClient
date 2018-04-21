@@ -36,6 +36,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -64,9 +65,9 @@ public class FortniteApiRestClient implements Closeable {
 
         if (!autoLoginDisabled)
             try {
-                login();
-            } catch (IOException e) {
-                LOG.error("IOException during login process", e);
+                login().get();
+            } catch (InterruptedException | ExecutionException e) {
+                LOG.error("Exception occurred during login process", e);
             }
     }
 
@@ -78,24 +79,27 @@ public class FortniteApiRestClient implements Closeable {
         return () -> {
             LOG.debug("Checking if token is expired");
 
-            if (sessionToken != null && sessionToken.getExpiresAt().minusMinutes(15).isBefore(LocalDateTime.now()))
-                try {
-                    LOG.info("Token has expired - refreshing");
+            if (sessionToken != null && sessionToken.getExpiresAt().minusMinutes(15).isBefore(LocalDateTime.now())) {
+                LOG.info("Token has expired - refreshing");
 
-                    sessionToken = authenticationService.getOAuthToken(GetOAuthTokenRequest.builder()
+                try {
+                    authenticationService.getOAuthToken(GetOAuthTokenRequest.builder()
                             .grantType("refreshToken")
                             .authHeaderValue("basic " + credentials.getFortniteClientToken())
                             .additionalFormEntries(new NameValuePair[]{
                                     new BasicNameValuePair("refresh_token", sessionToken.getRefreshToken())
                             })
-                            .build());
-                } catch (IOException e) {
-                    LOG.error("IOException while refreshing expired tokens", e);
+                            .build())
+                            .thenAcceptAsync(this::setSessionToken)
+                            .get();
+                } catch (InterruptedException | ExecutionException e) {
+                    LOG.error("Exception occured during token refresh", e);
                 }
+            }
         };
     }
 
-    private OAuthToken getUsernameAndPasswordDerivedOAuthToken() throws IOException {
+    private CompletableFuture<OAuthToken> getUsernameAndPasswordDerivedOAuthToken() {
         return authenticationService.getOAuthToken(GetOAuthTokenRequest.builder()
                 .grantType("password")
                 .authHeaderValue("basic " + credentials.getEpicGamesLauncherToken())
@@ -106,13 +110,13 @@ public class FortniteApiRestClient implements Closeable {
                 .build());
     }
 
-    private ExchangeCode getExchangeCode(OAuthToken usernameAndPasswordDerivedOAuthToken) throws IOException {
+    private CompletableFuture<ExchangeCode> getExchangeCode(OAuthToken usernameAndPasswordDerivedOAuthToken) {
         return authenticationService.getExchangeCode(GetExchangeCodeRequest.builder()
                 .authHeaderValue("bearer " + usernameAndPasswordDerivedOAuthToken.getAccessToken())
                 .build());
     }
 
-    private OAuthToken getFortniteApiOAuthTokenFromExchangeCode(ExchangeCode exchangeCode) throws IOException {
+    private CompletableFuture<OAuthToken> getFortniteApiOAuthTokenFromExchangeCode(ExchangeCode exchangeCode) {
         return authenticationService.getOAuthToken(GetOAuthTokenRequest.builder()
                 .grantType("exchange_code")
                 .authHeaderValue("basic " + credentials.getFortniteClientToken())
@@ -123,12 +127,11 @@ public class FortniteApiRestClient implements Closeable {
                 .build());
     }
 
-    public void login() throws IOException {
-        OAuthToken usernameAndPasswordDerivedOAuthToken = getUsernameAndPasswordDerivedOAuthToken();
-
-        ExchangeCode exchangeCode = getExchangeCode(usernameAndPasswordDerivedOAuthToken);
-
-        sessionToken = getFortniteApiOAuthTokenFromExchangeCode(exchangeCode);
+    public CompletableFuture<Void> login() {
+        return getUsernameAndPasswordDerivedOAuthToken()
+                .thenComposeAsync(this::getExchangeCode)
+                .thenComposeAsync(this::getFortniteApiOAuthTokenFromExchangeCode)
+                .thenAcceptAsync(this::setSessionToken);
     }
 
     public CompletableFuture<Account> account(String accountName) {
@@ -174,19 +177,19 @@ public class FortniteApiRestClient implements Closeable {
 
     }
 
-    private void killSession() {
-        try {
-            authenticationService.killSession(KillSessionRequest.builder()
-                    .accessToken(sessionToken.getAccessToken())
-                    .authHeaderValue("bearer " + sessionToken.getAccessToken())
-                    .build());
-        } catch (IOException e) {
-            LOG.error("IOException while killing session for accessToken: {}", sessionToken.getAccessToken(), e);
-        }
+    private CompletableFuture<Void> killSession() {
+        return authenticationService.killSession(KillSessionRequest.builder()
+                .accessToken(sessionToken.getAccessToken())
+                .authHeaderValue("bearer " + sessionToken.getAccessToken())
+                .build());
     }
 
     private OAuthToken nonNullableSessionToken() {
         return Objects.requireNonNull(sessionToken, "Attempting to perform api operation while not logged in");
+    }
+
+    private void setSessionToken(OAuthToken oAuthToken) {
+        sessionToken = oAuthToken;
     }
 
     @Override
@@ -196,7 +199,12 @@ public class FortniteApiRestClient implements Closeable {
         scheduledExecutorService.shutdown();
 
         if (sessionToken != null)
-            killSession();
+            try {
+                killSession().get();
+            } catch (InterruptedException | ExecutionException e) {
+                LOG.error("Exception occurred when killing session {}", sessionToken, e);
+            }
+
 
         try {
             httpClient.close();
