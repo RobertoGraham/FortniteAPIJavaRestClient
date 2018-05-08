@@ -7,7 +7,7 @@ Java client for the Fortnite API
 <dependency>
     <groupId>io.github.robertograham</groupId>
     <artifactId>fortnite-api-rest-client</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.1</version>
 </dependency>
 ```
 ## Acquiring an EpicGames Launcher Token and a Fortnite Client Token
