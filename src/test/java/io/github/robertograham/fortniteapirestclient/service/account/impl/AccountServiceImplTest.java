@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -103,7 +104,7 @@ class AccountServiceImplTest {
         when(responseHandlerProvider.handlerFor(Account.class)).thenReturn(handler);
         when(httpClient.execute(desiredHttpGetSupplier.get(), any(AccountResponseHandler.class))).thenThrow(IOException.class);
 
-        assertEquals(accountService.getAccount(getAccountRequest).get(), null);
+        assertNull(accountService.getAccount(getAccountRequest).get());
 
         verify(getAccountRequest, times(2)).getAccountName();
         verify(getAccountRequest).getAuthHeaderValue();
@@ -166,7 +167,7 @@ class AccountServiceImplTest {
         when(responseHandlerProvider.handlerFor(Account[].class)).thenReturn(handler);
         when(httpClient.execute(desiredHttpGetSupplier.get(), eq(handler))).thenThrow(IOException.class);
 
-        assertEquals(accountService.getAccounts(getAccountsRequest).get(), null);
+        assertNull(accountService.getAccounts(getAccountsRequest).get());
 
         verify(getAccountsRequest, Mockito.times(2)).getAccountIds();
         verify(getAccountsRequest).getAuthHeaderValue();

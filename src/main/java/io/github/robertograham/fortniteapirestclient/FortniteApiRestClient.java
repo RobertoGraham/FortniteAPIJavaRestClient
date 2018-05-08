@@ -142,36 +142,40 @@ public class FortniteApiRestClient implements Closeable {
 
     }
 
-    public CompletableFuture<StatsGroup> enhancedBattleRoyaleStatsByPlatform(String accountId, String platform) {
+    public CompletableFuture<StatsGroup> enhancedBattleRoyaleStatsByPlatform(String accountId, String platform, String window) {
         return statisticsService.getSoloDuoSquadBattleRoyaleStatisticsByPlatform(GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.builder()
                 .accountId(accountId)
+                .window(window)
                 .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
                 .platform(platform)
                 .build());
 
     }
 
-    public CompletableFuture<List<Statistic>> battleRoyaleStats(String accountId) {
+    public CompletableFuture<List<Statistic>> battleRoyaleStats(String accountId, String window) {
         return statisticsService.getBattleRoyaleStatistics(GetBattleRoyaleStatisticsRequest.builder()
                 .accountId(accountId)
+                .window(window)
                 .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
                 .build());
 
     }
 
-    public CompletableFuture<LeaderBoard> winsLeaderBoard(String platform, String partyType) {
+    public CompletableFuture<LeaderBoard> winsLeaderBoard(String platform, String partyType, String window) {
         return leaderBoardService.getWinsLeaderBoard(GetWinsLeaderBoardRequest.builder()
                 .platform(platform)
                 .partyType(partyType)
+                .window(window)
                 .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
                 .build());
 
     }
 
-    public CompletableFuture<EnhancedLeaderBoard> enhancedWinsLeaderBoard(String platform, String partyType) {
+    public CompletableFuture<EnhancedLeaderBoard> enhancedWinsLeaderBoard(String platform, String partyType, String window) {
         return leaderBoardService.getEnhancedWinsLeaderBoard(GetWinsLeaderBoardRequest.builder()
                 .platform(platform)
                 .partyType(partyType)
+                .window(window)
                 .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
                 .build());
 

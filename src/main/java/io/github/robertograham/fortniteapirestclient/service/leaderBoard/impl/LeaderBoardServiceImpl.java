@@ -44,7 +44,7 @@ public class LeaderBoardServiceImpl implements LeaderBoardService {
         return CompletableFuture.supplyAsync(() -> {
             LeaderBoard leaderBoard;
 
-            HttpPost httpPost = new HttpPost(Endpoint.winsLeaderBoard(getWinsLeaderBoardRequest.getPlatform(), getWinsLeaderBoardRequest.getPartyType()));
+            HttpPost httpPost = new HttpPost(Endpoint.winsLeaderBoard(getWinsLeaderBoardRequest.getPlatform(), getWinsLeaderBoardRequest.getPartyType(), getWinsLeaderBoardRequest.getWindow()));
             httpPost.setHeader(HttpHeaders.AUTHORIZATION, getWinsLeaderBoardRequest.getAuthHeaderValue());
 
             try {
@@ -56,7 +56,7 @@ public class LeaderBoardServiceImpl implements LeaderBoardService {
             return leaderBoard;
         }).handle(((leaderBoard, throwable) -> {
             if (leaderBoard == null)
-                LOG.error("Could not fetch leader board for platform {} and party type {}", getWinsLeaderBoardRequest.getPlatform(), getWinsLeaderBoardRequest.getPartyType(), throwable);
+                LOG.error("Could not fetch leader board for platform {}, party type {}, and window {}", getWinsLeaderBoardRequest.getPlatform(), getWinsLeaderBoardRequest.getPartyType(), getWinsLeaderBoardRequest.getWindow(), throwable);
 
             return leaderBoard;
         }));

@@ -24,6 +24,9 @@ public class KillSessionRequestBuilder implements Builder<KillSessionRequest> {
 
     @Override
     public KillSessionRequest build() {
-        return new KillSessionRequest(accessToken, authHeaderValue);
+        return new KillSessionRequest(
+                accessToken,
+                authHeaderValue
+        );
     }
 }

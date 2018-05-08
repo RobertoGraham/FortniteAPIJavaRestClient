@@ -1,10 +1,13 @@
 package io.github.robertograham.fortniteapirestclient.service.statistics.mapper;
 
+import io.github.robertograham.fortniteapirestclient.domain.StatName;
 import io.github.robertograham.fortniteapirestclient.domain.Stats;
 import io.github.robertograham.fortniteapirestclient.domain.StatsGroup;
 import io.github.robertograham.fortniteapirestclient.domain.constant.PartyType;
+import io.github.robertograham.fortniteapirestclient.domain.constant.StatType;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.Statistic;
 import io.github.robertograham.fortniteapirestclient.util.Mapper;
+import io.github.robertograham.fortniteapirestclient.util.StatNameHelper;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,31 +33,31 @@ public class StatisticListStatGroupMapper implements Mapper<List<Statistic>, Sta
         Stats lifetime = new Stats();
 
         statistics.forEach(statistic -> {
-            String key = statistic.getName();
+            StatName statName = StatNameHelper.parse(statistic.getName());
             IntSupplier valueFunction = statistic::getValue;
-            Function<String, Stats> keyToStatsFunction = statsName -> statsName.contains(PartyType.SOLO) ? solo : statsName.contains(PartyType.DUO) ? duo : squad;
+            Function<StatName, Stats> keyToStatsFunction = suppliedStatName -> PartyType.SOLO.equals(suppliedStatName.getPartyType()) ? solo : PartyType.DUO.equals(suppliedStatName.getPartyType()) ? duo : squad;
 
-            if (attemptConsumeValue(key, "placetop1", Stats::setWins, keyToStatsFunction, valueFunction))
+            if (attemptConsumeValue(statName, StatType.PLACE_TOP_1, Stats::setWins, keyToStatsFunction, valueFunction))
                 return;
-            if (attemptConsumeValue(key, "placetop3", Stats::setTop3, keyToStatsFunction, valueFunction))
+            if (attemptConsumeValue(statName, StatType.PLACE_TOP_3, Stats::setTop3, keyToStatsFunction, valueFunction))
                 return;
-            if (attemptConsumeValue(key, "placetop5", Stats::setTop5, keyToStatsFunction, valueFunction))
+            if (attemptConsumeValue(statName, StatType.PLACE_TOP_5, Stats::setTop5, keyToStatsFunction, valueFunction))
                 return;
-            if (attemptConsumeValue(key, "placetop6", Stats::setTop6, keyToStatsFunction, valueFunction))
+            if (attemptConsumeValue(statName, StatType.PLACE_TOP_6, Stats::setTop6, keyToStatsFunction, valueFunction))
                 return;
-            if (attemptConsumeValue(key, "placetop10", Stats::setTop10, keyToStatsFunction, valueFunction))
+            if (attemptConsumeValue(statName, StatType.PLACE_TOP_10, Stats::setTop10, keyToStatsFunction, valueFunction))
                 return;
-            if (attemptConsumeValue(key, "placetop12", Stats::setTop12, keyToStatsFunction, valueFunction))
+            if (attemptConsumeValue(statName, StatType.PLACE_TOP_12, Stats::setTop12, keyToStatsFunction, valueFunction))
                 return;
-            if (attemptConsumeValue(key, "placetop25", Stats::setTop25, keyToStatsFunction, valueFunction))
+            if (attemptConsumeValue(statName, StatType.PLACE_TOP_25, Stats::setTop25, keyToStatsFunction, valueFunction))
                 return;
-            if (attemptConsumeValue(key, "matchesplayed", Stats::setMatches, keyToStatsFunction, valueFunction))
+            if (attemptConsumeValue(statName, StatType.MATCHES_PLAYED, Stats::setMatches, keyToStatsFunction, valueFunction))
                 return;
-            if (attemptConsumeValue(key, "kills", Stats::setKills, keyToStatsFunction, valueFunction))
+            if (attemptConsumeValue(statName, StatType.KILLS, Stats::setKills, keyToStatsFunction, valueFunction))
                 return;
-            if (attemptConsumeValue(key, "minutesplayed", Stats::setTimePlayed, keyToStatsFunction, valueFunction))
+            if (attemptConsumeValue(statName, StatType.MINUTES_PLAYED, Stats::setTimePlayed, keyToStatsFunction, valueFunction))
                 return;
-            attemptConsumeValue(key, "score", Stats::setScore, keyToStatsFunction, valueFunction);
+            attemptConsumeValue(statName, StatType.SCORE, Stats::setScore, keyToStatsFunction, valueFunction);
         });
 
         lifetime.setWins(summedIntegerPropertyOfStatsInstances(Stats::getWins, solo, duo, squad));
@@ -100,9 +103,9 @@ public class StatisticListStatGroupMapper implements Mapper<List<Statistic>, Sta
                 .sum();
     }
 
-    private boolean attemptConsumeValue(String key, String desiredKeyFragment, BiConsumer<Stats, Integer> statsAndValueBiConsumer, Function<String, Stats> keyToStatsFunction, IntSupplier valueSupplier) {
-        if (key.contains(String.format("%s_%s", desiredKeyFragment, platform))) {
-            statsAndValueBiConsumer.accept(keyToStatsFunction.apply(key), valueSupplier.getAsInt());
+    private boolean attemptConsumeValue(StatName statName, String desiredStatType, BiConsumer<Stats, Integer> statsAndValueBiConsumer, Function<StatName, Stats> statNameToStatsFunction, IntSupplier valueSupplier) {
+        if (statName.getStatType().equals(desiredStatType) && statName.getPlatform().equals(platform)) {
+            statsAndValueBiConsumer.accept(statNameToStatsFunction.apply(statName), valueSupplier.getAsInt());
 
             return true;
         }

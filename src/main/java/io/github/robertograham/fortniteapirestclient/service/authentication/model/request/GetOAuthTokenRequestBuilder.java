@@ -42,6 +42,10 @@ public class GetOAuthTokenRequestBuilder implements Builder<GetOAuthTokenRequest
         if (additionalFormEntries == null)
             additionalFormEntries = new NameValuePair[0];
 
-        return new GetOAuthTokenRequest(grantType, authHeaderValue, additionalFormEntries);
+        return new GetOAuthTokenRequest(
+                grantType,
+                authHeaderValue,
+                additionalFormEntries
+        );
     }
 }

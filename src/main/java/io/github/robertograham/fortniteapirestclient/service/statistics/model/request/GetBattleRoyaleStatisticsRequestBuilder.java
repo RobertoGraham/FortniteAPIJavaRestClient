@@ -5,6 +5,7 @@ import io.github.robertograham.fortniteapirestclient.util.Builder;
 public class GetBattleRoyaleStatisticsRequestBuilder implements Builder<GetBattleRoyaleStatisticsRequest> {
 
     private String accountId;
+    private String window;
     private String authHeaderValue;
 
     GetBattleRoyaleStatisticsRequestBuilder() {
@@ -12,6 +13,12 @@ public class GetBattleRoyaleStatisticsRequestBuilder implements Builder<GetBattl
 
     public GetBattleRoyaleStatisticsRequestBuilder accountId(String accountId) {
         this.accountId = accountId;
+
+        return this;
+    }
+
+    public GetBattleRoyaleStatisticsRequestBuilder window(String window) {
+        this.window = window;
 
         return this;
     }
@@ -24,6 +31,10 @@ public class GetBattleRoyaleStatisticsRequestBuilder implements Builder<GetBattl
 
     @Override
     public GetBattleRoyaleStatisticsRequest build() {
-        return new GetBattleRoyaleStatisticsRequest(accountId, authHeaderValue);
+        return new GetBattleRoyaleStatisticsRequest(
+                accountId,
+                window,
+                authHeaderValue
+        );
     }
 }

@@ -33,7 +33,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public CompletableFuture<List<Statistic>> getBattleRoyaleStatistics(GetBattleRoyaleStatisticsRequest getBattleRoyaleStatisticsRequest) {
         return CompletableFuture.supplyAsync(() -> {
-            HttpGet httpGet = new HttpGet(Endpoint.statsBattleRoyale(getBattleRoyaleStatisticsRequest.getAccountId()));
+            HttpGet httpGet = new HttpGet(Endpoint.statsBattleRoyale(getBattleRoyaleStatisticsRequest.getAccountId(), getBattleRoyaleStatisticsRequest.getWindow()));
             httpGet.addHeader(HttpHeaders.AUTHORIZATION, getBattleRoyaleStatisticsRequest.getAuthHeaderValue());
 
             Statistic[] statistics;
@@ -48,7 +48,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         }).handle(((statistics, throwable) -> {
             if (statistics == null) {
-                LOG.error("Error while fetching statistics for account id {}", getBattleRoyaleStatisticsRequest.getAccountId(), throwable);
+                LOG.error("Error while fetching statistics for account id {}, and window {}", getBattleRoyaleStatisticsRequest.getAccountId(), getBattleRoyaleStatisticsRequest.getWindow(), throwable);
 
                 return null;
             }
@@ -61,6 +61,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     public CompletableFuture<StatsGroup> getSoloDuoSquadBattleRoyaleStatisticsByPlatform(GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest) {
         return getBattleRoyaleStatistics(GetBattleRoyaleStatisticsRequest.builder()
                 .accountId(getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.getAccountId())
+                .window(getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.getWindow())
                 .authHeaderValue(getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.getAuthHeaderValue())
                 .build())
                 .thenApplyAsync(statistics -> statistics != null ? new StatisticListStatGroupMapper(getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.getPlatform())

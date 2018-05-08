@@ -33,6 +33,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @ExtendWith(MockitoExtension.class)
 @RunWith(JUnitPlatform.class)
 class AuthenticationServiceImplTest {

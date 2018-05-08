@@ -31,7 +31,7 @@ public class ResponseHandlerProvider {
             if (status >= 200 && status < 300)
                 return body;
             else
-                throw body != null ?
+                throw body != null && !body.isEmpty() ?
                         new FortniteApiErrorException(objectMapper.readValue(body, FortniteApiError.class), status)
                         : new ClientProtocolException("Unexpected response status: " + status);
 

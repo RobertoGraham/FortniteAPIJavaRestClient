@@ -6,6 +6,7 @@ public class GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequestBuilder imple
 
     private String platform;
     private String accountId;
+    private String window;
     private String authHeaderValue;
 
     GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequestBuilder() {
@@ -23,6 +24,12 @@ public class GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequestBuilder imple
         return this;
     }
 
+    public GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequestBuilder window(String window) {
+        this.window = window;
+
+        return this;
+    }
+
     public GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequestBuilder authHeaderValue(String authHeaderValue) {
         this.authHeaderValue = authHeaderValue;
 
@@ -34,6 +41,7 @@ public class GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequestBuilder imple
         return new GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest(
                 accountId,
                 platform,
+                window,
                 authHeaderValue
         );
     }

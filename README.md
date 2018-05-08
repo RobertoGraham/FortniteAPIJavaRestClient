@@ -7,7 +7,7 @@ Java client for the Fortnite API
 <dependency>
     <groupId>io.github.robertograham</groupId>
     <artifactId>fortnite-api-rest-client</artifactId>
-    <version>3.0.0</version>
+    <version>4.0.0</version>
 </dependency>
 ```
 ## Acquiring an EpicGames Launcher Token and a Fortnite Client Token
@@ -101,6 +101,7 @@ B: `Account was null`
 import io.github.robertograham.fortniteapirestclient.FortniteApiRestClient;
 import io.github.robertograham.fortniteapirestclient.domain.Credentials;
 import io.github.robertograham.fortniteapirestclient.domain.constant.Platform;
+import io.github.robertograham.fortniteapirestclient.domain.constant.StatWindow;
 
 import java.util.concurrent.ExecutionException;
 
@@ -111,7 +112,7 @@ public class Main {
                 .build();
 
         fortniteApiRestClient.account("RGrhm")
-                .thenCompose(account -> fortniteApiRestClient.enhancedBattleRoyaleStatsByPlatform(account.getId(), Platform.PLAYSTATION_4))
+                .thenCompose(account -> fortniteApiRestClient.enhancedBattleRoyaleStatsByPlatform(account.getId(), Platform.PLAYSTATION_4, StatWindow.ALL_TIME))
                 .handle((enhancedBattleRoyaleStats, nullPointerException) -> nullPointerException == null ? enhancedBattleRoyaleStats : null)
                 .thenAcceptAsync(System.out::println)
                 .get();
@@ -127,6 +128,7 @@ B: `null`
 ```java
 import io.github.robertograham.fortniteapirestclient.FortniteApiRestClient;
 import io.github.robertograham.fortniteapirestclient.domain.Credentials;
+import io.github.robertograham.fortniteapirestclient.domain.constant.StatWindow;
 
 import java.util.concurrent.ExecutionException;
 
@@ -137,7 +139,7 @@ public class Main {
                 .build();
 
         fortniteApiRestClient.account("RGrhm")
-                .thenCompose(account -> fortniteApiRestClient.battleRoyaleStats(account.getId()))
+                .thenCompose(account -> fortniteApiRestClient.battleRoyaleStats(account.getId(), StatWindow.ALL_TIME))
                 .handle((battleRoyaleStats, nullPointerException) -> nullPointerException == null ? battleRoyaleStats : null)
                 .thenAcceptAsync(System.out::println)
                 .get();
@@ -155,6 +157,7 @@ import io.github.robertograham.fortniteapirestclient.FortniteApiRestClient;
 import io.github.robertograham.fortniteapirestclient.domain.Credentials;
 import io.github.robertograham.fortniteapirestclient.domain.constant.PartyType;
 import io.github.robertograham.fortniteapirestclient.domain.constant.Platform;
+import io.github.robertograham.fortniteapirestclient.domain.constant.StatWindow;
 
 import java.util.concurrent.ExecutionException;
 
@@ -164,7 +167,7 @@ public class Main {
         FortniteApiRestClient fortniteApiRestClient = FortniteApiRestClient.builder(new Credentials("epicGamesEmailAddress", "epicGamesPassword", "epicGamesLauncherToken", "fortniteClientToken"))
                 .build();
 
-        fortniteApiRestClient.enhancedWinsLeaderBoard(Platform.PC, PartyType.SOLO)
+        fortniteApiRestClient.enhancedWinsLeaderBoard(Platform.PC, PartyType.SOLO, StatWindow.WEEKLY)
                 .thenAcceptAsync(System.out::println)
                 .get();
     }
@@ -179,6 +182,7 @@ import io.github.robertograham.fortniteapirestclient.FortniteApiRestClient;
 import io.github.robertograham.fortniteapirestclient.domain.Credentials;
 import io.github.robertograham.fortniteapirestclient.domain.constant.PartyType;
 import io.github.robertograham.fortniteapirestclient.domain.constant.Platform;
+import io.github.robertograham.fortniteapirestclient.domain.constant.StatWindow;
 
 import java.util.concurrent.ExecutionException;
 
@@ -188,7 +192,7 @@ public class Main {
         FortniteApiRestClient fortniteApiRestClient = FortniteApiRestClient.builder(new Credentials("epicGamesEmailAddress", "epicGamesPassword", "epicGamesLauncherToken", "fortniteClientToken"))
                 .build();
 
-        fortniteApiRestClient.winsLeaderBoard(Platform.PC, PartyType.SOLO)
+        fortniteApiRestClient.winsLeaderBoard(Platform.PC, PartyType.SOLO, StatWindow.WEEKLY)
                 .thenAcceptAsync(System.out::println)
                 .get();
     }

@@ -15,6 +15,7 @@ public class FortniteApiError {
     @JsonProperty("error_description")
     private String errorDescription;
     private String error;
+    private String trackingId;
 
     public String getErrorCode() {
         return errorCode;
@@ -80,6 +81,14 @@ public class FortniteApiError {
         this.error = error;
     }
 
+    public String getTrackingId() {
+        return trackingId;
+    }
+
+    public void setTrackingId(String trackingId) {
+        this.trackingId = trackingId;
+    }
+
     @Override
     public String toString() {
         return "FortniteApiError{" +
@@ -91,7 +100,7 @@ public class FortniteApiError {
                 ", intent='" + intent + '\'' +
                 ", errorDescription='" + errorDescription + '\'' +
                 ", error='" + error + '\'' +
+                ", trackingId='" + trackingId + '\'' +
                 '}';
     }
-
 }

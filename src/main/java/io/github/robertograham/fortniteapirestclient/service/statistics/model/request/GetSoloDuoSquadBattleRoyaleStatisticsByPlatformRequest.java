@@ -6,11 +6,13 @@ public class GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest {
 
     private final String accountId;
     private final String platform;
+    private final String window;
     private final String authHeaderValue;
 
-    GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest(String accountId, String platform, String authHeaderValue) {
+    GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest(String accountId, String platform, String window, String authHeaderValue) {
         this.accountId = accountId;
         this.platform = platform;
+        this.window = window;
         this.authHeaderValue = authHeaderValue;
     }
 
@@ -26,6 +28,10 @@ public class GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest {
         return accountId;
     }
 
+    public String getWindow() {
+        return window;
+    }
+
     public String getAuthHeaderValue() {
         return authHeaderValue;
     }
@@ -35,18 +41,19 @@ public class GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest {
         if (this == object)
             return true;
 
-        if (object == null || getClass() != object.getClass())
+        if (!(object instanceof GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest))
             return false;
 
         GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest = (GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest) object;
 
         return Objects.equals(accountId, getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.accountId) &&
                 Objects.equals(platform, getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.platform) &&
+                Objects.equals(window, getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.window) &&
                 Objects.equals(authHeaderValue, getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.authHeaderValue);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(accountId, platform, authHeaderValue);
+        return Objects.hash(accountId, platform, window, authHeaderValue);
     }
 }

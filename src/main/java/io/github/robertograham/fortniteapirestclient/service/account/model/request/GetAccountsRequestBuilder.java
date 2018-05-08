@@ -27,6 +27,9 @@ public class GetAccountsRequestBuilder implements Builder<GetAccountsRequest> {
 
     @Override
     public GetAccountsRequest build() {
-        return new GetAccountsRequest(accountIds, authHeaderValue);
+        return new GetAccountsRequest(
+                accountIds,
+                authHeaderValue
+        );
     }
 }

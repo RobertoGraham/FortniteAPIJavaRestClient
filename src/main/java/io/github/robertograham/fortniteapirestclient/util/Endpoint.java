@@ -1,5 +1,8 @@
 package io.github.robertograham.fortniteapirestclient.util;
 
+import io.github.robertograham.fortniteapirestclient.domain.StatName;
+import io.github.robertograham.fortniteapirestclient.domain.constant.GameMode;
+import io.github.robertograham.fortniteapirestclient.domain.constant.StatType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,12 +41,12 @@ public class Endpoint {
                 .get();
     }
 
-    public static String statsBattleRoyale(String accountId) {
+    public static String statsBattleRoyale(String accountId, String window) {
         try {
-            return "https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/stats/accountId/" + encodeUriComponent(accountId) + "/bulk/window/alltime";
+            return "https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/stats/accountId/" + encodeUriComponent(accountId) + "/bulk/window/" + encodeUriComponent(window);
         } catch (URISyntaxException e) {
-            LOG.error("URISyntaxException while encoding accountId: {}", accountId, e);
-            return "https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/stats/accountId/" + accountId + "/bulk/window/alltime";
+            LOG.error("URISyntaxException while encoding accountId: {}, and window: {}", accountId, window, e);
+            return "https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/stats/accountId/" + accountId + "/bulk/window/" + window;
         }
     }
 
@@ -56,12 +59,21 @@ public class Endpoint {
         }
     }
 
-    public static String winsLeaderBoard(String platform, String partyType) {
+    public static String winsLeaderBoard(String platform, String partyType, String window) {
+        StatName statName = new StatName();
+
+        statName.setGameMode(GameMode.BATTLE_ROYALE);
+        statName.setStatType(StatType.PLACE_TOP_1);
+        statName.setPlatform(platform);
+        statName.setPartyType(partyType);
+
+        String formattedStatName = statName.formatted();
+
         try {
-            return "https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/leaderboards/type/global/stat/br_placetop1_" + encodeUriComponent(platform) + "_m0_" + encodeUriComponent(partyType) + "/window/weekly?ownertype=1&pageNumber=0&itemsPerPage=50";
+            return "https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/leaderboards/type/global/stat/" + encodeUriComponent(formattedStatName) + "/window/" + encodeUriComponent(window) + "?ownertype=1&pageNumber=0&itemsPerPage=1000";
         } catch (URISyntaxException e) {
-            LOG.error("URISyntaxException while encoding platform: {}, and partyType: {}", platform, partyType);
-            return "https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/leaderboards/type/global/stat/br_placetop1_" + platform + "_m0_" + partyType + "/window/weekly?ownertype=1&pageNumber=0&itemsPerPage=50";
+            LOG.error("URISyntaxException while encoding platform: {}, partyType: {}, and window: {}", platform, partyType, window, e);
+            return "https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/leaderboards/type/global/stat/" + formattedStatName + "/window/" + window + "?ownertype=1&pageNumber=0&itemsPerPage=1000";
         }
     }
 }
