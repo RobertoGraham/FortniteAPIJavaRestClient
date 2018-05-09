@@ -2,6 +2,9 @@
 # FortniteAPIJavaRestClient
 Java client for the Fortnite API
 
+## In the wild
+I have written a small app, backed by FortniteAPIJavaRestClient, with Spring Boot 2 and React. [https://fortnite-stats-app.herokuapp.com/](https://fortnite-stats-app.herokuapp.com/)
+
 ## Install
 ```xml
 <dependency>
