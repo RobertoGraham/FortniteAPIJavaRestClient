@@ -90,7 +90,7 @@ public class StatisticListStatGroupMapper implements Mapper<List<Statistic>, Sta
     }
 
     private double divide(double a, double b) {
-        return b == 0 ? 0 : a / b;
+        return b == 0 ? -1 : a / b;
     }
 
     private double percent(double a, double b) {

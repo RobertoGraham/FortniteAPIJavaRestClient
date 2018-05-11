@@ -77,9 +77,9 @@ public class FortniteApiRestClient implements Closeable {
 
     private Runnable tokenRefreshRunnable() {
         return () -> {
-            LOG.debug("Checking if token is expired");
-
-            if (sessionToken != null && sessionToken.getExpiresAt().minusMinutes(15).isBefore(LocalDateTime.now())) {
+            LocalDateTime now = LocalDateTime.now();
+            LOG.debug("Validity of token that expires at {} being checked at {}", sessionToken != null ? sessionToken.getExpiresAt() : LocalDateTime.MIN, now);
+            if (sessionToken != null && sessionToken.getExpiresAt().minusMinutes(15).isBefore(now)) {
                 LOG.info("Token has expired - refreshing");
 
                 try {
