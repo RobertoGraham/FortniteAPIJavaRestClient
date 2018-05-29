@@ -10,7 +10,7 @@ I have written a small app, backed by FortniteAPIJavaRestClient, with Spring Boo
 <dependency>
     <groupId>io.github.robertograham</groupId>
     <artifactId>fortnite-api-rest-client</artifactId>
-    <version>4.1.0</version>
+    <version>4.2.0</version>
 </dependency>
 ```
 ## Acquiring an EpicGames Launcher Token and a Fortnite Client Token
@@ -20,7 +20,7 @@ Follow the steps in [this project's README](https://github.com/qlaffont/fortnite
 Once you instantiate a FortniteApiRestClient it will automatically attempt to authenticate itself unless auto login is disabled.
 
 If auto login is left enabled, any errors during authentication will not be thrown
-A successful login can be detected by calling `fortniteApiRestClient.isloggedIn()`
+A valid session can be detected by calling `fortniteApiRestClient.isSessionValid()`
 ```java
 import io.github.robertograham.fortniteapirestclient.FortniteApiRestClient;
 import io.github.robertograham.fortniteapirestclient.domain.Credentials;
@@ -170,7 +170,7 @@ public class Main {
         FortniteApiRestClient fortniteApiRestClient = FortniteApiRestClient.builder(new Credentials("epicGamesEmailAddress", "epicGamesPassword", "epicGamesLauncherToken", "fortniteClientToken"))
                 .build();
 
-        fortniteApiRestClient.enhancedWinsLeaderBoard(Platform.PC, PartyType.SOLO, StatWindow.WEEKLY)
+        fortniteApiRestClient.enhancedWinsLeaderBoard(Platform.PC, PartyType.SOLO, StatWindow.WEEKLY, 100)
                 .thenAcceptAsync(System.out::println)
                 .get();
     }
@@ -195,7 +195,7 @@ public class Main {
         FortniteApiRestClient fortniteApiRestClient = FortniteApiRestClient.builder(new Credentials("epicGamesEmailAddress", "epicGamesPassword", "epicGamesLauncherToken", "fortniteClientToken"))
                 .build();
 
-        fortniteApiRestClient.winsLeaderBoard(Platform.PC, PartyType.SOLO, StatWindow.WEEKLY)
+        fortniteApiRestClient.winsLeaderBoard(Platform.PC, PartyType.SOLO, StatWindow.WEEKLY, 100)
                 .thenAcceptAsync(System.out::println)
                 .get();
     }

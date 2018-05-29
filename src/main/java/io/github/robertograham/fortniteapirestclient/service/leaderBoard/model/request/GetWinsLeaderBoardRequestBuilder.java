@@ -8,6 +8,7 @@ public class GetWinsLeaderBoardRequestBuilder implements Builder<GetWinsLeaderBo
     private String partyType;
     private String window;
     private String authHeaderValue;
+    private int entryCount;
 
     GetWinsLeaderBoardRequestBuilder() {
     }
@@ -36,13 +37,20 @@ public class GetWinsLeaderBoardRequestBuilder implements Builder<GetWinsLeaderBo
         return this;
     }
 
+    public GetWinsLeaderBoardRequestBuilder entryCount(int entryCount) {
+        this.entryCount = entryCount;
+
+        return this;
+    }
+
     @Override
     public GetWinsLeaderBoardRequest build() {
         return new GetWinsLeaderBoardRequest(
                 platform,
                 partyType,
                 window,
-                authHeaderValue
+                authHeaderValue,
+                entryCount
         );
     }
 }

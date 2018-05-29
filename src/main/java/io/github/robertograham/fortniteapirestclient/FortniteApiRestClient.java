@@ -161,22 +161,35 @@ public class FortniteApiRestClient implements Closeable {
 
     }
 
+    @Deprecated
     public CompletableFuture<LeaderBoard> winsLeaderBoard(String platform, String partyType, String window) {
+        return winsLeaderBoard(platform, partyType, window, 1000);
+    }
+
+    @Deprecated
+    public CompletableFuture<EnhancedLeaderBoard> enhancedWinsLeaderBoard(String platform, String partyType, String window) {
+        return enhancedWinsLeaderBoard(platform, partyType, window, 1000);
+
+    }
+
+    public CompletableFuture<LeaderBoard> winsLeaderBoard(String platform, String partyType, String window, int entryCount) {
         return leaderBoardService.getWinsLeaderBoard(GetWinsLeaderBoardRequest.builder()
                 .platform(platform)
                 .partyType(partyType)
                 .window(window)
                 .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
+                .entryCount(entryCount)
                 .build());
 
     }
 
-    public CompletableFuture<EnhancedLeaderBoard> enhancedWinsLeaderBoard(String platform, String partyType, String window) {
+    public CompletableFuture<EnhancedLeaderBoard> enhancedWinsLeaderBoard(String platform, String partyType, String window, int entryCount) {
         return leaderBoardService.getEnhancedWinsLeaderBoard(GetWinsLeaderBoardRequest.builder()
                 .platform(platform)
                 .partyType(partyType)
                 .window(window)
                 .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
+                .entryCount(entryCount)
                 .build());
 
     }
@@ -196,7 +209,12 @@ public class FortniteApiRestClient implements Closeable {
         sessionToken = oAuthToken;
     }
 
+    @Deprecated
     public boolean isLoggedIn() {
+        return isSessionValid();
+    }
+
+    public boolean isSessionValid() {
         return sessionToken != null && LocalDateTime.now().isBefore(sessionToken.getExpiresAt());
     }
 

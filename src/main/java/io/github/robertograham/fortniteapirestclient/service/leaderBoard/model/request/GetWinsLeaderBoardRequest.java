@@ -4,18 +4,20 @@ public class GetWinsLeaderBoardRequest {
     private final String platform;
     private final String partyType;
     private final String window;
+    private final int entryCount;
 
     private final String authHeaderValue;
 
-    public static GetWinsLeaderBoardRequestBuilder builder() {
-        return new GetWinsLeaderBoardRequestBuilder();
-    }
-
-    GetWinsLeaderBoardRequest(String platform, String partyType, String window, String authHeaderValue) {
+    GetWinsLeaderBoardRequest(String platform, String partyType, String window, String authHeaderValue, int entryCount) {
         this.platform = platform;
         this.partyType = partyType;
         this.window = window;
         this.authHeaderValue = authHeaderValue;
+        this.entryCount = entryCount;
+    }
+
+    public static GetWinsLeaderBoardRequestBuilder builder() {
+        return new GetWinsLeaderBoardRequestBuilder();
     }
 
     public String getPlatform() {
@@ -32,5 +34,9 @@ public class GetWinsLeaderBoardRequest {
 
     public String getAuthHeaderValue() {
         return authHeaderValue;
+    }
+
+    public int getEntryCount() {
+        return entryCount;
     }
 }
