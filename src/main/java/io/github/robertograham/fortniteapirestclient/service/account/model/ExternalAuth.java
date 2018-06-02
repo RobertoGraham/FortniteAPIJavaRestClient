@@ -1,5 +1,7 @@
 package io.github.robertograham.fortniteapirestclient.service.account.model;
 
+import java.util.List;
+
 public class ExternalAuth {
 
     private String type;
@@ -7,6 +9,7 @@ public class ExternalAuth {
     private String externalAuthIdType;
     private String accountId;
     private String externalDisplayName;
+    private List<AuthId> authIds;
 
     public String getExternalAuthIdType() {
         return externalAuthIdType;
@@ -48,6 +51,14 @@ public class ExternalAuth {
         this.externalDisplayName = externalDisplayName;
     }
 
+    public List<AuthId> getAuthIds() {
+        return authIds;
+    }
+
+    public void setAuthIds(List<AuthId> authIds) {
+        this.authIds = authIds;
+    }
+
     @Override
     public String toString() {
         return "ExternalAuth{" +
@@ -56,6 +67,7 @@ public class ExternalAuth {
                 ", externalAuthIdType='" + externalAuthIdType + '\'' +
                 ", accountId='" + accountId + '\'' +
                 ", externalDisplayName='" + externalDisplayName + '\'' +
+                ", authIds=" + authIds +
                 '}';
     }
 }
