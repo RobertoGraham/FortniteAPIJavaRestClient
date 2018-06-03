@@ -84,7 +84,7 @@ public class FortniteApiRestClient implements Closeable {
 
                 try {
                     authenticationService.getOAuthToken(GetOAuthTokenRequest.builder()
-                            .grantType("refreshToken")
+                            .grantType("refresh_token")
                             .authHeaderValue("basic " + credentials.getFortniteClientToken())
                             .additionalFormEntries(new NameValuePair[]{
                                     new BasicNameValuePair("refresh_token", sessionToken.getRefreshToken())
