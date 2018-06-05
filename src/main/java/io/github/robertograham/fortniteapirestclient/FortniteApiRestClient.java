@@ -23,6 +23,8 @@ import io.github.robertograham.fortniteapirestclient.service.statistics.impl.Sta
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.Statistic;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetBattleRoyaleStatisticsRequest;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest;
+import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetSoloDuoSquadBattleRoyaleStatisticsRequest;
+import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetSoloDuoSquadBattleRoyaleStatisticsRequestBuilder;
 import io.github.robertograham.fortniteapirestclient.util.ResponseHandlerProvider;
 import org.apache.http.NameValuePair;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -34,6 +36,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -148,6 +151,15 @@ public class FortniteApiRestClient implements Closeable {
                 .window(window)
                 .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
                 .platform(platform)
+                .build());
+
+    }
+
+    public CompletableFuture<Map<String, StatsGroup>> enhancedBattleRoyaleStats(String accountId, String window) {
+        return statisticsService.getSoloDuoSquadBattleRoyaleStatistics(GetSoloDuoSquadBattleRoyaleStatisticsRequest.builder()
+                .accountId(accountId)
+                .window(window)
+                .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
                 .build());
 
     }
