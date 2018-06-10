@@ -70,9 +70,9 @@ public class StatisticsServiceImpl implements StatisticsService {
                 .window(getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.getWindow())
                 .authHeaderValue(getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.getAuthHeaderValue())
                 .build())
-                .thenApplyAsync(statistics -> statistics != null ? new StatisticListStatGroupMapper(getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.getPlatform())
-                        .mapFrom(statistics) : null);
-
+                .thenApplyAsync(statistics -> statistics != null ?
+                        StatisticListStatGroupMapper.mapFrom(statistics, getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.getPlatform())
+                        : null);
     }
 
     @Override
@@ -92,6 +92,6 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     private SimpleEntry<String, StatsGroup> getStatsGroupForPlatform(String platform, List<Statistic> statistics) {
-        return new SimpleEntry<>(platform, new StatisticListStatGroupMapper(platform).mapFrom(statistics));
+        return new SimpleEntry<>(platform, StatisticListStatGroupMapper.mapFrom(statistics, platform));
     }
 }

@@ -5,15 +5,6 @@ public class StatsGroup {
     private Stats solo;
     private Stats duo;
     private Stats squad;
-    private Stats lifetime;
-
-    public Stats getLifetime() {
-        return lifetime;
-    }
-
-    public void setLifetime(Stats lifetime) {
-        this.lifetime = lifetime;
-    }
 
     public Stats getSolo() {
         return solo;
@@ -45,7 +36,6 @@ public class StatsGroup {
                 "solo=" + solo +
                 ", duo=" + duo +
                 ", squad=" + squad +
-                ", lifetime=" + lifetime +
                 '}';
     }
 }
