@@ -52,7 +52,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
             return statistics;
 
-        }).handle(((statistics, throwable) -> {
+        }).handle((statistics, throwable) -> {
             if (statistics == null) {
                 LOG.error("Error while fetching statistics for account id {}, and window {}", getBattleRoyaleStatisticsRequest.getAccountId(), getBattleRoyaleStatisticsRequest.getWindow(), throwable);
 
@@ -60,7 +60,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             }
 
             return Arrays.asList(statistics);
-        }));
+        });
     }
 
     @Override

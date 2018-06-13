@@ -24,7 +24,6 @@ import io.github.robertograham.fortniteapirestclient.service.statistics.model.St
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetBattleRoyaleStatisticsRequest;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetSoloDuoSquadBattleRoyaleStatisticsRequest;
-import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetSoloDuoSquadBattleRoyaleStatisticsRequestBuilder;
 import io.github.robertograham.fortniteapirestclient.util.ResponseHandlerProvider;
 import org.apache.http.NameValuePair;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -93,7 +92,7 @@ public class FortniteApiRestClient implements Closeable {
                                     new BasicNameValuePair("refresh_token", sessionToken.getRefreshToken())
                             })
                             .build())
-                            .thenAcceptAsync(this::setSessionToken)
+                            .thenAcceptAsync(token -> setSessionToken(token != null ? token : sessionToken))
                             .get();
                 } catch (InterruptedException | ExecutionException e) {
                     LOG.error("Exception occured during token refresh", e);
