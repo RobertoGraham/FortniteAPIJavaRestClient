@@ -6,7 +6,7 @@
 
     <groupId>io.github.robertograham</groupId>
     <artifactId>fortnite-api-rest-client</artifactId>
-    <version>5.0.1</version>
+    <version>5.0.2</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -152,6 +152,9 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                    <excludes>
+                        <exclude>io/github/robertograham/fortniteapirestclient/Main.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
 
