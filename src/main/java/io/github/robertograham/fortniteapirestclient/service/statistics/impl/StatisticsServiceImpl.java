@@ -86,7 +86,9 @@ public class StatisticsServiceImpl implements StatisticsService {
                         Stream.of(
                                 getStatsGroupForPlatform(Platform.PC, statistics),
                                 getStatsGroupForPlatform(Platform.XBOX_ONE, statistics),
-                                getStatsGroupForPlatform(Platform.PLAYSTATION_4, statistics)
+                                getStatsGroupForPlatform(Platform.PLAYSTATION_4, statistics),
+                                getStatsGroupForPlatform(Platform.NINTENDO_SWITCH, statistics),
+                                getStatsGroupForPlatform(Platform.IOS, statistics)
                         ).collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue))
                         : null);
     }

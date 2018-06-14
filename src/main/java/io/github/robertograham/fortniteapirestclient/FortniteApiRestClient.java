@@ -95,7 +95,7 @@ public class FortniteApiRestClient implements Closeable {
                             .thenAcceptAsync(token -> setSessionToken(token != null ? token : sessionToken))
                             .get();
                 } catch (InterruptedException | ExecutionException e) {
-                    LOG.error("Exception occured during token refresh", e);
+                    LOG.error("Exception occurred during token refresh", e);
                 }
             }
         };
