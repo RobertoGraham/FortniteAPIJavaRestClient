@@ -49,7 +49,7 @@ class AccountServiceImplTest {
     }
 
     @Test
-    @DisplayName("Test getAccount returns account produced by response handler")
+    @DisplayName("getAccount returns account produced by response handler")
     void getAccount() throws IOException, ExecutionException, InterruptedException {
         String accountName = "accountName";
         String authHeaderValue = "authHeaderValue";
@@ -82,7 +82,7 @@ class AccountServiceImplTest {
     }
 
     @Test
-    @DisplayName("Test getAccount returns null on IOException")
+    @DisplayName("getAccount returns null on IOException")
     void getAccountReturnsNull() throws IOException, ExecutionException, InterruptedException {
         String accountName = "accountName";
         String authHeaderValue = "authHeaderValue";
@@ -114,7 +114,7 @@ class AccountServiceImplTest {
 
 
     @Test
-    @DisplayName("Test getAccounts returns list of correct size")
+    @DisplayName("getAccounts returns list of correct size")
     void getAccounts() throws IOException, ExecutionException, InterruptedException {
         Set<String> accountIds = Stream.of("1", "2", "3").collect(Collectors.toSet());
         String authHeaderValue = "authHeaderValue";
@@ -145,7 +145,7 @@ class AccountServiceImplTest {
     }
 
     @Test
-    @DisplayName("Test getAccounts returns null on IOException")
+    @DisplayName("getAccounts returns null on IOException")
     void getAccountsReturnsNull() throws IOException, ExecutionException, InterruptedException {
         Set<String> accountIds = Stream.of("1", "2", "3").collect(Collectors.toSet());
         String authHeaderValue = "authHeaderValue";

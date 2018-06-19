@@ -1,8 +1,10 @@
 package io.github.robertograham.fortniteapirestclient.service.authentication.model.request;
 
+import io.github.robertograham.fortniteapirestclient.util.Request;
+
 import java.util.Objects;
 
-public class GetExchangeCodeRequest {
+public class GetExchangeCodeRequest extends Request {
 
     private final String authHeaderValue;
 
@@ -16,6 +18,13 @@ public class GetExchangeCodeRequest {
 
     public String getAuthHeaderValue() {
         return authHeaderValue;
+    }
+
+    @Override
+    public String toString() {
+        return "GetExchangeCodeRequest{" +
+                "authHeaderValue='" + authHeaderValue + '\'' +
+                "} " + super.toString();
     }
 
     @Override

@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class GetAccountRequestBuilderTest {
 
     @Test
-    @DisplayName("Test build returns correct GetAccountRequest")
+    @DisplayName("build returns correct GetAccountRequest")
     void build_correctlyBuildsGetAccountRequest() {
         String accountName = "accountName";
         String authHeaderValue = "authHeaderValue";

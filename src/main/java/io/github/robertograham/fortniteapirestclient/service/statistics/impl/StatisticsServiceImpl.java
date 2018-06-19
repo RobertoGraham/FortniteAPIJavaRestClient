@@ -38,6 +38,8 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     @Override
     public CompletableFuture<List<Statistic>> getBattleRoyaleStatistics(GetBattleRoyaleStatisticsRequest getBattleRoyaleStatisticsRequest) {
+        getBattleRoyaleStatisticsRequest.log();
+
         return CompletableFuture.supplyAsync(() -> {
             HttpGet httpGet = new HttpGet(Endpoint.statsBattleRoyale(getBattleRoyaleStatisticsRequest.getAccountId(), getBattleRoyaleStatisticsRequest.getWindow()));
             httpGet.addHeader(HttpHeaders.AUTHORIZATION, getBattleRoyaleStatisticsRequest.getAuthHeaderValue());

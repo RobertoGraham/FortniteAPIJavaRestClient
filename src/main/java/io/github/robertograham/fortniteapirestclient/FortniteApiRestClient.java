@@ -7,6 +7,7 @@ import io.github.robertograham.fortniteapirestclient.service.account.AccountServ
 import io.github.robertograham.fortniteapirestclient.service.account.impl.AccountServiceImpl;
 import io.github.robertograham.fortniteapirestclient.service.account.model.Account;
 import io.github.robertograham.fortniteapirestclient.service.account.model.request.GetAccountRequest;
+import io.github.robertograham.fortniteapirestclient.service.account.model.request.GetAccountsRequest;
 import io.github.robertograham.fortniteapirestclient.service.authentication.AuthenticationService;
 import io.github.robertograham.fortniteapirestclient.service.authentication.impl.AuthenticationServiceImpl;
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.ExchangeCode;
@@ -34,9 +35,7 @@ import org.slf4j.LoggerFactory;
 import java.io.Closeable;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -92,7 +91,7 @@ public class FortniteApiRestClient implements Closeable {
                                     new BasicNameValuePair("refresh_token", sessionToken.getRefreshToken())
                             })
                             .build())
-                            .thenAcceptAsync(token -> setSessionToken(token != null ? token : sessionToken))
+                            .thenAcceptAsync(token -> Optional.ofNullable(token).ifPresent(this::setSessionToken))
                             .get();
                 } catch (InterruptedException | ExecutionException e) {
                     LOG.error("Exception occurred during token refresh", e);
@@ -105,10 +104,10 @@ public class FortniteApiRestClient implements Closeable {
         return authenticationService.getOAuthToken(GetOAuthTokenRequest.builder()
                 .grantType("password")
                 .authHeaderValue("basic " + credentials.getEpicGamesLauncherToken())
-                .additionalFormEntries(new NameValuePair[]{
+                .additionalFormEntries(
                         new BasicNameValuePair("username", credentials.getEpicGamesEmailAddress()),
                         new BasicNameValuePair("password", credentials.getEpicGamesPassword())
-                })
+                )
                 .build());
     }
 
@@ -122,10 +121,10 @@ public class FortniteApiRestClient implements Closeable {
         return authenticationService.getOAuthToken(GetOAuthTokenRequest.builder()
                 .grantType("exchange_code")
                 .authHeaderValue("basic " + credentials.getFortniteClientToken())
-                .additionalFormEntries(new NameValuePair[]{
+                .additionalFormEntries(
                         new BasicNameValuePair("exchange_code", exchangeCode.getCode()),
                         new BasicNameValuePair("token_type", "eg1")
-                })
+                )
                 .build());
     }
 
@@ -141,7 +140,12 @@ public class FortniteApiRestClient implements Closeable {
                 .accountName(accountName)
                 .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
                 .build());
+    }
 
+    public CompletableFuture<List<Account>> accounts(String... accountIds) {
+        return accountService.getAccounts(GetAccountsRequest.builder(new HashSet<>(Arrays.asList(accountIds)))
+                .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
+                .build());
     }
 
     public CompletableFuture<StatsGroup> enhancedBattleRoyaleStatsByPlatform(String accountId, String platform, String window) {
@@ -205,7 +209,7 @@ public class FortniteApiRestClient implements Closeable {
 
     }
 
-    private CompletableFuture<Void> killSession() {
+    private CompletableFuture<Boolean> killSession() {
         return authenticationService.killSession(KillSessionRequest.builder()
                 .accessToken(sessionToken.getAccessToken())
                 .authHeaderValue("bearer " + sessionToken.getAccessToken())

@@ -41,6 +41,8 @@ public class LeaderBoardServiceImpl implements LeaderBoardService {
 
     @Override
     public CompletableFuture<LeaderBoard> getWinsLeaderBoard(GetWinsLeaderBoardRequest getWinsLeaderBoardRequest) {
+        getWinsLeaderBoardRequest.log();
+
         return CompletableFuture.supplyAsync(() -> {
             LeaderBoard leaderBoard;
 
@@ -64,6 +66,8 @@ public class LeaderBoardServiceImpl implements LeaderBoardService {
 
     @Override
     public CompletableFuture<EnhancedLeaderBoard> getEnhancedWinsLeaderBoard(GetWinsLeaderBoardRequest getWinsLeaderBoardRequest) {
+        getWinsLeaderBoardRequest.log();
+
         return getWinsLeaderBoard(getWinsLeaderBoardRequest).thenApply(leaderBoard -> {
             if (leaderBoard == null)
                 return null;

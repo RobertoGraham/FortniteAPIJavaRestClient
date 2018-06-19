@@ -37,6 +37,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public CompletableFuture<OAuthToken> getOAuthToken(GetOAuthTokenRequest getOAuthTokenRequest) {
+        getOAuthTokenRequest.log();
+
         return CompletableFuture.supplyAsync(() -> {
             OAuthToken oAuthToken;
 
@@ -66,6 +68,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public CompletableFuture<ExchangeCode> getExchangeCode(GetExchangeCodeRequest getExchangeCodeRequest) {
+        getExchangeCodeRequest.log();
+
         return CompletableFuture.supplyAsync(() -> {
             ExchangeCode exchangeCode;
 
@@ -88,7 +92,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public CompletableFuture<Void> killSession(KillSessionRequest killSessionRequest) {
+    public CompletableFuture<Boolean> killSession(KillSessionRequest killSessionRequest) {
+        killSessionRequest.log();
+
         return CompletableFuture.supplyAsync(() -> {
             HttpDelete httpDelete = new HttpDelete(Endpoint.killSession(killSessionRequest.getAccessToken()));
             httpDelete.addHeader(HttpHeaders.AUTHORIZATION, killSessionRequest.getAuthHeaderValue());
@@ -104,7 +110,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             if (response == null)
                 LOG.error("Failed to kill session for request {}", killSessionRequest, throwable);
 
-            return null;
+            return response != null;
         });
     }
 }
