@@ -36,16 +36,16 @@ import static org.mockito.Mockito.*;
 class AccountServiceImplTest {
 
     @Mock
-    private CloseableHttpClient httpClient;
+    private CloseableHttpClient mockHttpClient;
 
     @Mock
-    private ResponseHandlerProvider responseHandlerProvider;
+    private ResponseHandlerProvider mockResponseHandlerProvider;
 
     private AccountServiceImpl accountService;
 
     @BeforeEach
     void setUp() {
-        accountService = new AccountServiceImpl(httpClient, responseHandlerProvider);
+        accountService = new AccountServiceImpl(mockHttpClient, mockResponseHandlerProvider);
     }
 
     @Test
@@ -66,19 +66,19 @@ class AccountServiceImplTest {
 
         AccountResponseHandler handler = response -> account;
 
-        GetAccountRequest getAccountRequest = mock(GetAccountRequest.class);
+        GetAccountRequest mockGetAccountRequest = mock(GetAccountRequest.class);
 
-        when(getAccountRequest.getAccountName()).thenReturn(accountName);
-        when(getAccountRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
-        when(responseHandlerProvider.handlerFor(Account.class)).thenReturn(handler);
-        when(httpClient.execute(desiredHttpGetSupplier.get(), eq(handler))).thenReturn(handler.handleResponse(null));
+        when(mockGetAccountRequest.getAccountName()).thenReturn(accountName);
+        when(mockGetAccountRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
+        when(mockResponseHandlerProvider.handlerFor(Account.class)).thenReturn(handler);
+        when(mockHttpClient.execute(desiredHttpGetSupplier.get(), eq(handler))).thenReturn(handler.handleResponse(null));
 
-        assertEquals(accountService.getAccount(getAccountRequest).get(), account);
+        assertEquals(accountService.getAccount(mockGetAccountRequest).get(), account);
 
-        verify(getAccountRequest).getAccountName();
-        verify(getAccountRequest).getAuthHeaderValue();
-        verify(responseHandlerProvider).handlerFor(Account.class);
-        verify(httpClient).execute(desiredHttpGetSupplier.get(), eq(handler));
+        verify(mockGetAccountRequest).getAccountName();
+        verify(mockGetAccountRequest).getAuthHeaderValue();
+        verify(mockResponseHandlerProvider).handlerFor(Account.class);
+        verify(mockHttpClient).execute(desiredHttpGetSupplier.get(), eq(handler));
     }
 
     @Test
@@ -97,19 +97,19 @@ class AccountServiceImplTest {
 
         AccountResponseHandler handler = response -> null;
 
-        GetAccountRequest getAccountRequest = mock(GetAccountRequest.class);
+        GetAccountRequest mockGetAccountRequest = mock(GetAccountRequest.class);
 
-        when(getAccountRequest.getAccountName()).thenReturn(accountName);
-        when(getAccountRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
-        when(responseHandlerProvider.handlerFor(Account.class)).thenReturn(handler);
-        when(httpClient.execute(desiredHttpGetSupplier.get(), any(AccountResponseHandler.class))).thenThrow(IOException.class);
+        when(mockGetAccountRequest.getAccountName()).thenReturn(accountName);
+        when(mockGetAccountRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
+        when(mockResponseHandlerProvider.handlerFor(Account.class)).thenReturn(handler);
+        when(mockHttpClient.execute(desiredHttpGetSupplier.get(), any(AccountResponseHandler.class))).thenThrow(IOException.class);
 
-        assertNull(accountService.getAccount(getAccountRequest).get());
+        assertNull(accountService.getAccount(mockGetAccountRequest).get());
 
-        verify(getAccountRequest, times(2)).getAccountName();
-        verify(getAccountRequest).getAuthHeaderValue();
-        verify(responseHandlerProvider).handlerFor(Account.class);
-        verify(httpClient).execute(desiredHttpGetSupplier.get(), eq(handler));
+        verify(mockGetAccountRequest, times(2)).getAccountName();
+        verify(mockGetAccountRequest).getAuthHeaderValue();
+        verify(mockResponseHandlerProvider).handlerFor(Account.class);
+        verify(mockHttpClient).execute(desiredHttpGetSupplier.get(), eq(handler));
     }
 
 
@@ -129,19 +129,19 @@ class AccountServiceImplTest {
 
         AccountArrayResponseHandler handler = response -> new Account[accountIds.size()];
 
-        GetAccountsRequest getAccountsRequest = mock(GetAccountsRequest.class);
+        GetAccountsRequest mockGetAccountsRequest = mock(GetAccountsRequest.class);
 
-        when(getAccountsRequest.getAccountIds()).thenReturn(accountIds);
-        when(getAccountsRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
-        when(responseHandlerProvider.handlerFor(Account[].class)).thenReturn(handler);
-        when(httpClient.execute(desiredHttpGetSupplier.get(), eq(handler))).thenReturn(handler.handleResponse(null));
+        when(mockGetAccountsRequest.getAccountIds()).thenReturn(accountIds);
+        when(mockGetAccountsRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
+        when(mockResponseHandlerProvider.handlerFor(Account[].class)).thenReturn(handler);
+        when(mockHttpClient.execute(desiredHttpGetSupplier.get(), eq(handler))).thenReturn(handler.handleResponse(null));
 
-        assertEquals(accountService.getAccounts(getAccountsRequest).get().size(), accountIds.size());
+        assertEquals(accountService.getAccounts(mockGetAccountsRequest).get().size(), accountIds.size());
 
-        verify(getAccountsRequest).getAccountIds();
-        verify(getAccountsRequest).getAuthHeaderValue();
-        verify(responseHandlerProvider).handlerFor(Account[].class);
-        verify(httpClient).execute(desiredHttpGetSupplier.get(), eq(handler));
+        verify(mockGetAccountsRequest).getAccountIds();
+        verify(mockGetAccountsRequest).getAuthHeaderValue();
+        verify(mockResponseHandlerProvider).handlerFor(Account[].class);
+        verify(mockHttpClient).execute(desiredHttpGetSupplier.get(), eq(handler));
     }
 
     @Test
@@ -160,19 +160,19 @@ class AccountServiceImplTest {
 
         AccountArrayResponseHandler handler = response -> null;
 
-        GetAccountsRequest getAccountsRequest = mock(GetAccountsRequest.class);
+        GetAccountsRequest mockGetAccountsRequest = mock(GetAccountsRequest.class);
 
-        when(getAccountsRequest.getAccountIds()).thenReturn(accountIds);
-        when(getAccountsRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
-        when(responseHandlerProvider.handlerFor(Account[].class)).thenReturn(handler);
-        when(httpClient.execute(desiredHttpGetSupplier.get(), eq(handler))).thenThrow(IOException.class);
+        when(mockGetAccountsRequest.getAccountIds()).thenReturn(accountIds);
+        when(mockGetAccountsRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
+        when(mockResponseHandlerProvider.handlerFor(Account[].class)).thenReturn(handler);
+        when(mockHttpClient.execute(desiredHttpGetSupplier.get(), eq(handler))).thenThrow(IOException.class);
 
-        assertNull(accountService.getAccounts(getAccountsRequest).get());
+        assertNull(accountService.getAccounts(mockGetAccountsRequest).get());
 
-        verify(getAccountsRequest, Mockito.times(2)).getAccountIds();
-        verify(getAccountsRequest).getAuthHeaderValue();
-        verify(responseHandlerProvider).handlerFor(Account[].class);
-        verify(httpClient).execute(desiredHttpGetSupplier.get(), eq(handler));
+        verify(mockGetAccountsRequest, Mockito.times(2)).getAccountIds();
+        verify(mockGetAccountsRequest).getAuthHeaderValue();
+        verify(mockResponseHandlerProvider).handlerFor(Account[].class);
+        verify(mockHttpClient).execute(desiredHttpGetSupplier.get(), eq(handler));
     }
 
     private interface AccountResponseHandler extends ResponseHandler<Account> {

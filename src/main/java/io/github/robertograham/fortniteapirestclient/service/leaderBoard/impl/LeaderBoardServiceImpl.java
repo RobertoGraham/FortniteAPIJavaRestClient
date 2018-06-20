@@ -58,7 +58,7 @@ public class LeaderBoardServiceImpl implements LeaderBoardService {
             return leaderBoard;
         }).handle(((leaderBoard, throwable) -> {
             if (leaderBoard == null)
-                LOG.error("Could not fetch leader board for platform {}, party type {}, window {}, and entry count {}", getWinsLeaderBoardRequest.getPlatform(), getWinsLeaderBoardRequest.getPartyType(), getWinsLeaderBoardRequest.getWindow(), getWinsLeaderBoardRequest.getEntryCount(), throwable);
+                LOG.error("Could not fetch leader board for {}", getWinsLeaderBoardRequest, throwable);
 
             return leaderBoard;
         }));
@@ -93,22 +93,25 @@ public class LeaderBoardServiceImpl implements LeaderBoardService {
                     .map(entry -> {
                         EnhancedLeaderBoardEntry enhancedLeaderBoardEntry = new EnhancedLeaderBoardEntry();
 
-                        Account matchingAccount = accounts.stream()
-                                .filter(account -> account.getId().equals(entry.getAccountId().replace("-", "")))
-                                .findFirst()
-                                .orElse(null);
+                        if (accounts != null) {
+                            Account matchingAccount = accounts.stream()
+                                    .filter(account -> account.getId().equals(entry.getAccountId().replace("-", "")))
+                                    .findFirst()
+                                    .orElse(null);
 
-                        if (matchingAccount != null) {
-                            String displayName = matchingAccount.getDisplayName();
+                            if (matchingAccount != null) {
+                                String displayName = matchingAccount.getDisplayName();
 
-                            if (displayName == null) {
-                                List<ExternalAuth> externalAuths = new ArrayList<>(matchingAccount.getExternalAuths().values());
+                                if (displayName == null) {
+                                    List<ExternalAuth> externalAuths = new ArrayList<>(matchingAccount.getExternalAuths().values());
 
-                                if (externalAuths.size() > 0)
-                                    displayName = externalAuths.get(0).getExternalDisplayName();
+                                    if (externalAuths.size() > 0)
+                                        displayName = externalAuths.get(0).getExternalDisplayName();
+                                }
+
+                                accounts.remove(matchingAccount);
+                                enhancedLeaderBoardEntry.setDisplayName(displayName);
                             }
-
-                            enhancedLeaderBoardEntry.setDisplayName(displayName);
                         }
 
                         enhancedLeaderBoardEntry.setWins(entry.getValue());

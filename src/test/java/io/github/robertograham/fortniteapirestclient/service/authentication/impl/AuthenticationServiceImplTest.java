@@ -44,16 +44,16 @@ import static org.mockito.Mockito.*;
 class AuthenticationServiceImplTest {
 
     @Mock
-    private CloseableHttpClient httpClient;
+    private CloseableHttpClient mockHttpClient;
 
     @Mock
-    private ResponseHandlerProvider responseHandlerProvider;
+    private ResponseHandlerProvider mockResponseHandlerProvider;
 
     private AuthenticationServiceImpl authenticationService;
 
     @BeforeEach
     void setUp() {
-        authenticationService = new AuthenticationServiceImpl(httpClient, responseHandlerProvider);
+        authenticationService = new AuthenticationServiceImpl(mockHttpClient, mockResponseHandlerProvider);
     }
 
     @Test
@@ -86,21 +86,21 @@ class AuthenticationServiceImplTest {
 
         OAuthTokenResponeHandler handler = response -> oAuthToken;
 
-        GetOAuthTokenRequest getOAuthTokenRequest = mock(GetOAuthTokenRequest.class);
+        GetOAuthTokenRequest mockGetOAuthTokenRequest = mock(GetOAuthTokenRequest.class);
 
-        when(getOAuthTokenRequest.getGrantType()).thenReturn(grantType);
-        when(getOAuthTokenRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
-        when(getOAuthTokenRequest.getAdditionalFormEntries()).thenReturn(additionalFormEntries);
-        when(responseHandlerProvider.handlerFor(OAuthToken.class)).thenReturn(handler);
-        when(httpClient.execute(desiredHttpPostSupplier.get(), eq(handler))).thenReturn(handler.handleResponse(null));
+        when(mockGetOAuthTokenRequest.getGrantType()).thenReturn(grantType);
+        when(mockGetOAuthTokenRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
+        when(mockGetOAuthTokenRequest.getAdditionalFormEntries()).thenReturn(additionalFormEntries);
+        when(mockResponseHandlerProvider.handlerFor(OAuthToken.class)).thenReturn(handler);
+        when(mockHttpClient.execute(desiredHttpPostSupplier.get(), eq(handler))).thenReturn(handler.handleResponse(null));
 
-        assertEquals(authenticationService.getOAuthToken(getOAuthTokenRequest).get(), oAuthToken);
+        assertEquals(authenticationService.getOAuthToken(mockGetOAuthTokenRequest).get(), oAuthToken);
 
-        verify(getOAuthTokenRequest).getGrantType();
-        verify(getOAuthTokenRequest).getAuthHeaderValue();
-        verify(getOAuthTokenRequest).getAdditionalFormEntries();
-        verify(responseHandlerProvider).handlerFor(OAuthToken.class);
-        verify(httpClient).execute(desiredHttpPostSupplier.get(), eq(handler));
+        verify(mockGetOAuthTokenRequest).getGrantType();
+        verify(mockGetOAuthTokenRequest).getAuthHeaderValue();
+        verify(mockGetOAuthTokenRequest).getAdditionalFormEntries();
+        verify(mockResponseHandlerProvider).handlerFor(OAuthToken.class);
+        verify(mockHttpClient).execute(desiredHttpPostSupplier.get(), eq(handler));
     }
 
     @Test
@@ -131,21 +131,21 @@ class AuthenticationServiceImplTest {
 
         OAuthTokenResponeHandler handler = response -> null;
 
-        GetOAuthTokenRequest getOAuthTokenRequest = mock(GetOAuthTokenRequest.class);
+        GetOAuthTokenRequest mockGetOAuthTokenRequest = mock(GetOAuthTokenRequest.class);
 
-        when(getOAuthTokenRequest.getGrantType()).thenReturn(grantType);
-        when(getOAuthTokenRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
-        when(getOAuthTokenRequest.getAdditionalFormEntries()).thenReturn(additionalFormEntries);
-        when(responseHandlerProvider.handlerFor(OAuthToken.class)).thenReturn(handler);
-        when(httpClient.execute(desiredHttpPostSupplier.get(), eq(handler))).thenThrow(IOException.class);
+        when(mockGetOAuthTokenRequest.getGrantType()).thenReturn(grantType);
+        when(mockGetOAuthTokenRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
+        when(mockGetOAuthTokenRequest.getAdditionalFormEntries()).thenReturn(additionalFormEntries);
+        when(mockResponseHandlerProvider.handlerFor(OAuthToken.class)).thenReturn(handler);
+        when(mockHttpClient.execute(desiredHttpPostSupplier.get(), eq(handler))).thenThrow(IOException.class);
 
-        assertNull(authenticationService.getOAuthToken(getOAuthTokenRequest).get());
+        assertNull(authenticationService.getOAuthToken(mockGetOAuthTokenRequest).get());
 
-        verify(getOAuthTokenRequest).getGrantType();
-        verify(getOAuthTokenRequest).getAuthHeaderValue();
-        verify(getOAuthTokenRequest).getAdditionalFormEntries();
-        verify(responseHandlerProvider).handlerFor(OAuthToken.class);
-        verify(httpClient).execute(desiredHttpPostSupplier.get(), eq(handler));
+        verify(mockGetOAuthTokenRequest).getGrantType();
+        verify(mockGetOAuthTokenRequest).getAuthHeaderValue();
+        verify(mockGetOAuthTokenRequest).getAdditionalFormEntries();
+        verify(mockResponseHandlerProvider).handlerFor(OAuthToken.class);
+        verify(mockHttpClient).execute(desiredHttpPostSupplier.get(), eq(handler));
     }
 
     @Test
@@ -165,17 +165,17 @@ class AuthenticationServiceImplTest {
 
         ExchangeCodeResponeHandler handler = response -> exchangeCode;
 
-        GetExchangeCodeRequest getExchangeCodeRequest = mock(GetExchangeCodeRequest.class);
+        GetExchangeCodeRequest mockGetExchangeCodeRequest = mock(GetExchangeCodeRequest.class);
 
-        when(getExchangeCodeRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
-        when(responseHandlerProvider.handlerFor(ExchangeCode.class)).thenReturn(handler);
-        when(httpClient.execute(desiredHttpGetSupplier.get(), eq(handler))).thenReturn(handler.handleResponse(null));
+        when(mockGetExchangeCodeRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
+        when(mockResponseHandlerProvider.handlerFor(ExchangeCode.class)).thenReturn(handler);
+        when(mockHttpClient.execute(desiredHttpGetSupplier.get(), eq(handler))).thenReturn(handler.handleResponse(null));
 
-        assertEquals(authenticationService.getExchangeCode(getExchangeCodeRequest).get(), exchangeCode);
+        assertEquals(authenticationService.getExchangeCode(mockGetExchangeCodeRequest).get(), exchangeCode);
 
-        verify(getExchangeCodeRequest).getAuthHeaderValue();
-        verify(responseHandlerProvider).handlerFor(ExchangeCode.class);
-        verify(httpClient).execute(desiredHttpGetSupplier.get(), eq(handler));
+        verify(mockGetExchangeCodeRequest).getAuthHeaderValue();
+        verify(mockResponseHandlerProvider).handlerFor(ExchangeCode.class);
+        verify(mockHttpClient).execute(desiredHttpGetSupplier.get(), eq(handler));
     }
 
     @Test
@@ -193,17 +193,17 @@ class AuthenticationServiceImplTest {
 
         ExchangeCodeResponeHandler handler = response -> null;
 
-        GetExchangeCodeRequest getExchangeCodeRequest = mock(GetExchangeCodeRequest.class);
+        GetExchangeCodeRequest mockGetExchangeCodeRequest = mock(GetExchangeCodeRequest.class);
 
-        when(getExchangeCodeRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
-        when(responseHandlerProvider.handlerFor(ExchangeCode.class)).thenReturn(handler);
-        when(httpClient.execute(desiredHttpGetSupplier.get(), eq(handler))).thenThrow(IOException.class);
+        when(mockGetExchangeCodeRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
+        when(mockResponseHandlerProvider.handlerFor(ExchangeCode.class)).thenReturn(handler);
+        when(mockHttpClient.execute(desiredHttpGetSupplier.get(), eq(handler))).thenThrow(IOException.class);
 
-        assertNull(authenticationService.getExchangeCode(getExchangeCodeRequest).get());
+        assertNull(authenticationService.getExchangeCode(mockGetExchangeCodeRequest).get());
 
-        verify(getExchangeCodeRequest).getAuthHeaderValue();
-        verify(responseHandlerProvider).handlerFor(ExchangeCode.class);
-        verify(httpClient).execute(desiredHttpGetSupplier.get(), eq(handler));
+        verify(mockGetExchangeCodeRequest).getAuthHeaderValue();
+        verify(mockResponseHandlerProvider).handlerFor(ExchangeCode.class);
+        verify(mockHttpClient).execute(desiredHttpGetSupplier.get(), eq(handler));
     }
 
     @Test
@@ -222,19 +222,19 @@ class AuthenticationServiceImplTest {
 
         StringResponseHandler handler = response -> "";
 
-        KillSessionRequest killSessionRequest = mock(KillSessionRequest.class);
+        KillSessionRequest mockKillSessionRequest = mock(KillSessionRequest.class);
 
-        when(killSessionRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
-        when(killSessionRequest.getAccessToken()).thenReturn(accessToken);
-        when(responseHandlerProvider.stringHandler()).thenReturn(handler);
-        when(httpClient.execute(desiredHttpDeleteSupplier.get(), eq(handler))).thenReturn(handler.handleResponse(null));
+        when(mockKillSessionRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
+        when(mockKillSessionRequest.getAccessToken()).thenReturn(accessToken);
+        when(mockResponseHandlerProvider.stringHandler()).thenReturn(handler);
+        when(mockHttpClient.execute(desiredHttpDeleteSupplier.get(), eq(handler))).thenReturn(handler.handleResponse(null));
 
-        assertTrue(authenticationService.killSession(killSessionRequest).get());
+        assertTrue(authenticationService.killSession(mockKillSessionRequest).get());
 
-        verify(killSessionRequest).getAuthHeaderValue();
-        verify(killSessionRequest).getAccessToken();
-        verify(responseHandlerProvider).stringHandler();
-        verify(httpClient).execute(desiredHttpDeleteSupplier.get(), eq(handler));
+        verify(mockKillSessionRequest).getAuthHeaderValue();
+        verify(mockKillSessionRequest).getAccessToken();
+        verify(mockResponseHandlerProvider).stringHandler();
+        verify(mockHttpClient).execute(desiredHttpDeleteSupplier.get(), eq(handler));
     }
 
     @Test
@@ -253,19 +253,19 @@ class AuthenticationServiceImplTest {
 
         StringResponseHandler handler = response -> null;
 
-        KillSessionRequest killSessionRequest = mock(KillSessionRequest.class);
+        KillSessionRequest mockKillSessionRequest = mock(KillSessionRequest.class);
 
-        when(killSessionRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
-        when(killSessionRequest.getAccessToken()).thenReturn(accessToken);
-        when(responseHandlerProvider.stringHandler()).thenReturn(handler);
-        when(httpClient.execute(desiredHttpDeleteSupplier.get(), eq(handler))).thenThrow(IOException.class);
+        when(mockKillSessionRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
+        when(mockKillSessionRequest.getAccessToken()).thenReturn(accessToken);
+        when(mockResponseHandlerProvider.stringHandler()).thenReturn(handler);
+        when(mockHttpClient.execute(desiredHttpDeleteSupplier.get(), eq(handler))).thenThrow(IOException.class);
 
-        assertFalse(authenticationService.killSession(killSessionRequest).get());
+        assertFalse(authenticationService.killSession(mockKillSessionRequest).get());
 
-        verify(killSessionRequest).getAuthHeaderValue();
-        verify(killSessionRequest).getAccessToken();
-        verify(responseHandlerProvider).stringHandler();
-        verify(httpClient).execute(desiredHttpDeleteSupplier.get(), eq(handler));
+        verify(mockKillSessionRequest).getAuthHeaderValue();
+        verify(mockKillSessionRequest).getAccessToken();
+        verify(mockResponseHandlerProvider).stringHandler();
+        verify(mockHttpClient).execute(desiredHttpDeleteSupplier.get(), eq(handler));
     }
 
     private interface OAuthTokenResponeHandler extends ResponseHandler<OAuthToken> {

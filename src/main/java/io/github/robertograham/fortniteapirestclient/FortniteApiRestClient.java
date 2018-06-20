@@ -155,7 +155,6 @@ public class FortniteApiRestClient implements Closeable {
                 .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
                 .platform(platform)
                 .build());
-
     }
 
     public CompletableFuture<Map<String, StatsGroup>> enhancedBattleRoyaleStats(String accountId, String window) {
@@ -164,7 +163,6 @@ public class FortniteApiRestClient implements Closeable {
                 .window(window)
                 .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
                 .build());
-
     }
 
     public CompletableFuture<List<Statistic>> battleRoyaleStats(String accountId, String window) {
@@ -173,18 +171,6 @@ public class FortniteApiRestClient implements Closeable {
                 .window(window)
                 .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
                 .build());
-
-    }
-
-    @Deprecated
-    public CompletableFuture<LeaderBoard> winsLeaderBoard(String platform, String partyType, String window) {
-        return winsLeaderBoard(platform, partyType, window, 1000);
-    }
-
-    @Deprecated
-    public CompletableFuture<EnhancedLeaderBoard> enhancedWinsLeaderBoard(String platform, String partyType, String window) {
-        return enhancedWinsLeaderBoard(platform, partyType, window, 1000);
-
     }
 
     public CompletableFuture<LeaderBoard> winsLeaderBoard(String platform, String partyType, String window, int entryCount) {
@@ -195,7 +181,6 @@ public class FortniteApiRestClient implements Closeable {
                 .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
                 .entryCount(entryCount)
                 .build());
-
     }
 
     public CompletableFuture<EnhancedLeaderBoard> enhancedWinsLeaderBoard(String platform, String partyType, String window, int entryCount) {
@@ -206,7 +191,6 @@ public class FortniteApiRestClient implements Closeable {
                 .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
                 .entryCount(entryCount)
                 .build());
-
     }
 
     private CompletableFuture<Boolean> killSession() {
@@ -222,11 +206,6 @@ public class FortniteApiRestClient implements Closeable {
 
     private void setSessionToken(OAuthToken oAuthToken) {
         sessionToken = oAuthToken;
-    }
-
-    @Deprecated
-    public boolean isLoggedIn() {
-        return isSessionValid();
     }
 
     public boolean isSessionValid() {
