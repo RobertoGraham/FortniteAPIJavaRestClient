@@ -14,5 +14,5 @@ public interface AuthenticationService {
 
     CompletableFuture<ExchangeCode> getExchangeCode(GetExchangeCodeRequest getExchangeCodeRequest);
 
-    CompletableFuture<Void> killSession(KillSessionRequest killSessionRequest);
+    CompletableFuture<Boolean> killSession(KillSessionRequest killSessionRequest);
 }

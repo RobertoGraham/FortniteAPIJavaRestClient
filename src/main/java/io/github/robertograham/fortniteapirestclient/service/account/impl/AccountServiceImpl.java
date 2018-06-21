@@ -30,6 +30,8 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public CompletableFuture<Account> getAccount(GetAccountRequest getAccountRequest) {
+        getAccountRequest.log();
+
         return CompletableFuture.supplyAsync(() -> {
             Account account;
 
@@ -53,6 +55,8 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public CompletableFuture<List<Account>> getAccounts(GetAccountsRequest getAccountsRequest) {
+        getAccountsRequest.log();
+
         return CompletableFuture.supplyAsync(() -> {
             Account[] accounts;
 

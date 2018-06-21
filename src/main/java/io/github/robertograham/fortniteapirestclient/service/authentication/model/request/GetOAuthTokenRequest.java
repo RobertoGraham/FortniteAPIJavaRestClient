@@ -1,12 +1,13 @@
 package io.github.robertograham.fortniteapirestclient.service.authentication.model.request;
 
 
+import io.github.robertograham.fortniteapirestclient.util.Request;
 import org.apache.http.NameValuePair;
 
 import java.util.Arrays;
 import java.util.Objects;
 
-public class GetOAuthTokenRequest {
+public class GetOAuthTokenRequest extends Request {
 
     private final String grantType;
     private final String authHeaderValue;
@@ -32,6 +33,15 @@ public class GetOAuthTokenRequest {
 
     public NameValuePair[] getAdditionalFormEntries() {
         return additionalFormEntries;
+    }
+
+    @Override
+    public String toString() {
+        return "GetOAuthTokenRequest{" +
+                "grantType='" + grantType + '\'' +
+                ", authHeaderValue='" + authHeaderValue + '\'' +
+                ", additionalFormEntries=" + Arrays.toString(additionalFormEntries) +
+                "} " + super.toString();
     }
 
     @Override

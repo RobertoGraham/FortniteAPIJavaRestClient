@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -15,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class GetAccountsRequestBuilderTest {
 
     @Test
-    @DisplayName("Test build returns correct GetAccountsRequest")
+    @DisplayName("build returns correct GetAccountsRequest")
     void build_correctlyBuildGetAccountsRequest() {
         Set<String> accountIds = Stream.of("1", "2", "3")
                 .collect(Collectors.toSet());

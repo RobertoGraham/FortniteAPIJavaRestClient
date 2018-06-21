@@ -1,26 +1,19 @@
 package io.github.robertograham.fortniteapirestclient.domain;
 
+import io.github.robertograham.fortniteapirestclient.service.account.model.Account;
+
 public class EnhancedLeaderBoardEntry {
 
-    private String displayName;
-    private String accountId;
+    private Account account;
     private int rank;
     private int wins;
 
-    public String getDisplayName() {
-        return displayName;
+    public Account getAccount() {
+        return account;
     }
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
-    public String getAccountId() {
-        return accountId;
-    }
-
-    public void setAccountId(String accountId) {
-        this.accountId = accountId;
+    public void setAccount(Account account) {
+        this.account = account;
     }
 
     public int getRank() {
@@ -42,8 +35,7 @@ public class EnhancedLeaderBoardEntry {
     @Override
     public String toString() {
         return "EnhancedLeaderBoardEntry{" +
-                "displayName='" + displayName + '\'' +
-                ", accountId='" + accountId + '\'' +
+                "account=" + account +
                 ", rank=" + rank +
                 ", wins=" + wins +
                 '}';

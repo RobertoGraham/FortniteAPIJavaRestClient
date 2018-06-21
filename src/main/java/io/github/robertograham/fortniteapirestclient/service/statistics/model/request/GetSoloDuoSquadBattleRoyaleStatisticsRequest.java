@@ -1,8 +1,10 @@
 package io.github.robertograham.fortniteapirestclient.service.statistics.model.request;
 
+import io.github.robertograham.fortniteapirestclient.util.Request;
+
 import java.util.Objects;
 
-public class GetSoloDuoSquadBattleRoyaleStatisticsRequest {
+public class GetSoloDuoSquadBattleRoyaleStatisticsRequest extends Request {
 
     private final String accountId;
     private final String window;
@@ -28,6 +30,15 @@ public class GetSoloDuoSquadBattleRoyaleStatisticsRequest {
 
     public String getAuthHeaderValue() {
         return authHeaderValue;
+    }
+
+    @Override
+    public String toString() {
+        return "GetSoloDuoSquadBattleRoyaleStatisticsRequest{" +
+                "accountId='" + accountId + '\'' +
+                ", window='" + window + '\'' +
+                ", authHeaderValue='" + authHeaderValue + '\'' +
+                "} " + super.toString();
     }
 
     @Override

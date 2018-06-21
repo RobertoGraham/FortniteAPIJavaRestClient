@@ -26,7 +26,7 @@ public class GetOAuthTokenRequestBuilder implements Builder<GetOAuthTokenRequest
         return this;
     }
 
-    public GetOAuthTokenRequestBuilder additionalFormEntries(NameValuePair[] additionalFormEntries) {
+    public GetOAuthTokenRequestBuilder additionalFormEntries(NameValuePair... additionalFormEntries) {
         Objects.requireNonNull(additionalFormEntries, "Additional form entries cannot be null");
 
         for (NameValuePair nameValuePair : additionalFormEntries)
@@ -40,7 +40,7 @@ public class GetOAuthTokenRequestBuilder implements Builder<GetOAuthTokenRequest
     @Override
     public GetOAuthTokenRequest build() {
         if (additionalFormEntries == null)
-            additionalFormEntries = new NameValuePair[0];
+            additionalFormEntries();
 
         return new GetOAuthTokenRequest(
                 grantType,

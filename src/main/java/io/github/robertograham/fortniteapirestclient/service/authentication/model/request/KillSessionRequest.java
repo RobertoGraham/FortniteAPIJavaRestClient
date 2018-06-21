@@ -1,8 +1,10 @@
 package io.github.robertograham.fortniteapirestclient.service.authentication.model.request;
 
+import io.github.robertograham.fortniteapirestclient.util.Request;
+
 import java.util.Objects;
 
-public class KillSessionRequest {
+public class KillSessionRequest extends Request {
 
     private final String accessToken;
     private final String authHeaderValue;
@@ -22,6 +24,14 @@ public class KillSessionRequest {
 
     public String getAuthHeaderValue() {
         return authHeaderValue;
+    }
+
+    @Override
+    public String toString() {
+        return "KillSessionRequest{" +
+                "accessToken='" + accessToken + '\'' +
+                ", authHeaderValue='" + authHeaderValue + '\'' +
+                "} " + super.toString();
     }
 
     @Override

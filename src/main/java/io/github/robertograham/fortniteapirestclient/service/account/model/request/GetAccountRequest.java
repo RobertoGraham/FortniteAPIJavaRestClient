@@ -1,8 +1,10 @@
 package io.github.robertograham.fortniteapirestclient.service.account.model.request;
 
+import io.github.robertograham.fortniteapirestclient.util.Request;
+
 import java.util.Objects;
 
-public class GetAccountRequest {
+public class GetAccountRequest extends Request {
 
     private final String accountName;
     private final String authHeaderValue;
@@ -22,6 +24,14 @@ public class GetAccountRequest {
 
     public String getAccountName() {
         return accountName;
+    }
+
+    @Override
+    public String toString() {
+        return "GetAccountRequest{" +
+                "accountName='" + accountName + '\'' +
+                ", authHeaderValue='" + authHeaderValue + '\'' +
+                "} " + super.toString();
     }
 
     @Override
