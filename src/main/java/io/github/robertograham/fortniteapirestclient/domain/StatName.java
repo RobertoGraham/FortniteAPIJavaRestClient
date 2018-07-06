@@ -1,5 +1,7 @@
 package io.github.robertograham.fortniteapirestclient.domain;
 
+import java.util.Objects;
+
 public class StatName {
 
     private String gameMode;
@@ -65,5 +67,27 @@ public class StatName {
                 ", unknownProperty='" + unknownProperty + '\'' +
                 ", platform='" + platform + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object)
+            return true;
+
+        if (!(object instanceof StatName))
+            return false;
+
+        StatName statName = (StatName) object;
+
+        return Objects.equals(gameMode, statName.gameMode) &&
+                Objects.equals(partyType, statName.partyType) &&
+                Objects.equals(statType, statName.statType) &&
+                Objects.equals(unknownProperty, statName.unknownProperty) &&
+                Objects.equals(platform, statName.platform);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(gameMode, partyType, statType, unknownProperty, platform);
     }
 }

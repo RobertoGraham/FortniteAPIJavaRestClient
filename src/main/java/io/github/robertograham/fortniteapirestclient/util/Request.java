@@ -5,14 +5,14 @@ import org.slf4j.LoggerFactory;
 
 public class Request {
 
-    private final Logger LOG;
+    private final Logger log;
 
     public Request() {
-        LOG = LoggerFactory.getLogger(getClass());
+        log = LoggerFactory.getLogger(getClass());
     }
 
     public void log() {
-        LOG.debug(toString());
+        log.debug(toString());
     }
 
     @Override

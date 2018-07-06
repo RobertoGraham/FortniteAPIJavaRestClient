@@ -3,6 +3,7 @@ package io.github.robertograham.fortniteapirestclient.util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class ResponseHandlerProviderBuilder implements Builder<ResponseHandlerProvider> {
 
@@ -19,9 +20,7 @@ public class ResponseHandlerProviderBuilder implements Builder<ResponseHandlerPr
 
     @Override
     public ResponseHandlerProvider build() {
-        if (objectMapper == null)
-            objectMapper = new ObjectMapper().findAndRegisterModules();
-
-        return new ResponseHandlerProvider(objectMapper);
+        return new ResponseHandlerProvider(Optional.ofNullable(objectMapper)
+                .orElse(new ObjectMapper().findAndRegisterModules()));
     }
 }
