@@ -8,6 +8,7 @@ import io.github.robertograham.fortniteapirestclient.util.ResponseHandlerProvide
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 
@@ -59,7 +61,9 @@ class LeaderBoardServiceImplTest {
         Supplier<HttpPost> desiredHttpPostSupplier = () -> argThat(argument ->
                 argument.toString().equals(((Supplier<HttpPost>) () -> {
                     HttpPost httpPost = new HttpPost(Endpoint.winsLeaderBoard(platform, partyType, window, entryCount));
+                    httpPost.setEntity(new StringEntity("[]", StandardCharsets.UTF_8));
                     httpPost.addHeader(HttpHeaders.AUTHORIZATION, authHeaderValue);
+                    httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
 
                     return httpPost;
                 }).get().toString()));
@@ -101,7 +105,9 @@ class LeaderBoardServiceImplTest {
         Supplier<HttpPost> desiredHttpPostSupplier = () -> argThat(argument ->
                 argument.toString().equals(((Supplier<HttpPost>) () -> {
                     HttpPost httpPost = new HttpPost(Endpoint.winsLeaderBoard(platform, partyType, window, entryCount));
+                    httpPost.setEntity(new StringEntity("[]", StandardCharsets.UTF_8));
                     httpPost.addHeader(HttpHeaders.AUTHORIZATION, authHeaderValue);
+                    httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
 
                     return httpPost;
                 }).get().toString()));

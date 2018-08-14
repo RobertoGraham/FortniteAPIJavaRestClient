@@ -13,11 +13,13 @@ import io.github.robertograham.fortniteapirestclient.util.Endpoint;
 import io.github.robertograham.fortniteapirestclient.util.ResponseHandlerProvider;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +51,9 @@ public class LeaderBoardServiceImpl implements LeaderBoardService {
             LeaderBoard leaderBoard;
 
             HttpPost httpPost = new HttpPost(Endpoint.winsLeaderBoard(getWinsLeaderBoardRequest.getPlatform(), getWinsLeaderBoardRequest.getPartyType(), getWinsLeaderBoardRequest.getWindow(), getWinsLeaderBoardRequest.getEntryCount()));
+            httpPost.setEntity(new StringEntity("[]", StandardCharsets.UTF_8));
             httpPost.setHeader(HttpHeaders.AUTHORIZATION, getWinsLeaderBoardRequest.getAuthHeaderValue());
+            httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
 
             try {
                 leaderBoard = httpClient.execute(httpPost, responseHandlerProvider.handlerFor(LeaderBoard.class));
