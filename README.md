@@ -1,4 +1,4 @@
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.robertograham/fortnite-api-rest-client/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.robertograham/fortnite-api-rest-client)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.robertograham/fortnite-api-rest-client.svg?label=Maven%20Central)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22io.github.robertograham%22%20a%3A%22fortnite-api-rest-client%22)
 # FortniteAPIJavaRestClient
 Java client for the Fortnite API
 
