@@ -1,12 +1,14 @@
 package io.github.robertograham.fortniteapirestclient.service.leaderBoard.impl;
 
 import io.github.robertograham.fortniteapirestclient.service.account.impl.AccountServiceImpl;
+import io.github.robertograham.fortniteapirestclient.service.leaderBoard.model.Cohort;
 import io.github.robertograham.fortniteapirestclient.service.leaderBoard.model.LeaderBoard;
 import io.github.robertograham.fortniteapirestclient.service.leaderBoard.model.request.GetWinsLeaderBoardRequest;
 import io.github.robertograham.fortniteapirestclient.util.Endpoint;
-import io.github.robertograham.fortniteapirestclient.util.ResponseHandlerProvider;
+import io.github.robertograham.fortniteapirestclient.util.ResponseRequestUtil;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -37,7 +39,7 @@ class LeaderBoardServiceImplTest {
     private CloseableHttpClient mockHttpClient;
 
     @Mock
-    private ResponseHandlerProvider mockResponseHandlerProvider;
+    private ResponseRequestUtil mockResponseRequestUtil;
 
     @Mock
     private AccountServiceImpl mockAccountService;
@@ -46,7 +48,7 @@ class LeaderBoardServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        leaderBoardService = new LeaderBoardServiceImpl(mockHttpClient, mockResponseHandlerProvider, mockAccountService);
+        leaderBoardService = new LeaderBoardServiceImpl(mockHttpClient, mockResponseRequestUtil, mockAccountService);
     }
 
     @Test
@@ -56,21 +58,34 @@ class LeaderBoardServiceImplTest {
         String partyType = "partyType";
         String platform = "platform";
         String window = "window";
+        String inAppId = "inAppId";
         int entryCount = 1;
 
+        Supplier<HttpGet> desiredHttpGetSupplier = () -> argThat(argument ->
+                argument instanceof HttpGet
+                        && ((Supplier<HttpGet>) () -> {
+                    HttpGet httpGet = new HttpGet(Endpoint.cohort(inAppId, platform, partyType));
+                    httpGet.addHeader(HttpHeaders.AUTHORIZATION, authHeaderValue);
+
+                    return httpGet;
+                }).get().toString().equals(String.valueOf(argument)));
+
         Supplier<HttpPost> desiredHttpPostSupplier = () -> argThat(argument ->
-                argument.toString().equals(((Supplier<HttpPost>) () -> {
+                argument instanceof HttpPost
+                        && ((Supplier<HttpPost>) () -> {
                     HttpPost httpPost = new HttpPost(Endpoint.winsLeaderBoard(platform, partyType, window, entryCount));
                     httpPost.setEntity(new StringEntity("[]", StandardCharsets.UTF_8));
                     httpPost.addHeader(HttpHeaders.AUTHORIZATION, authHeaderValue);
                     httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
 
                     return httpPost;
-                }).get().toString()));
+                }).get().toString().equals(String.valueOf(argument)));
 
         LeaderBoard leaderBoard = new LeaderBoard();
+        Cohort cohort = new Cohort();
 
-        LeaderBoardResponseHandler handler = response -> leaderBoard;
+        LeaderBoardResponseHandler leaderBoardResponseHandler = response -> leaderBoard;
+        CohortResponseHandler cohortResponseHandler = response -> cohort;
 
         GetWinsLeaderBoardRequest mockGetWinsLeaderBoardRequest = mock(GetWinsLeaderBoardRequest.class);
 
@@ -79,18 +94,24 @@ class LeaderBoardServiceImplTest {
         when(mockGetWinsLeaderBoardRequest.getPlatform()).thenReturn(platform);
         when(mockGetWinsLeaderBoardRequest.getWindow()).thenReturn(window);
         when(mockGetWinsLeaderBoardRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
-        when(mockResponseHandlerProvider.handlerFor(LeaderBoard.class)).thenReturn(handler);
-        when(mockHttpClient.execute(desiredHttpPostSupplier.get(), eq(handler))).thenReturn(handler.handleResponse(null));
+        when(mockGetWinsLeaderBoardRequest.getInAppId()).thenReturn(inAppId);
+        doReturn(cohortResponseHandler).when(mockResponseRequestUtil).responseHandlerFor(Cohort.class);
+        doReturn(leaderBoardResponseHandler).when(mockResponseRequestUtil).responseHandlerFor(LeaderBoard.class);
+        doReturn(cohortResponseHandler.handleResponse(null)).when(mockHttpClient).execute(any(), eq(cohortResponseHandler));
+        doReturn(leaderBoardResponseHandler.handleResponse(null)).when(mockHttpClient).execute(any(), eq(leaderBoardResponseHandler));
 
         assertEquals(leaderBoardService.getWinsLeaderBoard(mockGetWinsLeaderBoardRequest).get(), leaderBoard);
 
         verify(mockGetWinsLeaderBoardRequest).getWindow();
-        verify(mockGetWinsLeaderBoardRequest).getPlatform();
-        verify(mockGetWinsLeaderBoardRequest).getPartyType();
+        verify(mockGetWinsLeaderBoardRequest, times(2)).getPlatform();
+        verify(mockGetWinsLeaderBoardRequest, times(2)).getPartyType();
         verify(mockGetWinsLeaderBoardRequest).getEntryCount();
-        verify(mockGetWinsLeaderBoardRequest).getAuthHeaderValue();
-        verify(mockResponseHandlerProvider).handlerFor(LeaderBoard.class);
-        verify(mockHttpClient).execute(desiredHttpPostSupplier.get(), eq(handler));
+        verify(mockGetWinsLeaderBoardRequest, times(2)).getAuthHeaderValue();
+        verify(mockGetWinsLeaderBoardRequest).getInAppId();
+        verify(mockResponseRequestUtil).responseHandlerFor(Cohort.class);
+        verify(mockResponseRequestUtil).responseHandlerFor(LeaderBoard.class);
+        verify(mockHttpClient).execute(any(), eq(cohortResponseHandler));
+        verify(mockHttpClient).execute(any(), eq(leaderBoardResponseHandler));
     }
 
     @Test
@@ -100,19 +121,33 @@ class LeaderBoardServiceImplTest {
         String partyType = "partyType";
         String platform = "platform";
         String window = "window";
+        String inAppId = "inAppId";
         int entryCount = 1;
 
+        Supplier<HttpGet> desiredHttpGetSupplier = () -> argThat(argument ->
+                argument instanceof HttpGet
+                        && ((Supplier<HttpGet>) () -> {
+                    HttpGet httpGet = new HttpGet(Endpoint.cohort(inAppId, platform, partyType));
+                    httpGet.addHeader(HttpHeaders.AUTHORIZATION, authHeaderValue);
+
+                    return httpGet;
+                }).get().toString().equals(String.valueOf(argument)));
+
         Supplier<HttpPost> desiredHttpPostSupplier = () -> argThat(argument ->
-                argument.toString().equals(((Supplier<HttpPost>) () -> {
+                argument instanceof HttpPost
+                        && ((Supplier<HttpPost>) () -> {
                     HttpPost httpPost = new HttpPost(Endpoint.winsLeaderBoard(platform, partyType, window, entryCount));
                     httpPost.setEntity(new StringEntity("[]", StandardCharsets.UTF_8));
                     httpPost.addHeader(HttpHeaders.AUTHORIZATION, authHeaderValue);
                     httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
 
                     return httpPost;
-                }).get().toString()));
+                }).get().toString().equals(String.valueOf(argument)));
 
-        LeaderBoardResponseHandler handler = response -> null;
+        Cohort cohort = new Cohort();
+
+        LeaderBoardResponseHandler leaderBoardResponseHandler = response -> null;
+        CohortResponseHandler cohortResponseHandler = response -> cohort;
 
         GetWinsLeaderBoardRequest mockGetWinsLeaderBoardRequest = mock(GetWinsLeaderBoardRequest.class);
 
@@ -121,20 +156,29 @@ class LeaderBoardServiceImplTest {
         when(mockGetWinsLeaderBoardRequest.getPlatform()).thenReturn(platform);
         when(mockGetWinsLeaderBoardRequest.getWindow()).thenReturn(window);
         when(mockGetWinsLeaderBoardRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
-        when(mockResponseHandlerProvider.handlerFor(LeaderBoard.class)).thenReturn(handler);
-        when(mockHttpClient.execute(desiredHttpPostSupplier.get(), eq(handler))).thenThrow(IOException.class);
+        when(mockGetWinsLeaderBoardRequest.getInAppId()).thenReturn(inAppId);
+        doReturn(cohortResponseHandler).when(mockResponseRequestUtil).responseHandlerFor(Cohort.class);
+        doReturn(leaderBoardResponseHandler).when(mockResponseRequestUtil).responseHandlerFor(LeaderBoard.class);
+        doReturn(cohortResponseHandler.handleResponse(null)).when(mockHttpClient).execute(any(), eq(cohortResponseHandler));
+        doThrow(IOException.class).when(mockHttpClient).execute(any(), eq(leaderBoardResponseHandler));
 
         assertNull(leaderBoardService.getWinsLeaderBoard(mockGetWinsLeaderBoardRequest).get());
 
         verify(mockGetWinsLeaderBoardRequest).getWindow();
-        verify(mockGetWinsLeaderBoardRequest).getPlatform();
-        verify(mockGetWinsLeaderBoardRequest).getPartyType();
+        verify(mockGetWinsLeaderBoardRequest, times(2)).getPlatform();
+        verify(mockGetWinsLeaderBoardRequest, times(2)).getPartyType();
         verify(mockGetWinsLeaderBoardRequest).getEntryCount();
-        verify(mockGetWinsLeaderBoardRequest).getAuthHeaderValue();
-        verify(mockResponseHandlerProvider).handlerFor(LeaderBoard.class);
-        verify(mockHttpClient).execute(desiredHttpPostSupplier.get(), eq(handler));
+        verify(mockGetWinsLeaderBoardRequest, times(2)).getAuthHeaderValue();
+        verify(mockGetWinsLeaderBoardRequest).getInAppId();
+        verify(mockResponseRequestUtil).responseHandlerFor(Cohort.class);
+        verify(mockResponseRequestUtil).responseHandlerFor(LeaderBoard.class);
+        verify(mockHttpClient).execute(any(), eq(cohortResponseHandler));
+        verify(mockHttpClient).execute(any(), eq(leaderBoardResponseHandler));
     }
 
     private interface LeaderBoardResponseHandler extends ResponseHandler<LeaderBoard> {
+    }
+
+    private interface CohortResponseHandler extends ResponseHandler<Cohort> {
     }
 }

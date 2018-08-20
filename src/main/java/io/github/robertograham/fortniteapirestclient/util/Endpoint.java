@@ -76,4 +76,13 @@ public class Endpoint {
             return "https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/leaderboards/type/global/stat/" + formattedStatName + "/window/" + window + "?ownertype=1&pageNumber=0&itemsPerPage=" + entryCount;
         }
     }
+
+    public static String cohort(String inAppId, String platform, String partyType) {
+        try {
+            return "https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/game/v2/leaderboards/cohort/" + encodeUriComponent(inAppId) + "?playlist=" + encodeUriComponent(platform) + "_m0_" + encodeUriComponent(partyType);
+        } catch (URISyntaxException e) {
+            LOG.error("URISyntaxException while encoding inAppId: {}, platform: {}, and partyType: {}", inAppId, platform, partyType, e);
+            return "https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/game/v2/leaderboards/cohort/" + inAppId + "?playlist=" + platform + "_m0_" + partyType;
+        }
+    }
 }

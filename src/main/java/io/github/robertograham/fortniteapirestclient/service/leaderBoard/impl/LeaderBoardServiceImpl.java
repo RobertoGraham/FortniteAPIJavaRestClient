@@ -6,12 +6,15 @@ import io.github.robertograham.fortniteapirestclient.service.account.AccountServ
 import io.github.robertograham.fortniteapirestclient.service.account.model.Account;
 import io.github.robertograham.fortniteapirestclient.service.account.model.request.GetAccountsRequest;
 import io.github.robertograham.fortniteapirestclient.service.leaderBoard.LeaderBoardService;
+import io.github.robertograham.fortniteapirestclient.service.leaderBoard.model.Cohort;
 import io.github.robertograham.fortniteapirestclient.service.leaderBoard.model.LeaderBoard;
 import io.github.robertograham.fortniteapirestclient.service.leaderBoard.model.LeaderBoardEntry;
+import io.github.robertograham.fortniteapirestclient.service.leaderBoard.model.request.GetCohortRequest;
 import io.github.robertograham.fortniteapirestclient.service.leaderBoard.model.request.GetWinsLeaderBoardRequest;
 import io.github.robertograham.fortniteapirestclient.util.Endpoint;
-import io.github.robertograham.fortniteapirestclient.util.ResponseHandlerProvider;
+import io.github.robertograham.fortniteapirestclient.util.ResponseRequestUtil;
 import org.apache.http.HttpHeaders;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -20,10 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
@@ -34,12 +34,12 @@ public class LeaderBoardServiceImpl implements LeaderBoardService {
 
     private static final Logger LOG = LoggerFactory.getLogger(LeaderBoardServiceImpl.class);
     private final CloseableHttpClient httpClient;
-    private final ResponseHandlerProvider responseHandlerProvider;
+    private final ResponseRequestUtil responseRequestUtil;
     private final AccountService accountService;
 
-    public LeaderBoardServiceImpl(CloseableHttpClient httpClient, ResponseHandlerProvider responseHandlerProvider, AccountService accountService) {
+    public LeaderBoardServiceImpl(CloseableHttpClient httpClient, ResponseRequestUtil responseRequestUtil, AccountService accountService) {
         this.httpClient = httpClient;
-        this.responseHandlerProvider = responseHandlerProvider;
+        this.responseRequestUtil = responseRequestUtil;
         this.accountService = accountService;
     }
 
@@ -49,14 +49,33 @@ public class LeaderBoardServiceImpl implements LeaderBoardService {
 
         return CompletableFuture.supplyAsync(() -> {
             LeaderBoard leaderBoard;
+            Cohort cohort = null;
+
+            try {
+                cohort = getCohort(
+                        GetCohortRequest.builder()
+                                .inAppId(getWinsLeaderBoardRequest.getInAppId())
+                                .authHeaderValue(getWinsLeaderBoardRequest.getAuthHeaderValue())
+                                .partyType(getWinsLeaderBoardRequest.getPartyType())
+                                .platform(getWinsLeaderBoardRequest.getPlatform())
+                                .build()
+                )
+                        .get();
+            } catch (InterruptedException | ExecutionException ignored) {
+                LOG.error("Could not fetch cohort for inAppId: {}, platform: {}, and partyType: {}", getWinsLeaderBoardRequest.getInAppId(), getWinsLeaderBoardRequest.getPlatform(), getWinsLeaderBoardRequest.getPartyType());
+            }
+
+            List<String> cohortAccounts = Optional.ofNullable(cohort)
+                    .map(Cohort::getCohortAccounts)
+                    .orElse(new ArrayList<>());
 
             HttpPost httpPost = new HttpPost(Endpoint.winsLeaderBoard(getWinsLeaderBoardRequest.getPlatform(), getWinsLeaderBoardRequest.getPartyType(), getWinsLeaderBoardRequest.getWindow(), getWinsLeaderBoardRequest.getEntryCount()));
-            httpPost.setEntity(new StringEntity("[]", StandardCharsets.UTF_8));
+            httpPost.setEntity(new StringEntity(Optional.ofNullable(responseRequestUtil.asJson(cohortAccounts)).orElse("[]"), StandardCharsets.UTF_8));
             httpPost.setHeader(HttpHeaders.AUTHORIZATION, getWinsLeaderBoardRequest.getAuthHeaderValue());
             httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
 
             try {
-                leaderBoard = httpClient.execute(httpPost, responseHandlerProvider.handlerFor(LeaderBoard.class));
+                leaderBoard = httpClient.execute(httpPost, responseRequestUtil.responseHandlerFor(LeaderBoard.class));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -117,5 +136,30 @@ public class LeaderBoardServiceImpl implements LeaderBoardService {
 
             return enhancedLeaderBoard;
         });
+    }
+
+    @Override
+    public CompletableFuture<Cohort> getCohort(GetCohortRequest getCohortRequest) {
+        getCohortRequest.log();
+
+        return CompletableFuture.supplyAsync(() -> {
+            Cohort cohort;
+
+            HttpGet httpGet = new HttpGet(Endpoint.cohort(getCohortRequest.getInAppId(), getCohortRequest.getPlatform(), getCohortRequest.getPartyType()));
+            httpGet.setHeader(HttpHeaders.AUTHORIZATION, getCohortRequest.getAuthHeaderValue());
+
+            try {
+                cohort = httpClient.execute(httpGet, responseRequestUtil.responseHandlerFor(Cohort.class));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            return cohort;
+        }).handle(((cohort, throwable) -> {
+            if (cohort == null)
+                LOG.error("Could not fetch cohort for {}", getCohortRequest, throwable);
+
+            return cohort;
+        }));
     }
 }

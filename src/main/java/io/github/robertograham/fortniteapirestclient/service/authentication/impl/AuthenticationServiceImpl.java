@@ -7,7 +7,7 @@ import io.github.robertograham.fortniteapirestclient.service.authentication.mode
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.request.GetOAuthTokenRequest;
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.request.KillSessionRequest;
 import io.github.robertograham.fortniteapirestclient.util.Endpoint;
-import io.github.robertograham.fortniteapirestclient.util.ResponseHandlerProvider;
+import io.github.robertograham.fortniteapirestclient.util.ResponseRequestUtil;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
@@ -28,11 +28,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private static Logger LOG = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
     private final CloseableHttpClient httpClient;
-    private final ResponseHandlerProvider responseHandlerProvider;
+    private final ResponseRequestUtil responseRequestUtil;
 
-    public AuthenticationServiceImpl(CloseableHttpClient httpClient, ResponseHandlerProvider responseHandlerProvider) {
+    public AuthenticationServiceImpl(CloseableHttpClient httpClient, ResponseRequestUtil responseRequestUtil) {
         this.httpClient = httpClient;
-        this.responseHandlerProvider = responseHandlerProvider;
+        this.responseRequestUtil = responseRequestUtil;
     }
 
     @Override
@@ -52,7 +52,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 ).collect(Collectors.toList())));
                 httpPost.setHeader(HttpHeaders.AUTHORIZATION, getOAuthTokenRequest.getAuthHeaderValue());
 
-                oAuthToken = httpClient.execute(httpPost, responseHandlerProvider.handlerFor(OAuthToken.class));
+                oAuthToken = httpClient.execute(httpPost, responseRequestUtil.responseHandlerFor(OAuthToken.class));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -77,7 +77,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             httpGet.addHeader(HttpHeaders.AUTHORIZATION, getExchangeCodeRequest.getAuthHeaderValue());
 
             try {
-                exchangeCode = httpClient.execute(httpGet, responseHandlerProvider.handlerFor(ExchangeCode.class));
+                exchangeCode = httpClient.execute(httpGet, responseRequestUtil.responseHandlerFor(ExchangeCode.class));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -100,7 +100,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             httpDelete.addHeader(HttpHeaders.AUTHORIZATION, killSessionRequest.getAuthHeaderValue());
 
             try {
-                httpClient.execute(httpDelete, responseHandlerProvider.stringHandler());
+                httpClient.execute(httpDelete, responseRequestUtil.stringResponseHandler());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

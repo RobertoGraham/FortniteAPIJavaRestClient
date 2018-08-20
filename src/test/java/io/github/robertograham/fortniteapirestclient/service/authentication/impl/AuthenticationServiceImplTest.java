@@ -6,7 +6,7 @@ import io.github.robertograham.fortniteapirestclient.service.authentication.mode
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.request.GetOAuthTokenRequest;
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.request.KillSessionRequest;
 import io.github.robertograham.fortniteapirestclient.util.Endpoint;
-import io.github.robertograham.fortniteapirestclient.util.ResponseHandlerProvider;
+import io.github.robertograham.fortniteapirestclient.util.ResponseRequestUtil;
 import org.apache.http.HttpHeaders;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ResponseHandler;
@@ -47,13 +47,13 @@ class AuthenticationServiceImplTest {
     private CloseableHttpClient mockHttpClient;
 
     @Mock
-    private ResponseHandlerProvider mockResponseHandlerProvider;
+    private ResponseRequestUtil mockResponseRequestUtil;
 
     private AuthenticationServiceImpl authenticationService;
 
     @BeforeEach
     void setUp() {
-        authenticationService = new AuthenticationServiceImpl(mockHttpClient, mockResponseHandlerProvider);
+        authenticationService = new AuthenticationServiceImpl(mockHttpClient, mockResponseRequestUtil);
     }
 
     @Test
@@ -91,7 +91,7 @@ class AuthenticationServiceImplTest {
         when(mockGetOAuthTokenRequest.getGrantType()).thenReturn(grantType);
         when(mockGetOAuthTokenRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
         when(mockGetOAuthTokenRequest.getAdditionalFormEntries()).thenReturn(additionalFormEntries);
-        when(mockResponseHandlerProvider.handlerFor(OAuthToken.class)).thenReturn(handler);
+        when(mockResponseRequestUtil.responseHandlerFor(OAuthToken.class)).thenReturn(handler);
         when(mockHttpClient.execute(desiredHttpPostSupplier.get(), eq(handler))).thenReturn(handler.handleResponse(null));
 
         assertEquals(authenticationService.getOAuthToken(mockGetOAuthTokenRequest).get(), oAuthToken);
@@ -99,7 +99,7 @@ class AuthenticationServiceImplTest {
         verify(mockGetOAuthTokenRequest).getGrantType();
         verify(mockGetOAuthTokenRequest).getAuthHeaderValue();
         verify(mockGetOAuthTokenRequest).getAdditionalFormEntries();
-        verify(mockResponseHandlerProvider).handlerFor(OAuthToken.class);
+        verify(mockResponseRequestUtil).responseHandlerFor(OAuthToken.class);
         verify(mockHttpClient).execute(desiredHttpPostSupplier.get(), eq(handler));
     }
 
@@ -136,7 +136,7 @@ class AuthenticationServiceImplTest {
         when(mockGetOAuthTokenRequest.getGrantType()).thenReturn(grantType);
         when(mockGetOAuthTokenRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
         when(mockGetOAuthTokenRequest.getAdditionalFormEntries()).thenReturn(additionalFormEntries);
-        when(mockResponseHandlerProvider.handlerFor(OAuthToken.class)).thenReturn(handler);
+        when(mockResponseRequestUtil.responseHandlerFor(OAuthToken.class)).thenReturn(handler);
         when(mockHttpClient.execute(desiredHttpPostSupplier.get(), eq(handler))).thenThrow(IOException.class);
 
         assertNull(authenticationService.getOAuthToken(mockGetOAuthTokenRequest).get());
@@ -144,7 +144,7 @@ class AuthenticationServiceImplTest {
         verify(mockGetOAuthTokenRequest).getGrantType();
         verify(mockGetOAuthTokenRequest).getAuthHeaderValue();
         verify(mockGetOAuthTokenRequest).getAdditionalFormEntries();
-        verify(mockResponseHandlerProvider).handlerFor(OAuthToken.class);
+        verify(mockResponseRequestUtil).responseHandlerFor(OAuthToken.class);
         verify(mockHttpClient).execute(desiredHttpPostSupplier.get(), eq(handler));
     }
 
@@ -168,13 +168,13 @@ class AuthenticationServiceImplTest {
         GetExchangeCodeRequest mockGetExchangeCodeRequest = mock(GetExchangeCodeRequest.class);
 
         when(mockGetExchangeCodeRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
-        when(mockResponseHandlerProvider.handlerFor(ExchangeCode.class)).thenReturn(handler);
+        when(mockResponseRequestUtil.responseHandlerFor(ExchangeCode.class)).thenReturn(handler);
         when(mockHttpClient.execute(desiredHttpGetSupplier.get(), eq(handler))).thenReturn(handler.handleResponse(null));
 
         assertEquals(authenticationService.getExchangeCode(mockGetExchangeCodeRequest).get(), exchangeCode);
 
         verify(mockGetExchangeCodeRequest).getAuthHeaderValue();
-        verify(mockResponseHandlerProvider).handlerFor(ExchangeCode.class);
+        verify(mockResponseRequestUtil).responseHandlerFor(ExchangeCode.class);
         verify(mockHttpClient).execute(desiredHttpGetSupplier.get(), eq(handler));
     }
 
@@ -196,13 +196,13 @@ class AuthenticationServiceImplTest {
         GetExchangeCodeRequest mockGetExchangeCodeRequest = mock(GetExchangeCodeRequest.class);
 
         when(mockGetExchangeCodeRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
-        when(mockResponseHandlerProvider.handlerFor(ExchangeCode.class)).thenReturn(handler);
+        when(mockResponseRequestUtil.responseHandlerFor(ExchangeCode.class)).thenReturn(handler);
         when(mockHttpClient.execute(desiredHttpGetSupplier.get(), eq(handler))).thenThrow(IOException.class);
 
         assertNull(authenticationService.getExchangeCode(mockGetExchangeCodeRequest).get());
 
         verify(mockGetExchangeCodeRequest).getAuthHeaderValue();
-        verify(mockResponseHandlerProvider).handlerFor(ExchangeCode.class);
+        verify(mockResponseRequestUtil).responseHandlerFor(ExchangeCode.class);
         verify(mockHttpClient).execute(desiredHttpGetSupplier.get(), eq(handler));
     }
 
@@ -226,14 +226,14 @@ class AuthenticationServiceImplTest {
 
         when(mockKillSessionRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
         when(mockKillSessionRequest.getAccessToken()).thenReturn(accessToken);
-        when(mockResponseHandlerProvider.stringHandler()).thenReturn(handler);
+        when(mockResponseRequestUtil.stringResponseHandler()).thenReturn(handler);
         when(mockHttpClient.execute(desiredHttpDeleteSupplier.get(), eq(handler))).thenReturn(handler.handleResponse(null));
 
         assertTrue(authenticationService.killSession(mockKillSessionRequest).get());
 
         verify(mockKillSessionRequest).getAuthHeaderValue();
         verify(mockKillSessionRequest).getAccessToken();
-        verify(mockResponseHandlerProvider).stringHandler();
+        verify(mockResponseRequestUtil).stringResponseHandler();
         verify(mockHttpClient).execute(desiredHttpDeleteSupplier.get(), eq(handler));
     }
 
@@ -257,14 +257,14 @@ class AuthenticationServiceImplTest {
 
         when(mockKillSessionRequest.getAuthHeaderValue()).thenReturn(authHeaderValue);
         when(mockKillSessionRequest.getAccessToken()).thenReturn(accessToken);
-        when(mockResponseHandlerProvider.stringHandler()).thenReturn(handler);
+        when(mockResponseRequestUtil.stringResponseHandler()).thenReturn(handler);
         when(mockHttpClient.execute(desiredHttpDeleteSupplier.get(), eq(handler))).thenThrow(IOException.class);
 
         assertFalse(authenticationService.killSession(mockKillSessionRequest).get());
 
         verify(mockKillSessionRequest).getAuthHeaderValue();
         verify(mockKillSessionRequest).getAccessToken();
-        verify(mockResponseHandlerProvider).stringHandler();
+        verify(mockResponseRequestUtil).stringResponseHandler();
         verify(mockHttpClient).execute(desiredHttpDeleteSupplier.get(), eq(handler));
     }
 

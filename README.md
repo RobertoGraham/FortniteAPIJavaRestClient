@@ -10,7 +10,7 @@ I have written a small app, backed by FortniteAPIJavaRestClient, with Spring Boo
 <dependency>
     <groupId>io.github.robertograham</groupId>
     <artifactId>fortnite-api-rest-client</artifactId>
-    <version>5.1.3</version>
+    <version>5.2.0</version>
 </dependency>
 ```
 ## Acquiring an EpicGames Launcher Token and a Fortnite Client Token

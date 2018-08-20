@@ -5,22 +5,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Objects;
 import java.util.Optional;
 
-public class ResponseHandlerProviderBuilder implements Builder<ResponseHandlerProvider> {
+public class ResponseRequestUtilBuilder implements Builder<ResponseRequestUtil> {
 
     private ObjectMapper objectMapper;
 
-    ResponseHandlerProviderBuilder() {
+    ResponseRequestUtilBuilder() {
     }
 
-    public ResponseHandlerProviderBuilder objectMapper(ObjectMapper objectMapper) {
+    public ResponseRequestUtilBuilder objectMapper(ObjectMapper objectMapper) {
         this.objectMapper = Objects.requireNonNull(objectMapper, "Object mapper mustn't be null");
 
         return this;
     }
 
     @Override
-    public ResponseHandlerProvider build() {
-        return new ResponseHandlerProvider(Optional.ofNullable(objectMapper)
+    public ResponseRequestUtil build() {
+        return new ResponseRequestUtil(Optional.ofNullable(objectMapper)
                 .orElse(new ObjectMapper().findAndRegisterModules()));
     }
 }

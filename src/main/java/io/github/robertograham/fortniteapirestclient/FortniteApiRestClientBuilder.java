@@ -2,7 +2,7 @@ package io.github.robertograham.fortniteapirestclient;
 
 import io.github.robertograham.fortniteapirestclient.domain.Credentials;
 import io.github.robertograham.fortniteapirestclient.util.Builder;
-import io.github.robertograham.fortniteapirestclient.util.ResponseHandlerProvider;
+import io.github.robertograham.fortniteapirestclient.util.ResponseRequestUtil;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
@@ -26,7 +26,7 @@ public class FortniteApiRestClientBuilder implements Builder<FortniteApiRestClie
 
     @Override
     public FortniteApiRestClient build() {
-        ResponseHandlerProvider responseHandlerProvider = ResponseHandlerProvider.builder()
+        ResponseRequestUtil responseRequestUtil = ResponseRequestUtil.builder()
                 .build();
 
         CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -34,7 +34,7 @@ public class FortniteApiRestClientBuilder implements Builder<FortniteApiRestClie
         return new FortniteApiRestClient(
                 credentials,
                 httpClient,
-                responseHandlerProvider,
+                responseRequestUtil,
                 Executors.newScheduledThreadPool(1),
                 autoLoginDisabled
         );

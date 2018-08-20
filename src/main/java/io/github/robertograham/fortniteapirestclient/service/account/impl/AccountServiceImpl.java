@@ -5,7 +5,7 @@ import io.github.robertograham.fortniteapirestclient.service.account.model.Accou
 import io.github.robertograham.fortniteapirestclient.service.account.model.request.GetAccountRequest;
 import io.github.robertograham.fortniteapirestclient.service.account.model.request.GetAccountsRequest;
 import io.github.robertograham.fortniteapirestclient.util.Endpoint;
-import io.github.robertograham.fortniteapirestclient.util.ResponseHandlerProvider;
+import io.github.robertograham.fortniteapirestclient.util.ResponseRequestUtil;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -21,11 +21,11 @@ public class AccountServiceImpl implements AccountService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AccountServiceImpl.class);
     private final CloseableHttpClient httpClient;
-    private final ResponseHandlerProvider responseHandlerProvider;
+    private final ResponseRequestUtil responseRequestUtil;
 
-    public AccountServiceImpl(CloseableHttpClient httpClient, ResponseHandlerProvider responseHandlerProvider) {
+    public AccountServiceImpl(CloseableHttpClient httpClient, ResponseRequestUtil responseRequestUtil) {
         this.httpClient = httpClient;
-        this.responseHandlerProvider = responseHandlerProvider;
+        this.responseRequestUtil = responseRequestUtil;
     }
 
     @Override
@@ -39,7 +39,7 @@ public class AccountServiceImpl implements AccountService {
             httpGet.addHeader(HttpHeaders.AUTHORIZATION, getAccountRequest.getAuthHeaderValue());
 
             try {
-                account = httpClient.execute(httpGet, responseHandlerProvider.handlerFor(Account.class));
+                account = httpClient.execute(httpGet, responseRequestUtil.responseHandlerFor(Account.class));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -64,7 +64,7 @@ public class AccountServiceImpl implements AccountService {
             httpGet.addHeader(HttpHeaders.AUTHORIZATION, getAccountsRequest.getAuthHeaderValue());
 
             try {
-                accounts = httpClient.execute(httpGet, responseHandlerProvider.handlerFor(Account[].class));
+                accounts = httpClient.execute(httpGet, responseRequestUtil.responseHandlerFor(Account[].class));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

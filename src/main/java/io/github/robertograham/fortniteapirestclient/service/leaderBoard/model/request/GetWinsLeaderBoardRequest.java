@@ -8,16 +8,17 @@ public class GetWinsLeaderBoardRequest extends Request {
     private final String platform;
     private final String partyType;
     private final String window;
-    private final int entryCount;
-
     private final String authHeaderValue;
+    private final int entryCount;
+    private final String inAppId;
 
-    GetWinsLeaderBoardRequest(String platform, String partyType, String window, String authHeaderValue, int entryCount) {
+    GetWinsLeaderBoardRequest(String platform, String partyType, String window, String authHeaderValue, int entryCount, String inAppId) {
         this.platform = platform;
         this.partyType = partyType;
         this.window = window;
         this.authHeaderValue = authHeaderValue;
         this.entryCount = entryCount;
+        this.inAppId = inAppId;
     }
 
     public static GetWinsLeaderBoardRequestBuilder builder() {
@@ -44,15 +45,20 @@ public class GetWinsLeaderBoardRequest extends Request {
         return entryCount;
     }
 
+    public String getInAppId() {
+        return inAppId;
+    }
+
     @Override
     public String toString() {
         return "GetWinsLeaderBoardRequest{" +
                 "platform='" + platform + '\'' +
                 ", partyType='" + partyType + '\'' +
                 ", window='" + window + '\'' +
-                ", entryCount=" + entryCount +
                 ", authHeaderValue='" + authHeaderValue + '\'' +
-                "} " + super.toString();
+                ", entryCount=" + entryCount +
+                ", inAppId='" + inAppId + '\'' +
+                '}';
     }
 
     @Override
@@ -69,11 +75,12 @@ public class GetWinsLeaderBoardRequest extends Request {
                 Objects.equals(platform, getWinsLeaderBoardRequest.platform) &&
                 Objects.equals(partyType, getWinsLeaderBoardRequest.partyType) &&
                 Objects.equals(window, getWinsLeaderBoardRequest.window) &&
-                Objects.equals(authHeaderValue, getWinsLeaderBoardRequest.authHeaderValue);
+                Objects.equals(authHeaderValue, getWinsLeaderBoardRequest.authHeaderValue) &&
+                Objects.equals(inAppId, getWinsLeaderBoardRequest.inAppId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(platform, partyType, window, entryCount, authHeaderValue);
+        return Objects.hash(platform, partyType, window, authHeaderValue, entryCount, inAppId);
     }
 }

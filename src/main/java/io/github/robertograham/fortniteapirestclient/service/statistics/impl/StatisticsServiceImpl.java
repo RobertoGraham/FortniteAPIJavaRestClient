@@ -9,7 +9,7 @@ import io.github.robertograham.fortniteapirestclient.service.statistics.model.re
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetSoloDuoSquadBattleRoyaleStatisticsRequest;
 import io.github.robertograham.fortniteapirestclient.util.Endpoint;
-import io.github.robertograham.fortniteapirestclient.util.ResponseHandlerProvider;
+import io.github.robertograham.fortniteapirestclient.util.ResponseRequestUtil;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -29,11 +29,11 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(StatisticsServiceImpl.class);
     private final CloseableHttpClient httpClient;
-    private final ResponseHandlerProvider responseHandlerProvider;
+    private final ResponseRequestUtil responseRequestUtil;
 
-    public StatisticsServiceImpl(CloseableHttpClient httpClient, ResponseHandlerProvider responseHandlerProvider) {
+    public StatisticsServiceImpl(CloseableHttpClient httpClient, ResponseRequestUtil responseRequestUtil) {
         this.httpClient = httpClient;
-        this.responseHandlerProvider = responseHandlerProvider;
+        this.responseRequestUtil = responseRequestUtil;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             Statistic[] statistics;
 
             try {
-                statistics = httpClient.execute(httpGet, responseHandlerProvider.handlerFor(Statistic[].class));
+                statistics = httpClient.execute(httpGet, responseRequestUtil.responseHandlerFor(Statistic[].class));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

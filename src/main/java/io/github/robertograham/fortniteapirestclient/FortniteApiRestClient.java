@@ -25,7 +25,7 @@ import io.github.robertograham.fortniteapirestclient.service.statistics.model.St
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetBattleRoyaleStatisticsRequest;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetSoloDuoSquadBattleRoyaleStatisticsRequest;
-import io.github.robertograham.fortniteapirestclient.util.ResponseHandlerProvider;
+import io.github.robertograham.fortniteapirestclient.util.ResponseRequestUtil;
 import org.apache.http.NameValuePair;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
@@ -53,13 +53,13 @@ public class FortniteApiRestClient implements Closeable {
     private final CloseableHttpClient httpClient;
     private OAuthToken sessionToken;
 
-    FortniteApiRestClient(Credentials credentials, CloseableHttpClient httpClient, ResponseHandlerProvider responseHandlerProvider, ScheduledExecutorService scheduledExecutorService, boolean autoLoginDisabled) {
+    FortniteApiRestClient(Credentials credentials, CloseableHttpClient httpClient, ResponseRequestUtil responseRequestUtil, ScheduledExecutorService scheduledExecutorService, boolean autoLoginDisabled) {
         this.credentials = credentials;
         this.httpClient = httpClient;
-        authenticationService = new AuthenticationServiceImpl(httpClient, responseHandlerProvider);
-        accountService = new AccountServiceImpl(httpClient, responseHandlerProvider);
-        statisticsService = new StatisticsServiceImpl(httpClient, responseHandlerProvider);
-        leaderBoardService = new LeaderBoardServiceImpl(httpClient, responseHandlerProvider, accountService);
+        authenticationService = new AuthenticationServiceImpl(httpClient, responseRequestUtil);
+        accountService = new AccountServiceImpl(httpClient, responseRequestUtil);
+        statisticsService = new StatisticsServiceImpl(httpClient, responseRequestUtil);
+        leaderBoardService = new LeaderBoardServiceImpl(httpClient, responseRequestUtil, accountService);
         this.scheduledExecutorService = scheduledExecutorService;
 
         scheduledExecutorService.scheduleWithFixedDelay(tokenRefreshRunnable(), 1, 1, TimeUnit.SECONDS);
@@ -180,6 +180,7 @@ public class FortniteApiRestClient implements Closeable {
                 .window(window)
                 .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
                 .entryCount(entryCount)
+                .inAppId(nonNullableSessionToken().getInAppId())
                 .build());
     }
 
@@ -190,6 +191,7 @@ public class FortniteApiRestClient implements Closeable {
                 .window(window)
                 .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
                 .entryCount(entryCount)
+                .inAppId(nonNullableSessionToken().getInAppId())
                 .build());
     }
 
