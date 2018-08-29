@@ -27,7 +27,6 @@ public class ResponseRequestUtil {
                 throw body != null && !body.isEmpty() ?
                         new FortniteApiErrorException(objectMapper.readValue(body, FortniteApiError.class), status)
                         : new ClientProtocolException("Unexpected response status: " + status);
-
         };
     }
 
@@ -36,7 +35,10 @@ public class ResponseRequestUtil {
     }
 
     public <T> ResponseHandler<T> responseHandlerFor(Class<T> clazz) {
-        return response -> objectMapper.readValue(stringResponseHandler.handleResponse(response), clazz);
+        return response -> {
+            String valueAsString = stringResponseHandler.handleResponse(response);
+            return valueAsString != null ? objectMapper.readValue(valueAsString, clazz) : null;
+        };
     }
 
     public ResponseHandler<String> stringResponseHandler() {

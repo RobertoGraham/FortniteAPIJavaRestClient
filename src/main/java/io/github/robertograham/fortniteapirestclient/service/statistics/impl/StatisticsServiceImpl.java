@@ -56,7 +56,10 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         }).handle((statistics, throwable) -> {
             if (statistics == null) {
-                LOG.error("Error while fetching statistics for account id {}, and window {}", getBattleRoyaleStatisticsRequest.getAccountId(), getBattleRoyaleStatisticsRequest.getWindow(), throwable);
+                if (throwable == null)
+                    LOG.warn("No statistics found for account id {}, and window {}", getBattleRoyaleStatisticsRequest.getAccountId(), getBattleRoyaleStatisticsRequest.getWindow());
+                else
+                    LOG.error("Error while fetching statistics for account id {}, and window {}", getBattleRoyaleStatisticsRequest.getAccountId(), getBattleRoyaleStatisticsRequest.getWindow(), throwable);
 
                 return null;
             }
