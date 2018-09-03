@@ -13,13 +13,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class AccountServiceImpl implements AccountService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AccountServiceImpl.class);
+    private static final int MAX_ID_COUNT = 100;
     private final CloseableHttpClient httpClient;
     private final ResponseRequestUtil responseRequestUtil;
 
@@ -58,26 +61,67 @@ public class AccountServiceImpl implements AccountService {
         getAccountsRequest.log();
 
         return CompletableFuture.supplyAsync(() -> {
-            Account[] accounts;
+            Set<Set<String>> accountIdsPartitioned = getAccountIdsPartitioned(getAccountsRequest.getAccountIds());
 
-            HttpGet httpGet = new HttpGet(Endpoint.info(getAccountsRequest.getAccountIds()));
-            httpGet.addHeader(HttpHeaders.AUTHORIZATION, getAccountsRequest.getAuthHeaderValue());
+            List<CompletableFuture<Account[]>> futures = accountIdsPartitioned.stream()
+                    .map(accountIdPartition -> CompletableFuture.supplyAsync(() -> {
+                        Account[] accounts;
 
+                        HttpGet httpGet = new HttpGet(Endpoint.info(accountIdPartition));
+                        httpGet.addHeader(HttpHeaders.AUTHORIZATION, getAccountsRequest.getAuthHeaderValue());
+
+                        try {
+                            accounts = httpClient.execute(httpGet, responseRequestUtil.responseHandlerFor(Account[].class));
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        return accounts;
+                    }).handleAsync((accounts, throwable) -> {
+                        if (accounts == null) {
+                            LOG.error("Failed to fetch accounts for account ids {}", accountIdPartition, throwable);
+
+                            return null;
+                        }
+
+                        return accounts;
+                    }))
+                    .collect(Collectors.toList());
             try {
-                accounts = httpClient.execute(httpGet, responseRequestUtil.responseHandlerFor(Account[].class));
-            } catch (IOException e) {
+                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+                        .get();
+            } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
             }
 
-            return accounts;
-        }).handle(((accounts, throwable) -> {
+            return futures.stream()
+                    .map(CompletableFuture::join)
+                    .filter(Objects::nonNull)
+                    .flatMap(Arrays::stream)
+                    .collect(Collectors.toList());
+        }).handle((accounts, throwable) -> {
             if (accounts == null) {
-                LOG.error("Failed to fetch accounts for account ids {}", getAccountsRequest.getAccountIds(), throwable);
+                LOG.error("Failed to fetch all accounts for account ids {}", getAccountsRequest.getAccountIds(), throwable);
 
                 return null;
-            }
+            } else if (accounts.size() != getAccountsRequest.getAccountIds().size())
+                LOG.warn("Failed to fetch some accounts for account ids {}", getAccountsRequest.getAccountIds());
 
-            return Arrays.asList(accounts);
-        }));
+            return accounts.size() > 0 ? accounts : null;
+        });
+    }
+
+    private Set<Set<String>> getAccountIdsPartitioned(Collection<String> accountIds) {
+        List<String> accountIdList = new ArrayList<>(accountIds);
+
+        return IntStream.range(0, accountIdList.size())
+                .boxed()
+                .collect(Collectors.groupingBy(index -> index / MAX_ID_COUNT))
+                .values()
+                .stream()
+                .map(indices -> indices.stream()
+                        .map(accountIdList::get)
+                        .collect(Collectors.toSet()))
+                .collect(Collectors.toSet());
     }
 }

@@ -138,7 +138,7 @@ class AccountServiceImplTest {
 
         assertEquals(accountService.getAccounts(mockGetAccountsRequest).get().size(), accountIds.size());
 
-        verify(mockGetAccountsRequest).getAccountIds();
+        verify(mockGetAccountsRequest, Mockito.times(2)).getAccountIds();
         verify(mockGetAccountsRequest).getAuthHeaderValue();
         verify(mockResponseRequestUtil).responseHandlerFor(Account[].class);
         verify(mockHttpClient).execute(desiredHttpGetSupplier.get(), eq(handler));
@@ -169,7 +169,7 @@ class AccountServiceImplTest {
 
         assertNull(accountService.getAccounts(mockGetAccountsRequest).get());
 
-        verify(mockGetAccountsRequest, Mockito.times(2)).getAccountIds();
+        verify(mockGetAccountsRequest, Mockito.times(3)).getAccountIds();
         verify(mockGetAccountsRequest).getAuthHeaderValue();
         verify(mockResponseRequestUtil).responseHandlerFor(Account[].class);
         verify(mockHttpClient).execute(desiredHttpGetSupplier.get(), eq(handler));
