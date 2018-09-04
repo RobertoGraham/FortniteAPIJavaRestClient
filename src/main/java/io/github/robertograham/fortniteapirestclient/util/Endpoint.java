@@ -85,4 +85,31 @@ public class Endpoint {
             return "https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/game/v2/leaderboards/cohort/" + inAppId + "?playlist=" + platform + "_m0_" + partyType;
         }
     }
+
+    public static String getEula(String accountId) {
+        try {
+            return "https://eulatracking-public-service-prod-m.ol.epicgames.com/eulatracking/api/public/agreements/fn/account/" + encodeUriComponent(accountId) + "?locale=en-US";
+        } catch (URISyntaxException e) {
+            LOG.error("URISyntaxException while encoding accountId: {}", accountId, e);
+            return "https://eulatracking-public-service-prod-m.ol.epicgames.com/eulatracking/api/public/agreements/fn/account/" + accountId + "?locale=en-US";
+        }
+    }
+
+    public static String acceptEula(int version, String accountId) {
+        try {
+            return "https://eulatracking-public-service-prod-m.ol.epicgames.com/eulatracking/api/public/agreements/fn/version/" + encodeUriComponent(String.valueOf(version)) + "/account/" + encodeUriComponent(accountId) + "/accept?locale=en";
+        } catch (URISyntaxException e) {
+            LOG.error("URISyntaxException while encoding accountId: {}", accountId, e);
+            return "https://eulatracking-public-service-prod-m.ol.epicgames.com/eulatracking/api/public/agreements/fn/version/" + version + "/account/" + accountId + "/accept?locale=en";
+        }
+    }
+
+    public static String grantAccess(String accountId) {
+        try {
+            return "https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/game/v2/grant_access/" + encodeUriComponent(accountId);
+        } catch (URISyntaxException e) {
+            LOG.error("URISyntaxException while encoding accountId: {}", accountId, e);
+            return "https://fortnite-public-service-prod11.ol.epicgames.com/fortnite/api/game/v2/grant_access/" + accountId;
+        }
+    }
 }

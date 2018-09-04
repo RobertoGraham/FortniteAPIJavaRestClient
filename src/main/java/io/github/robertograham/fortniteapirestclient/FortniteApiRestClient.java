@@ -6,8 +6,8 @@ import io.github.robertograham.fortniteapirestclient.domain.StatsGroup;
 import io.github.robertograham.fortniteapirestclient.service.account.AccountService;
 import io.github.robertograham.fortniteapirestclient.service.account.impl.AccountServiceImpl;
 import io.github.robertograham.fortniteapirestclient.service.account.model.Account;
-import io.github.robertograham.fortniteapirestclient.service.account.model.request.GetAccountRequest;
-import io.github.robertograham.fortniteapirestclient.service.account.model.request.GetAccountsRequest;
+import io.github.robertograham.fortniteapirestclient.service.account.model.Eula;
+import io.github.robertograham.fortniteapirestclient.service.account.model.request.*;
 import io.github.robertograham.fortniteapirestclient.service.authentication.AuthenticationService;
 import io.github.robertograham.fortniteapirestclient.service.authentication.impl.AuthenticationServiceImpl;
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.ExchangeCode;
@@ -52,10 +52,12 @@ public class FortniteApiRestClient implements Closeable {
     private final LeaderBoardService leaderBoardService;
     private final CloseableHttpClient httpClient;
     private OAuthToken sessionToken;
+    private boolean acceptEulaOnLoginEnabled;
 
-    FortniteApiRestClient(Credentials credentials, CloseableHttpClient httpClient, ResponseRequestUtil responseRequestUtil, ScheduledExecutorService scheduledExecutorService, boolean autoLoginDisabled) {
+    FortniteApiRestClient(Credentials credentials, CloseableHttpClient httpClient, ResponseRequestUtil responseRequestUtil, ScheduledExecutorService scheduledExecutorService, boolean autoLoginDisabled, boolean acceptEulaOnLoginEnabled) {
         this.credentials = credentials;
         this.httpClient = httpClient;
+        this.acceptEulaOnLoginEnabled = acceptEulaOnLoginEnabled;
         authenticationService = new AuthenticationServiceImpl(httpClient, responseRequestUtil);
         accountService = new AccountServiceImpl(httpClient, responseRequestUtil);
         statisticsService = new StatisticsServiceImpl(httpClient, responseRequestUtil);
@@ -132,7 +134,40 @@ public class FortniteApiRestClient implements Closeable {
         return getUsernameAndPasswordDerivedOAuthToken()
                 .thenComposeAsync(this::getExchangeCode)
                 .thenComposeAsync(this::getFortniteApiOAuthTokenFromExchangeCode)
-                .thenAcceptAsync(this::setSessionToken);
+                .thenAcceptAsync(this::setSessionToken)
+                .thenComposeAsync(voidInstance -> acceptEulaOnLoginEnabled ?
+                        acceptEula()
+                        : CompletableFuture.completedFuture(null));
+    }
+
+    private CompletableFuture<Eula> getEula() {
+        return accountService.getEula(GetEulaRequest.builder()
+                .accountId(nonNullableSessionToken().getAccountId())
+                .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
+                .build());
+    }
+
+    private CompletableFuture<Boolean> acceptEula(Eula eula) {
+        return eula == null ?
+                CompletableFuture.completedFuture(false)
+                : accountService.acceptEula(AcceptEulaRequest.builder()
+                .version(eula.getVersion())
+                .accountId(nonNullableSessionToken().getAccountId())
+                .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
+                .build());
+    }
+
+    private CompletableFuture<Boolean> grantAccess() {
+        return accountService.grantAccess(GrantAccessRequest.builder()
+                .accountId(nonNullableSessionToken().getAccountId())
+                .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
+                .build());
+    }
+
+    public CompletableFuture<Void> acceptEula() {
+        return getEula()
+                .thenComposeAsync(this::acceptEula)
+                .thenAcceptAsync(isEulaAccepted -> grantAccess());
     }
 
     public CompletableFuture<Account> account(String accountName) {

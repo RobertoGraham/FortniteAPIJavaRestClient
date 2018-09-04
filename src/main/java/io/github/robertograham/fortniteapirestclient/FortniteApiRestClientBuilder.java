@@ -13,6 +13,7 @@ public class FortniteApiRestClientBuilder implements Builder<FortniteApiRestClie
 
     private final Credentials credentials;
     private boolean autoLoginDisabled;
+    private boolean acceptEulaOnLoginEnabled;
 
     FortniteApiRestClientBuilder(Credentials credentials) {
         this.credentials = Objects.requireNonNull(credentials, "Credentials must not be null");
@@ -20,6 +21,12 @@ public class FortniteApiRestClientBuilder implements Builder<FortniteApiRestClie
 
     public FortniteApiRestClientBuilder disableAutoLogin() {
         autoLoginDisabled = true;
+
+        return this;
+    }
+
+    public FortniteApiRestClientBuilder enableAcceptEulaOnLogin() {
+        acceptEulaOnLoginEnabled = true;
 
         return this;
     }
@@ -36,7 +43,8 @@ public class FortniteApiRestClientBuilder implements Builder<FortniteApiRestClie
                 httpClient,
                 responseRequestUtil,
                 Executors.newScheduledThreadPool(1),
-                autoLoginDisabled
+                autoLoginDisabled,
+                acceptEulaOnLoginEnabled
         );
     }
 }
