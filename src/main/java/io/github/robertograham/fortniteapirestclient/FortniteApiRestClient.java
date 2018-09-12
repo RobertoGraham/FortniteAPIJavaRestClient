@@ -1,8 +1,12 @@
 package io.github.robertograham.fortniteapirestclient;
 
+import com.google.api.client.http.HttpRequestFactory;
 import io.github.robertograham.fortniteapirestclient.domain.Credentials;
 import io.github.robertograham.fortniteapirestclient.domain.EnhancedLeaderBoard;
 import io.github.robertograham.fortniteapirestclient.domain.StatsGroup;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.PartyType;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.Platform;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.StatWindow;
 import io.github.robertograham.fortniteapirestclient.service.account.AccountService;
 import io.github.robertograham.fortniteapirestclient.service.account.impl.AccountServiceImpl;
 import io.github.robertograham.fortniteapirestclient.service.account.model.Account;
@@ -25,21 +29,22 @@ import io.github.robertograham.fortniteapirestclient.service.statistics.model.St
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetBattleRoyaleStatisticsRequest;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetSoloDuoSquadBattleRoyaleStatisticsRequest;
-import io.github.robertograham.fortniteapirestclient.util.ResponseRequestUtil;
-import org.apache.http.NameValuePair;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class FortniteApiRestClient implements Closeable {
 
@@ -50,16 +55,16 @@ public class FortniteApiRestClient implements Closeable {
     private final StatisticsService statisticsService;
     private final ScheduledExecutorService scheduledExecutorService;
     private final LeaderBoardService leaderBoardService;
-    private final CloseableHttpClient httpClient;
+    private final HttpRequestFactory httpRequestFactory;
     private OAuthToken sessionToken;
 
-    FortniteApiRestClient(Credentials credentials, CloseableHttpClient httpClient, ResponseRequestUtil responseRequestUtil, ScheduledExecutorService scheduledExecutorService, boolean autoLoginDisabled) {
+    FortniteApiRestClient(Credentials credentials, HttpRequestFactory httpRequestFactory, ScheduledExecutorService scheduledExecutorService, boolean autoLoginDisabled) {
         this.credentials = credentials;
-        this.httpClient = httpClient;
-        authenticationService = new AuthenticationServiceImpl(httpClient, responseRequestUtil);
-        accountService = new AccountServiceImpl(httpClient, responseRequestUtil);
-        statisticsService = new StatisticsServiceImpl(httpClient, responseRequestUtil);
-        leaderBoardService = new LeaderBoardServiceImpl(httpClient, responseRequestUtil, accountService);
+        this.httpRequestFactory = httpRequestFactory;
+        authenticationService = new AuthenticationServiceImpl(httpRequestFactory);
+        accountService = new AccountServiceImpl(httpRequestFactory);
+        statisticsService = new StatisticsServiceImpl(httpRequestFactory);
+        leaderBoardService = new LeaderBoardServiceImpl(httpRequestFactory, accountService);
         this.scheduledExecutorService = scheduledExecutorService;
 
         scheduledExecutorService.scheduleWithFixedDelay(tokenRefreshRunnable(), 1, 1, TimeUnit.SECONDS);
@@ -80,16 +85,18 @@ public class FortniteApiRestClient implements Closeable {
         return () -> {
             LocalDateTime now = LocalDateTime.now();
             LOG.debug("Validity of token that expires at {} being checked at {}", sessionToken != null ? sessionToken.getExpiresAt() : LocalDateTime.MIN, now);
-            if (sessionToken != null && sessionToken.getExpiresAt().minusMinutes(15).isBefore(now)) {
+            if (sessionToken != null && asLocalDateTime(sessionToken.getExpiresAt()).minusMinutes(15).isBefore(now)) {
                 LOG.info("Token has expired - refreshing");
 
                 try {
                     authenticationService.getOAuthToken(GetOAuthTokenRequest.builder()
                             .grantType("refresh_token")
-                            .authHeaderValue("basic " + credentials.getFortniteClientToken())
-                            .additionalFormEntries(new NameValuePair[]{
-                                    new BasicNameValuePair("refresh_token", sessionToken.getRefreshToken())
-                            })
+                            .authorization("basic " + credentials.getFortniteClientToken())
+                            .additionalFormEntries(Stream.of(
+                                    new SimpleEntry<>("refresh_token", sessionToken.getRefreshToken())
+                                    )
+                                            .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue))
+                            )
                             .build())
                             .thenAcceptAsync(token -> Optional.ofNullable(token).ifPresent(this::setSessionToken))
                             .get();
@@ -103,27 +110,32 @@ public class FortniteApiRestClient implements Closeable {
     private CompletableFuture<OAuthToken> getUsernameAndPasswordDerivedOAuthToken() {
         return authenticationService.getOAuthToken(GetOAuthTokenRequest.builder()
                 .grantType("password")
-                .authHeaderValue("basic " + credentials.getEpicGamesLauncherToken())
-                .additionalFormEntries(
-                        new BasicNameValuePair("username", credentials.getEpicGamesEmailAddress()),
-                        new BasicNameValuePair("password", credentials.getEpicGamesPassword())
+                .authorization("basic " + credentials.getEpicGamesLauncherToken())
+                .additionalFormEntries(Stream.of(
+                        new SimpleEntry<>("username", credentials.getEpicGamesEmailAddress()),
+                        new SimpleEntry<>("password", credentials.getEpicGamesPassword())
+                        )
+                                .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue))
                 )
                 .build());
     }
 
     private CompletableFuture<ExchangeCode> getExchangeCode(OAuthToken usernameAndPasswordDerivedOAuthToken) {
         return authenticationService.getExchangeCode(GetExchangeCodeRequest.builder()
-                .authHeaderValue("bearer " + usernameAndPasswordDerivedOAuthToken.getAccessToken())
+                .authorization("bearer " + usernameAndPasswordDerivedOAuthToken.getAccessToken())
                 .build());
     }
 
     private CompletableFuture<OAuthToken> getFortniteApiOAuthTokenFromExchangeCode(ExchangeCode exchangeCode) {
         return authenticationService.getOAuthToken(GetOAuthTokenRequest.builder()
                 .grantType("exchange_code")
-                .authHeaderValue("basic " + credentials.getFortniteClientToken())
+                .authorization("basic " + credentials.getFortniteClientToken())
                 .additionalFormEntries(
-                        new BasicNameValuePair("exchange_code", exchangeCode.getCode()),
-                        new BasicNameValuePair("token_type", "eg1")
+                        Stream.of(
+                                new SimpleEntry<>("exchange_code", exchangeCode.getCode()),
+                                new SimpleEntry<>("token_type", "eg1")
+                        )
+                                .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue))
                 )
                 .build());
     }
@@ -138,58 +150,58 @@ public class FortniteApiRestClient implements Closeable {
     public CompletableFuture<Account> account(String accountName) {
         return accountService.getAccount(GetAccountRequest.builder()
                 .accountName(accountName)
-                .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
+                .authorization("bearer " + nonNullableSessionToken().getAccessToken())
                 .build());
     }
 
     public CompletableFuture<List<Account>> accounts(String... accountIds) {
         return accountService.getAccounts(GetAccountsRequest.builder(new HashSet<>(Arrays.asList(accountIds)))
-                .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
+                .authorization("bearer " + nonNullableSessionToken().getAccessToken())
                 .build());
     }
 
-    public CompletableFuture<StatsGroup> enhancedBattleRoyaleStatsByPlatform(String accountId, String platform, String window) {
+    public CompletableFuture<StatsGroup> enhancedBattleRoyaleStatsByPlatform(String accountId, Platform platform, StatWindow window) {
         return statisticsService.getSoloDuoSquadBattleRoyaleStatisticsByPlatform(GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.builder()
                 .accountId(accountId)
                 .window(window)
-                .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
+                .authorization("bearer " + nonNullableSessionToken().getAccessToken())
                 .platform(platform)
                 .build());
     }
 
-    public CompletableFuture<Map<String, StatsGroup>> enhancedBattleRoyaleStats(String accountId, String window) {
+    public CompletableFuture<Map<Platform, StatsGroup>> enhancedBattleRoyaleStats(String accountId, StatWindow window) {
         return statisticsService.getSoloDuoSquadBattleRoyaleStatistics(GetSoloDuoSquadBattleRoyaleStatisticsRequest.builder()
                 .accountId(accountId)
                 .window(window)
-                .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
+                .authorization("bearer " + nonNullableSessionToken().getAccessToken())
                 .build());
     }
 
-    public CompletableFuture<List<Statistic>> battleRoyaleStats(String accountId, String window) {
+    public CompletableFuture<List<Statistic>> battleRoyaleStats(String accountId, StatWindow window) {
         return statisticsService.getBattleRoyaleStatistics(GetBattleRoyaleStatisticsRequest.builder()
                 .accountId(accountId)
                 .window(window)
-                .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
+                .authorization("bearer " + nonNullableSessionToken().getAccessToken())
                 .build());
     }
 
-    public CompletableFuture<LeaderBoard> winsLeaderBoard(String platform, String partyType, String window, int entryCount) {
+    public CompletableFuture<LeaderBoard> winsLeaderBoard(Platform platform, PartyType partyType, StatWindow window, int entryCount) {
         return leaderBoardService.getWinsLeaderBoard(GetWinsLeaderBoardRequest.builder()
                 .platform(platform)
                 .partyType(partyType)
                 .window(window)
-                .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
+                .authorization("bearer " + nonNullableSessionToken().getAccessToken())
                 .entryCount(entryCount)
                 .inAppId(nonNullableSessionToken().getInAppId())
                 .build());
     }
 
-    public CompletableFuture<EnhancedLeaderBoard> enhancedWinsLeaderBoard(String platform, String partyType, String window, int entryCount) {
+    public CompletableFuture<EnhancedLeaderBoard> enhancedWinsLeaderBoard(Platform platform, PartyType partyType, StatWindow window, int entryCount) {
         return leaderBoardService.getEnhancedWinsLeaderBoard(GetWinsLeaderBoardRequest.builder()
                 .platform(platform)
                 .partyType(partyType)
                 .window(window)
-                .authHeaderValue("bearer " + nonNullableSessionToken().getAccessToken())
+                .authorization("bearer " + nonNullableSessionToken().getAccessToken())
                 .entryCount(entryCount)
                 .inAppId(nonNullableSessionToken().getInAppId())
                 .build());
@@ -198,7 +210,7 @@ public class FortniteApiRestClient implements Closeable {
     private CompletableFuture<Boolean> killSession() {
         return authenticationService.killSession(KillSessionRequest.builder()
                 .accessToken(sessionToken.getAccessToken())
-                .authHeaderValue("bearer " + sessionToken.getAccessToken())
+                .authorization("bearer " + sessionToken.getAccessToken())
                 .build());
     }
 
@@ -211,7 +223,11 @@ public class FortniteApiRestClient implements Closeable {
     }
 
     public boolean isSessionValid() {
-        return sessionToken != null && LocalDateTime.now().isBefore(sessionToken.getExpiresAt());
+        return sessionToken != null && LocalDateTime.now().isBefore(asLocalDateTime(sessionToken.getExpiresAt()));
+    }
+
+    private LocalDateTime asLocalDateTime(String timestamp) {
+        return LocalDateTime.ofInstant(Instant.parse(timestamp), ZoneOffset.UTC);
     }
 
     @Override
@@ -227,11 +243,10 @@ public class FortniteApiRestClient implements Closeable {
                 LOG.error("Exception occurred when killing session {}", sessionToken, e);
             }
 
-
         try {
-            httpClient.close();
+            httpRequestFactory.getTransport().shutdown();
         } catch (IOException e) {
-            LOG.error("IOException while closing CloseableHttpClient");
+            LOG.error("IOException while closing HttpRequestFactory transport");
         }
     }
 }

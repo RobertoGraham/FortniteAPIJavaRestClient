@@ -1,10 +1,9 @@
 package io.github.robertograham.fortniteapirestclient;
 
+import com.google.api.client.http.HttpRequestFactory;
+import com.google.api.client.http.apache.ApacheHttpTransport;
 import io.github.robertograham.fortniteapirestclient.domain.Credentials;
 import io.github.robertograham.fortniteapirestclient.util.Builder;
-import io.github.robertograham.fortniteapirestclient.util.ResponseRequestUtil;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 
 import java.util.Objects;
 import java.util.concurrent.Executors;
@@ -26,15 +25,12 @@ public class FortniteApiRestClientBuilder implements Builder<FortniteApiRestClie
 
     @Override
     public FortniteApiRestClient build() {
-        ResponseRequestUtil responseRequestUtil = ResponseRequestUtil.builder()
-                .build();
-
-        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpRequestFactory httpRequestFactory = new ApacheHttpTransport()
+                .createRequestFactory(new EpicGamesRequestInitializer());
 
         return new FortniteApiRestClient(
                 credentials,
-                httpClient,
-                responseRequestUtil,
+                httpRequestFactory,
                 Executors.newScheduledThreadPool(1),
                 autoLoginDisabled
         );

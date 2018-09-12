@@ -8,7 +8,7 @@ import java.util.Set;
 public class GetAccountsRequestBuilder implements Builder<GetAccountsRequest> {
 
     private Set<String> accountIds;
-    private String authHeaderValue;
+    private String authorization;
 
     GetAccountsRequestBuilder(Set<String> accountIds) {
         Objects.requireNonNull(accountIds, "Account id set cannot be null");
@@ -19,8 +19,8 @@ public class GetAccountsRequestBuilder implements Builder<GetAccountsRequest> {
         this.accountIds = accountIds;
     }
 
-    public GetAccountsRequestBuilder authHeaderValue(String authHeaderValue) {
-        this.authHeaderValue = authHeaderValue;
+    public GetAccountsRequestBuilder authorization(String authorization) {
+        this.authorization = authorization;
 
         return this;
     }
@@ -29,7 +29,7 @@ public class GetAccountsRequestBuilder implements Builder<GetAccountsRequest> {
     public GetAccountsRequest build() {
         return new GetAccountsRequest(
                 accountIds,
-                authHeaderValue
+                authorization
         );
     }
 }

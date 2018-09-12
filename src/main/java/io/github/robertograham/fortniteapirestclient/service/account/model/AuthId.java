@@ -1,8 +1,12 @@
 package io.github.robertograham.fortniteapirestclient.service.account.model;
 
+import com.google.api.client.util.Key;
+
 public class AuthId {
 
+    @Key
     private String id;
+    @Key
     private String type;
 
     public String getId() {

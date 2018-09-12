@@ -1,8 +1,12 @@
 package io.github.robertograham.fortniteapirestclient.service.authentication.model;
 
+import com.google.api.client.util.Key;
+
 public class Permission {
 
+    @Key
     private String resource;
+    @Key
     private Integer action;
 
     public String getResource() {

@@ -1,13 +1,15 @@
 package io.github.robertograham.fortniteapirestclient.service.leaderBoard.model.request;
 
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.PartyType;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.Platform;
 import io.github.robertograham.fortniteapirestclient.util.Builder;
 
 public class GetCohortRequestBuilder implements Builder<GetCohortRequest> {
 
     private String inAppId;
-    private String platform;
-    private String partyType;
-    private String authHeaderValue;
+    private Platform platform;
+    private PartyType partyType;
+    private String authorization;
 
     GetCohortRequestBuilder() {
     }
@@ -18,20 +20,20 @@ public class GetCohortRequestBuilder implements Builder<GetCohortRequest> {
         return this;
     }
 
-    public GetCohortRequestBuilder platform(String platform) {
+    public GetCohortRequestBuilder platform(Platform platform) {
         this.platform = platform;
 
         return this;
     }
 
-    public GetCohortRequestBuilder partyType(String partyType) {
+    public GetCohortRequestBuilder partyType(PartyType partyType) {
         this.partyType = partyType;
 
         return this;
     }
 
-    public GetCohortRequestBuilder authHeaderValue(String authHeaderValue) {
-        this.authHeaderValue = authHeaderValue;
+    public GetCohortRequestBuilder authorization(String authorization) {
+        this.authorization = authorization;
 
         return this;
     }
@@ -42,7 +44,7 @@ public class GetCohortRequestBuilder implements Builder<GetCohortRequest> {
                 inAppId,
                 platform,
                 partyType,
-                authHeaderValue
+                authorization
         );
     }
 }

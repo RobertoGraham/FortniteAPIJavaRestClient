@@ -1,18 +1,20 @@
 package io.github.robertograham.fortniteapirestclient.service.statistics.model.request;
 
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.Platform;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.StatWindow;
 import io.github.robertograham.fortniteapirestclient.util.Builder;
 
 public class GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequestBuilder implements Builder<GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest> {
 
-    private String platform;
+    private Platform platform;
     private String accountId;
-    private String window;
-    private String authHeaderValue;
+    private StatWindow window;
+    private String authorization;
 
     GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequestBuilder() {
     }
 
-    public GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequestBuilder platform(String platform) {
+    public GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequestBuilder platform(Platform platform) {
         this.platform = platform;
 
         return this;
@@ -24,14 +26,14 @@ public class GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequestBuilder imple
         return this;
     }
 
-    public GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequestBuilder window(String window) {
+    public GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequestBuilder window(StatWindow window) {
         this.window = window;
 
         return this;
     }
 
-    public GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequestBuilder authHeaderValue(String authHeaderValue) {
-        this.authHeaderValue = authHeaderValue;
+    public GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequestBuilder authorization(String authorization) {
+        this.authorization = authorization;
 
         return this;
     }
@@ -42,7 +44,7 @@ public class GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequestBuilder imple
                 accountId,
                 platform,
                 window,
-                authHeaderValue
+                authorization
         );
     }
 }

@@ -5,7 +5,7 @@ import io.github.robertograham.fortniteapirestclient.util.Builder;
 public class GetAccountRequestBuilder implements Builder<GetAccountRequest> {
 
     private String accountName;
-    private String authHeaderValue;
+    private String authorization;
 
     GetAccountRequestBuilder() {
     }
@@ -16,8 +16,8 @@ public class GetAccountRequestBuilder implements Builder<GetAccountRequest> {
         return this;
     }
 
-    public GetAccountRequestBuilder authHeaderValue(String authHeaderValue) {
-        this.authHeaderValue = authHeaderValue;
+    public GetAccountRequestBuilder authorization(String authorization) {
+        this.authorization = authorization;
 
         return this;
     }
@@ -26,7 +26,7 @@ public class GetAccountRequestBuilder implements Builder<GetAccountRequest> {
     public GetAccountRequest build() {
         return new GetAccountRequest(
                 accountName,
-                authHeaderValue
+                authorization
         );
     }
 }

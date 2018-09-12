@@ -1,5 +1,7 @@
 package io.github.robertograham.fortniteapirestclient.service.statistics.model.request;
 
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.Platform;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.StatWindow;
 import io.github.robertograham.fortniteapirestclient.util.Request;
 
 import java.util.Objects;
@@ -7,22 +9,22 @@ import java.util.Objects;
 public class GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest extends Request {
 
     private final String accountId;
-    private final String platform;
-    private final String window;
-    private final String authHeaderValue;
+    private final Platform platform;
+    private final StatWindow window;
+    private final String authorization;
 
-    GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest(String accountId, String platform, String window, String authHeaderValue) {
+    GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest(String accountId, Platform platform, StatWindow window, String authorization) {
         this.accountId = accountId;
         this.platform = platform;
         this.window = window;
-        this.authHeaderValue = authHeaderValue;
+        this.authorization = authorization;
     }
 
     public static GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequestBuilder builder() {
         return new GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequestBuilder();
     }
 
-    public String getPlatform() {
+    public Platform getPlatform() {
         return platform;
     }
 
@@ -30,12 +32,12 @@ public class GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest extends Requ
         return accountId;
     }
 
-    public String getWindow() {
+    public StatWindow getWindow() {
         return window;
     }
 
-    public String getAuthHeaderValue() {
-        return authHeaderValue;
+    public String getAuthorization() {
+        return authorization;
     }
 
     @Override
@@ -44,7 +46,7 @@ public class GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest extends Requ
                 "accountId='" + accountId + '\'' +
                 ", platform='" + platform + '\'' +
                 ", window='" + window + '\'' +
-                ", authHeaderValue='" + authHeaderValue + '\'' +
+                ", authorization='" + authorization + '\'' +
                 "} " + super.toString();
     }
 
@@ -61,11 +63,11 @@ public class GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest extends Requ
         return Objects.equals(accountId, getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.accountId) &&
                 Objects.equals(platform, getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.platform) &&
                 Objects.equals(window, getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.window) &&
-                Objects.equals(authHeaderValue, getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.authHeaderValue);
+                Objects.equals(authorization, getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.authorization);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(accountId, platform, window, authHeaderValue);
+        return Objects.hash(accountId, platform, window, authorization);
     }
 }

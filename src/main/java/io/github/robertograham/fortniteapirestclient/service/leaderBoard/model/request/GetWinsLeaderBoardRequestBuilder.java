@@ -1,39 +1,42 @@
 package io.github.robertograham.fortniteapirestclient.service.leaderBoard.model.request;
 
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.PartyType;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.Platform;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.StatWindow;
 import io.github.robertograham.fortniteapirestclient.util.Builder;
 
 public class GetWinsLeaderBoardRequestBuilder implements Builder<GetWinsLeaderBoardRequest> {
 
-    private String platform;
-    private String partyType;
-    private String window;
-    private String authHeaderValue;
+    private Platform platform;
+    private PartyType partyType;
+    private StatWindow window;
+    private String authorization;
     private int entryCount;
     private String inAppId;
 
     GetWinsLeaderBoardRequestBuilder() {
     }
 
-    public GetWinsLeaderBoardRequestBuilder platform(String platform) {
+    public GetWinsLeaderBoardRequestBuilder platform(Platform platform) {
         this.platform = platform;
 
         return this;
     }
 
-    public GetWinsLeaderBoardRequestBuilder partyType(String partyType) {
+    public GetWinsLeaderBoardRequestBuilder partyType(PartyType partyType) {
         this.partyType = partyType;
 
         return this;
     }
 
-    public GetWinsLeaderBoardRequestBuilder window(String window) {
+    public GetWinsLeaderBoardRequestBuilder window(StatWindow window) {
         this.window = window;
 
         return this;
     }
 
-    public GetWinsLeaderBoardRequestBuilder authHeaderValue(String authHeaderValue) {
-        this.authHeaderValue = authHeaderValue;
+    public GetWinsLeaderBoardRequestBuilder authorization(String authorization) {
+        this.authorization = authorization;
 
         return this;
     }
@@ -56,7 +59,7 @@ public class GetWinsLeaderBoardRequestBuilder implements Builder<GetWinsLeaderBo
                 platform,
                 partyType,
                 window,
-                authHeaderValue,
+                authorization,
                 entryCount,
                 inAppId
         );

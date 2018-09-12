@@ -7,11 +7,11 @@ import java.util.Objects;
 public class KillSessionRequest extends Request {
 
     private final String accessToken;
-    private final String authHeaderValue;
+    private final String authorization;
 
-    KillSessionRequest(String accessToken, String authHeaderValue) {
+    KillSessionRequest(String accessToken, String authorization) {
         this.accessToken = accessToken;
-        this.authHeaderValue = authHeaderValue;
+        this.authorization = authorization;
     }
 
     public static KillSessionRequestBuilder builder() {
@@ -22,15 +22,15 @@ public class KillSessionRequest extends Request {
         return accessToken;
     }
 
-    public String getAuthHeaderValue() {
-        return authHeaderValue;
+    public String getAuthorization() {
+        return authorization;
     }
 
     @Override
     public String toString() {
         return "KillSessionRequest{" +
                 "accessToken='" + accessToken + '\'' +
-                ", authHeaderValue='" + authHeaderValue + '\'' +
+                ", authorization='" + authorization + '\'' +
                 "} " + super.toString();
     }
 
@@ -45,11 +45,11 @@ public class KillSessionRequest extends Request {
         KillSessionRequest killSessionRequest = (KillSessionRequest) object;
 
         return Objects.equals(accessToken, killSessionRequest.accessToken) &&
-                Objects.equals(authHeaderValue, killSessionRequest.authHeaderValue);
+                Objects.equals(authorization, killSessionRequest.authorization);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(accessToken, authHeaderValue);
+        return Objects.hash(accessToken, authorization);
     }
 }

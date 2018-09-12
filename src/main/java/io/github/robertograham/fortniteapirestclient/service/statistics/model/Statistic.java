@@ -1,10 +1,16 @@
 package io.github.robertograham.fortniteapirestclient.service.statistics.model;
 
+import com.google.api.client.util.Key;
+
 public class Statistic {
 
+    @Key
     private String name;
+    @Key
     private Integer value;
+    @Key
     private String window;
+    @Key
     private Integer ownerType;
 
     public String getName() {

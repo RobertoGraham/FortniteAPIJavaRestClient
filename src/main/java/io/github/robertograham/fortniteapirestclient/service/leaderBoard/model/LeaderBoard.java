@@ -1,11 +1,16 @@
 package io.github.robertograham.fortniteapirestclient.service.leaderBoard.model;
 
+import com.google.api.client.util.Key;
+
 import java.util.List;
 
 public class LeaderBoard {
 
+    @Key
     private String statName;
+    @Key
     private String statWindow;
+    @Key
     private List<LeaderBoardEntry> entries;
 
     public String getStatName() {

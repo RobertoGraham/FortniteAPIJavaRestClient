@@ -1,12 +1,13 @@
 package io.github.robertograham.fortniteapirestclient.service.statistics.model.request;
 
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.StatWindow;
 import io.github.robertograham.fortniteapirestclient.util.Builder;
 
 public class GetBattleRoyaleStatisticsRequestBuilder implements Builder<GetBattleRoyaleStatisticsRequest> {
 
     private String accountId;
-    private String window;
-    private String authHeaderValue;
+    private StatWindow window;
+    private String authorization;
 
     GetBattleRoyaleStatisticsRequestBuilder() {
     }
@@ -17,14 +18,14 @@ public class GetBattleRoyaleStatisticsRequestBuilder implements Builder<GetBattl
         return this;
     }
 
-    public GetBattleRoyaleStatisticsRequestBuilder window(String window) {
+    public GetBattleRoyaleStatisticsRequestBuilder window(StatWindow window) {
         this.window = window;
 
         return this;
     }
 
-    public GetBattleRoyaleStatisticsRequestBuilder authHeaderValue(String authHeaderValue) {
-        this.authHeaderValue = authHeaderValue;
+    public GetBattleRoyaleStatisticsRequestBuilder authorization(String authorization) {
+        this.authorization = authorization;
 
         return this;
     }
@@ -34,7 +35,7 @@ public class GetBattleRoyaleStatisticsRequestBuilder implements Builder<GetBattl
         return new GetBattleRoyaleStatisticsRequest(
                 accountId,
                 window,
-                authHeaderValue
+                authorization
         );
     }
 }

@@ -7,19 +7,19 @@ import java.util.Objects;
 public class GetAccountRequest extends Request {
 
     private final String accountName;
-    private final String authHeaderValue;
+    private final String authorization;
 
-    GetAccountRequest(String accountName, String authHeaderValue) {
+    GetAccountRequest(String accountName, String authorization) {
         this.accountName = accountName;
-        this.authHeaderValue = authHeaderValue;
+        this.authorization = authorization;
     }
 
     public static GetAccountRequestBuilder builder() {
         return new GetAccountRequestBuilder();
     }
 
-    public String getAuthHeaderValue() {
-        return authHeaderValue;
+    public String getAuthorization() {
+        return authorization;
     }
 
     public String getAccountName() {
@@ -30,7 +30,7 @@ public class GetAccountRequest extends Request {
     public String toString() {
         return "GetAccountRequest{" +
                 "accountName='" + accountName + '\'' +
-                ", authHeaderValue='" + authHeaderValue + '\'' +
+                ", authorization='" + authorization + '\'' +
                 "} " + super.toString();
     }
 
@@ -45,11 +45,11 @@ public class GetAccountRequest extends Request {
         GetAccountRequest getAccountRequest = (GetAccountRequest) object;
 
         return Objects.equals(accountName, getAccountRequest.accountName) &&
-                Objects.equals(authHeaderValue, getAccountRequest.authHeaderValue);
+                Objects.equals(authorization, getAccountRequest.authorization);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(accountName, authHeaderValue);
+        return Objects.hash(accountName, authorization);
     }
 }

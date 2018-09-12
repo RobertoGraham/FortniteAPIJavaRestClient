@@ -1,12 +1,18 @@
 package io.github.robertograham.fortniteapirestclient.service.account.model;
 
+import com.google.api.client.util.Key;
+
 import java.util.Map;
 
 public class Account {
 
+    @Key
     private String id;
+    @Key
     private String displayName;
+    @Key
     private Map<String, Object> links;
+    @Key
     private Map<String, ExternalAuth> externalAuths;
 
     public Map<String, Object> getLinks() {

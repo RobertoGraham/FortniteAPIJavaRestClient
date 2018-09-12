@@ -1,5 +1,6 @@
 package io.github.robertograham.fortniteapirestclient.service.statistics.model.request;
 
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.StatWindow;
 import io.github.robertograham.fortniteapirestclient.util.Request;
 
 import java.util.Objects;
@@ -7,13 +8,13 @@ import java.util.Objects;
 public class GetSoloDuoSquadBattleRoyaleStatisticsRequest extends Request {
 
     private final String accountId;
-    private final String window;
-    private final String authHeaderValue;
+    private final StatWindow window;
+    private final String authorization;
 
-    GetSoloDuoSquadBattleRoyaleStatisticsRequest(String accountId, String window, String authHeaderValue) {
+    GetSoloDuoSquadBattleRoyaleStatisticsRequest(String accountId, StatWindow window, String authorization) {
         this.accountId = accountId;
         this.window = window;
-        this.authHeaderValue = authHeaderValue;
+        this.authorization = authorization;
     }
 
     public static GetSoloDuoSquadBattleRoyaleStatisticsRequestBuilder builder() {
@@ -24,12 +25,12 @@ public class GetSoloDuoSquadBattleRoyaleStatisticsRequest extends Request {
         return accountId;
     }
 
-    public String getWindow() {
+    public StatWindow getWindow() {
         return window;
     }
 
-    public String getAuthHeaderValue() {
-        return authHeaderValue;
+    public String getAuthorization() {
+        return authorization;
     }
 
     @Override
@@ -37,7 +38,7 @@ public class GetSoloDuoSquadBattleRoyaleStatisticsRequest extends Request {
         return "GetSoloDuoSquadBattleRoyaleStatisticsRequest{" +
                 "accountId='" + accountId + '\'' +
                 ", window='" + window + '\'' +
-                ", authHeaderValue='" + authHeaderValue + '\'' +
+                ", authorization='" + authorization + '\'' +
                 "} " + super.toString();
     }
 
@@ -53,11 +54,11 @@ public class GetSoloDuoSquadBattleRoyaleStatisticsRequest extends Request {
 
         return Objects.equals(accountId, getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.accountId) &&
                 Objects.equals(window, getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.window) &&
-                Objects.equals(authHeaderValue, getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.authHeaderValue);
+                Objects.equals(authorization, getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.authorization);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(accountId, window, authHeaderValue);
+        return Objects.hash(accountId, window, authorization);
     }
 }

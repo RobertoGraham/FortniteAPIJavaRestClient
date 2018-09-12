@@ -1,40 +1,45 @@
 package io.github.robertograham.fortniteapirestclient.domain;
 
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.GameMode;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.PartyType;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.Platform;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.StatType;
+
 import java.util.Objects;
 
 public class StatName {
 
-    private String gameMode;
-    private String partyType;
-    private String statType;
+    private GameMode gameMode;
+    private PartyType partyType;
+    private StatType statType;
     private String unknownProperty;
-    private String platform;
+    private Platform platform;
 
     public StatName() {
         unknownProperty = "m0";
     }
 
-    public String getGameMode() {
+    public GameMode getGameMode() {
         return gameMode;
     }
 
-    public void setGameMode(String gameMode) {
+    public void setGameMode(GameMode gameMode) {
         this.gameMode = gameMode;
     }
 
-    public String getPartyType() {
+    public PartyType getPartyType() {
         return partyType;
     }
 
-    public void setPartyType(String partyType) {
+    public void setPartyType(PartyType partyType) {
         this.partyType = partyType;
     }
 
-    public String getStatType() {
+    public StatType getStatType() {
         return statType;
     }
 
-    public void setStatType(String statType) {
+    public void setStatType(StatType statType) {
         this.statType = statType;
     }
 
@@ -46,16 +51,16 @@ public class StatName {
         this.unknownProperty = unknownProperty;
     }
 
-    public String getPlatform() {
+    public Platform getPlatform() {
         return platform;
     }
 
-    public void setPlatform(String platform) {
+    public void setPlatform(Platform platform) {
         this.platform = platform;
     }
 
     public String formatted() {
-        return String.format("%s_%s_%s_%s_%s", gameMode, statType, platform, unknownProperty, partyType);
+        return String.format("%s_%s_%s_%s_%s", gameMode.getCode(), statType.getCode(), platform.getCode(), unknownProperty, partyType.getCode());
     }
 
     @Override

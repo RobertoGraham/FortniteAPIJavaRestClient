@@ -5,7 +5,7 @@ import io.github.robertograham.fortniteapirestclient.util.Builder;
 public class KillSessionRequestBuilder implements Builder<KillSessionRequest> {
 
     private String accessToken;
-    private String authHeaderValue;
+    private String authorization;
 
     KillSessionRequestBuilder() {
     }
@@ -16,8 +16,8 @@ public class KillSessionRequestBuilder implements Builder<KillSessionRequest> {
         return this;
     }
 
-    public KillSessionRequestBuilder authHeaderValue(String authHeaderValue) {
-        this.authHeaderValue = authHeaderValue;
+    public KillSessionRequestBuilder authorization(String authorization) {
+        this.authorization = authorization;
 
         return this;
     }
@@ -26,7 +26,7 @@ public class KillSessionRequestBuilder implements Builder<KillSessionRequest> {
     public KillSessionRequest build() {
         return new KillSessionRequest(
                 accessToken,
-                authHeaderValue
+                authorization
         );
     }
 }

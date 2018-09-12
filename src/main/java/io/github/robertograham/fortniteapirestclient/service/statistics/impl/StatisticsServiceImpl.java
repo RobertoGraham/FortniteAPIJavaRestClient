@@ -1,18 +1,16 @@
 package io.github.robertograham.fortniteapirestclient.service.statistics.impl;
 
+import com.google.api.client.http.HttpHeaders;
+import com.google.api.client.http.HttpRequestFactory;
+import io.github.robertograham.fortniteapirestclient.EpicGamesUrl;
 import io.github.robertograham.fortniteapirestclient.domain.StatsGroup;
-import io.github.robertograham.fortniteapirestclient.domain.constant.Platform;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.Platform;
 import io.github.robertograham.fortniteapirestclient.service.statistics.StatisticsService;
 import io.github.robertograham.fortniteapirestclient.service.statistics.mapper.StatisticListStatGroupMapper;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.Statistic;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetBattleRoyaleStatisticsRequest;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetSoloDuoSquadBattleRoyaleStatisticsRequest;
-import io.github.robertograham.fortniteapirestclient.util.Endpoint;
-import io.github.robertograham.fortniteapirestclient.util.ResponseRequestUtil;
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,12 +26,10 @@ import java.util.stream.Stream;
 public class StatisticsServiceImpl implements StatisticsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(StatisticsServiceImpl.class);
-    private final CloseableHttpClient httpClient;
-    private final ResponseRequestUtil responseRequestUtil;
+    private final HttpRequestFactory httpRequestFactory;
 
-    public StatisticsServiceImpl(CloseableHttpClient httpClient, ResponseRequestUtil responseRequestUtil) {
-        this.httpClient = httpClient;
-        this.responseRequestUtil = responseRequestUtil;
+    public StatisticsServiceImpl(HttpRequestFactory httpRequestFactory) {
+        this.httpRequestFactory = httpRequestFactory;
     }
 
     @Override
@@ -41,13 +37,13 @@ public class StatisticsServiceImpl implements StatisticsService {
         getBattleRoyaleStatisticsRequest.log();
 
         return CompletableFuture.supplyAsync(() -> {
-            HttpGet httpGet = new HttpGet(Endpoint.statsBattleRoyale(getBattleRoyaleStatisticsRequest.getAccountId(), getBattleRoyaleStatisticsRequest.getWindow()));
-            httpGet.addHeader(HttpHeaders.AUTHORIZATION, getBattleRoyaleStatisticsRequest.getAuthHeaderValue());
-
             Statistic[] statistics;
 
             try {
-                statistics = httpClient.execute(httpGet, responseRequestUtil.responseHandlerFor(Statistic[].class));
+                statistics = httpRequestFactory.buildGetRequest(EpicGamesUrl.battleRoyaleStats(getBattleRoyaleStatisticsRequest.getAccountId(), getBattleRoyaleStatisticsRequest.getWindow()))
+                        .setHeaders(new HttpHeaders().setAuthorization(getBattleRoyaleStatisticsRequest.getAuthorization()))
+                        .execute()
+                        .parseAs(Statistic[].class);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -73,7 +69,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         return getBattleRoyaleStatistics(GetBattleRoyaleStatisticsRequest.builder()
                 .accountId(getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.getAccountId())
                 .window(getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.getWindow())
-                .authHeaderValue(getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.getAuthHeaderValue())
+                .authorization(getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.getAuthorization())
                 .build())
                 .thenApplyAsync(statistics -> statistics != null ?
                         StatisticListStatGroupMapper.mapFrom(statistics, getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest.getPlatform())
@@ -81,11 +77,11 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     @Override
-    public CompletableFuture<Map<String, StatsGroup>> getSoloDuoSquadBattleRoyaleStatistics(GetSoloDuoSquadBattleRoyaleStatisticsRequest getSoloDuoSquadBattleRoyaleStatisticsRequest) {
+    public CompletableFuture<Map<Platform, StatsGroup>> getSoloDuoSquadBattleRoyaleStatistics(GetSoloDuoSquadBattleRoyaleStatisticsRequest getSoloDuoSquadBattleRoyaleStatisticsRequest) {
         return getBattleRoyaleStatistics(GetBattleRoyaleStatisticsRequest.builder()
                 .accountId(getSoloDuoSquadBattleRoyaleStatisticsRequest.getAccountId())
                 .window(getSoloDuoSquadBattleRoyaleStatisticsRequest.getWindow())
-                .authHeaderValue(getSoloDuoSquadBattleRoyaleStatisticsRequest.getAuthHeaderValue())
+                .authorization(getSoloDuoSquadBattleRoyaleStatisticsRequest.getAuthorization())
                 .build())
                 .thenApplyAsync(statistics -> statistics != null ?
                         Stream.of(
@@ -98,7 +94,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                         : null);
     }
 
-    private SimpleEntry<String, StatsGroup> getStatsGroupForPlatform(String platform, List<Statistic> statistics) {
+    private SimpleEntry<Platform, StatsGroup> getStatsGroupForPlatform(Platform platform, List<Statistic> statistics) {
         return new SimpleEntry<>(platform, StatisticListStatGroupMapper.mapFrom(statistics, platform));
     }
 }

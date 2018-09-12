@@ -1,5 +1,6 @@
 package io.github.robertograham.fortniteapirestclient.service.statistics.model.request;
 
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.StatWindow;
 import io.github.robertograham.fortniteapirestclient.util.Request;
 
 import java.util.Objects;
@@ -7,13 +8,13 @@ import java.util.Objects;
 public class GetBattleRoyaleStatisticsRequest extends Request {
 
     private final String accountId;
-    private final String window;
-    private final String authHeaderValue;
+    private final StatWindow window;
+    private final String authorization;
 
-    GetBattleRoyaleStatisticsRequest(String accountId, String window, String authHeaderValue) {
+    GetBattleRoyaleStatisticsRequest(String accountId, StatWindow window, String authorization) {
         this.accountId = accountId;
         this.window = window;
-        this.authHeaderValue = authHeaderValue;
+        this.authorization = authorization;
     }
 
     public static GetBattleRoyaleStatisticsRequestBuilder builder() {
@@ -24,12 +25,12 @@ public class GetBattleRoyaleStatisticsRequest extends Request {
         return accountId;
     }
 
-    public String getWindow() {
+    public StatWindow getWindow() {
         return window;
     }
 
-    public String getAuthHeaderValue() {
-        return authHeaderValue;
+    public String getAuthorization() {
+        return authorization;
     }
 
     @Override
@@ -37,7 +38,7 @@ public class GetBattleRoyaleStatisticsRequest extends Request {
         return "GetBattleRoyaleStatisticsRequest{" +
                 "accountId='" + accountId + '\'' +
                 ", window='" + window + '\'' +
-                ", authHeaderValue='" + authHeaderValue + '\'' +
+                ", authorization='" + authorization + '\'' +
                 "} " + super.toString();
     }
 
@@ -53,11 +54,11 @@ public class GetBattleRoyaleStatisticsRequest extends Request {
 
         return Objects.equals(accountId, getBattleRoyaleStatisticsRequest.accountId) &&
                 Objects.equals(window, getBattleRoyaleStatisticsRequest.window) &&
-                Objects.equals(authHeaderValue, getBattleRoyaleStatisticsRequest.authHeaderValue);
+                Objects.equals(authorization, getBattleRoyaleStatisticsRequest.authorization);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(accountId, window, authHeaderValue);
+        return Objects.hash(accountId, window, authorization);
     }
 }

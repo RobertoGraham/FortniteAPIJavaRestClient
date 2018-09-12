@@ -1,20 +1,28 @@
 package io.github.robertograham.fortniteapirestclient.util;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.api.client.util.Key;
 
 import java.util.List;
 
 public class FortniteApiError {
 
+    @Key
     private String errorCode;
+    @Key
     private String errorMessage;
+    @Key
     private List<String> messageVars;
+    @Key
     private int numericErrorCode;
+    @Key
     private String originatingService;
+    @Key
     private String intent;
-    @JsonProperty("error_description")
+    @Key("error_description")
     private String errorDescription;
+    @Key
     private String error;
+    @Key
     private String trackingId;
 
     public String getErrorCode() {

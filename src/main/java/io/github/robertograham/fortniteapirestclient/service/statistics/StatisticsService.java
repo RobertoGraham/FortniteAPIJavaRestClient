@@ -1,6 +1,7 @@
 package io.github.robertograham.fortniteapirestclient.service.statistics;
 
 import io.github.robertograham.fortniteapirestclient.domain.StatsGroup;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.Platform;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.Statistic;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetBattleRoyaleStatisticsRequest;
 import io.github.robertograham.fortniteapirestclient.service.statistics.model.request.GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest;
@@ -16,5 +17,5 @@ public interface StatisticsService {
 
     CompletableFuture<StatsGroup> getSoloDuoSquadBattleRoyaleStatisticsByPlatform(GetSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest getSoloDuoSquadBattleRoyaleStatisticsByPlatformRequest);
 
-    CompletableFuture<Map<String, StatsGroup>> getSoloDuoSquadBattleRoyaleStatistics(GetSoloDuoSquadBattleRoyaleStatisticsRequest getSoloDuoSquadBattleRoyaleStatisticsRequest);
+    CompletableFuture<Map<Platform, StatsGroup>> getSoloDuoSquadBattleRoyaleStatistics(GetSoloDuoSquadBattleRoyaleStatisticsRequest getSoloDuoSquadBattleRoyaleStatisticsRequest);
 }

@@ -1,6 +1,10 @@
 package io.github.robertograham.fortniteapirestclient.util;
 
 import io.github.robertograham.fortniteapirestclient.domain.StatName;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.GameMode;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.PartyType;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.Platform;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.StatType;
 
 public class StatNameHelper {
 
@@ -10,11 +14,11 @@ public class StatNameHelper {
         if (components.length == 5) {
             StatName product = new StatName();
 
-            product.setGameMode(components[0]);
-            product.setStatType(components[1]);
-            product.setPlatform(components[2]);
+            product.setGameMode(GameMode.fromCode(components[0]));
+            product.setStatType(StatType.fromCode(components[1]));
+            product.setPlatform(Platform.fromCode(components[2]));
             product.setUnknownProperty(components[3]);
-            product.setPartyType(components[4]);
+            product.setPartyType(PartyType.fromCode(components[4]));
 
             return product;
         } else

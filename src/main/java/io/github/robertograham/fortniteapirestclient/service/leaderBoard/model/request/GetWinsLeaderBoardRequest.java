@@ -1,22 +1,25 @@
 package io.github.robertograham.fortniteapirestclient.service.leaderBoard.model.request;
 
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.PartyType;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.Platform;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.StatWindow;
 import io.github.robertograham.fortniteapirestclient.util.Request;
 
 import java.util.Objects;
 
 public class GetWinsLeaderBoardRequest extends Request {
-    private final String platform;
-    private final String partyType;
-    private final String window;
-    private final String authHeaderValue;
+    private final Platform platform;
+    private final PartyType partyType;
+    private final StatWindow window;
+    private final String authorization;
     private final int entryCount;
     private final String inAppId;
 
-    GetWinsLeaderBoardRequest(String platform, String partyType, String window, String authHeaderValue, int entryCount, String inAppId) {
+    GetWinsLeaderBoardRequest(Platform platform, PartyType partyType, StatWindow window, String authorization, int entryCount, String inAppId) {
         this.platform = platform;
         this.partyType = partyType;
         this.window = window;
-        this.authHeaderValue = authHeaderValue;
+        this.authorization = authorization;
         this.entryCount = entryCount;
         this.inAppId = inAppId;
     }
@@ -25,20 +28,20 @@ public class GetWinsLeaderBoardRequest extends Request {
         return new GetWinsLeaderBoardRequestBuilder();
     }
 
-    public String getPlatform() {
+    public Platform getPlatform() {
         return platform;
     }
 
-    public String getPartyType() {
+    public PartyType getPartyType() {
         return partyType;
     }
 
-    public String getWindow() {
+    public StatWindow getWindow() {
         return window;
     }
 
-    public String getAuthHeaderValue() {
-        return authHeaderValue;
+    public String getAuthorization() {
+        return authorization;
     }
 
     public int getEntryCount() {
@@ -55,7 +58,7 @@ public class GetWinsLeaderBoardRequest extends Request {
                 "platform='" + platform + '\'' +
                 ", partyType='" + partyType + '\'' +
                 ", window='" + window + '\'' +
-                ", authHeaderValue='" + authHeaderValue + '\'' +
+                ", authorization='" + authorization + '\'' +
                 ", entryCount=" + entryCount +
                 ", inAppId='" + inAppId + '\'' +
                 '}';
@@ -75,12 +78,12 @@ public class GetWinsLeaderBoardRequest extends Request {
                 Objects.equals(platform, getWinsLeaderBoardRequest.platform) &&
                 Objects.equals(partyType, getWinsLeaderBoardRequest.partyType) &&
                 Objects.equals(window, getWinsLeaderBoardRequest.window) &&
-                Objects.equals(authHeaderValue, getWinsLeaderBoardRequest.authHeaderValue) &&
+                Objects.equals(authorization, getWinsLeaderBoardRequest.authorization) &&
                 Objects.equals(inAppId, getWinsLeaderBoardRequest.inAppId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(platform, partyType, window, authHeaderValue, entryCount, inAppId);
+        return Objects.hash(platform, partyType, window, authorization, entryCount, inAppId);
     }
 }

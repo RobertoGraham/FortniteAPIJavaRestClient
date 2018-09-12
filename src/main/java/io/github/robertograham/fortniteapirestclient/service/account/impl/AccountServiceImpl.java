@@ -1,14 +1,12 @@
 package io.github.robertograham.fortniteapirestclient.service.account.impl;
 
+import com.google.api.client.http.HttpHeaders;
+import com.google.api.client.http.HttpRequestFactory;
+import io.github.robertograham.fortniteapirestclient.EpicGamesUrl;
 import io.github.robertograham.fortniteapirestclient.service.account.AccountService;
 import io.github.robertograham.fortniteapirestclient.service.account.model.Account;
 import io.github.robertograham.fortniteapirestclient.service.account.model.request.GetAccountRequest;
 import io.github.robertograham.fortniteapirestclient.service.account.model.request.GetAccountsRequest;
-import io.github.robertograham.fortniteapirestclient.util.Endpoint;
-import io.github.robertograham.fortniteapirestclient.util.ResponseRequestUtil;
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,12 +21,10 @@ public class AccountServiceImpl implements AccountService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AccountServiceImpl.class);
     private static final int MAX_ID_COUNT = 100;
-    private final CloseableHttpClient httpClient;
-    private final ResponseRequestUtil responseRequestUtil;
+    private final HttpRequestFactory httpRequestFactory;
 
-    public AccountServiceImpl(CloseableHttpClient httpClient, ResponseRequestUtil responseRequestUtil) {
-        this.httpClient = httpClient;
-        this.responseRequestUtil = responseRequestUtil;
+    public AccountServiceImpl(HttpRequestFactory httpRequestFactory) {
+        this.httpRequestFactory = httpRequestFactory;
     }
 
     @Override
@@ -38,18 +34,18 @@ public class AccountServiceImpl implements AccountService {
         return CompletableFuture.supplyAsync(() -> {
             Account account;
 
-            HttpGet httpGet = new HttpGet(Endpoint.lookup(getAccountRequest.getAccountName()));
-            httpGet.addHeader(HttpHeaders.AUTHORIZATION, getAccountRequest.getAuthHeaderValue());
-
             try {
-                account = httpClient.execute(httpGet, responseRequestUtil.responseHandlerFor(Account.class));
+                account = httpRequestFactory.buildGetRequest(EpicGamesUrl.accountByUsername(getAccountRequest.getAccountName()))
+                        .setHeaders(new HttpHeaders().setAuthorization(getAccountRequest.getAuthorization()))
+                        .execute()
+                        .parseAs(Account.class);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
             return account;
-        }).handle((account, throwable) -> {
-            if (account == null)
+        }).handleAsync((account, throwable) -> {
+            if (throwable != null)
                 LOG.error("Account for name {} not found", getAccountRequest.getAccountName(), throwable);
 
             return account;
@@ -67,18 +63,18 @@ public class AccountServiceImpl implements AccountService {
                     .map(accountIdPartition -> CompletableFuture.supplyAsync(() -> {
                         Account[] accounts;
 
-                        HttpGet httpGet = new HttpGet(Endpoint.info(accountIdPartition));
-                        httpGet.addHeader(HttpHeaders.AUTHORIZATION, getAccountsRequest.getAuthHeaderValue());
-
                         try {
-                            accounts = httpClient.execute(httpGet, responseRequestUtil.responseHandlerFor(Account[].class));
+                            accounts = httpRequestFactory.buildGetRequest(EpicGamesUrl.accountById(accountIdPartition))
+                                    .setHeaders(new HttpHeaders().setAuthorization(getAccountsRequest.getAuthorization()))
+                                    .execute()
+                                    .parseAs(Account[].class);
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
 
                         return accounts;
                     }).handleAsync((accounts, throwable) -> {
-                        if (accounts == null) {
+                        if (throwable != null) {
                             LOG.error("Failed to fetch accounts for account ids {}", accountIdPartition, throwable);
 
                             return null;
@@ -99,7 +95,7 @@ public class AccountServiceImpl implements AccountService {
                     .filter(Objects::nonNull)
                     .flatMap(Arrays::stream)
                     .collect(Collectors.toList());
-        }).handle((accounts, throwable) -> {
+        }).handleAsync((accounts, throwable) -> {
             if (accounts == null) {
                 LOG.error("Failed to fetch all accounts for account ids {}", getAccountsRequest.getAccountIds(), throwable);
 

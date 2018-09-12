@@ -10,7 +10,7 @@ I have written a small app, backed by FortniteAPIJavaRestClient, with Spring Boo
 <dependency>
     <groupId>io.github.robertograham</groupId>
     <artifactId>fortnite-api-rest-client</artifactId>
-    <version>5.3.0</version>
+    <version>6.0.0</version>
 </dependency>
 ```
 ## Acquiring an EpicGames Launcher Token and a Fortnite Client Token
@@ -103,8 +103,8 @@ B: `Account was null`
 ```java
 import io.github.robertograham.fortniteapirestclient.FortniteApiRestClient;
 import io.github.robertograham.fortniteapirestclient.domain.Credentials;
-import io.github.robertograham.fortniteapirestclient.domain.constant.Platform;
-import io.github.robertograham.fortniteapirestclient.domain.constant.StatWindow;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.Platform;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.StatWindow;
 
 import java.util.concurrent.ExecutionException;
 
@@ -131,7 +131,7 @@ B: `null`
 ```java
 import io.github.robertograham.fortniteapirestclient.FortniteApiRestClient;
 import io.github.robertograham.fortniteapirestclient.domain.Credentials;
-import io.github.robertograham.fortniteapirestclient.domain.constant.StatWindow;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.StatWindow;
 
 import java.util.concurrent.ExecutionException;
 
@@ -158,9 +158,9 @@ B: `null`
 ```java
 import io.github.robertograham.fortniteapirestclient.FortniteApiRestClient;
 import io.github.robertograham.fortniteapirestclient.domain.Credentials;
-import io.github.robertograham.fortniteapirestclient.domain.constant.PartyType;
-import io.github.robertograham.fortniteapirestclient.domain.constant.Platform;
-import io.github.robertograham.fortniteapirestclient.domain.constant.StatWindow;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.PartyType;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.Platform;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.StatWindow;
 
 import java.util.concurrent.ExecutionException;
 
@@ -183,9 +183,9 @@ Will print
 ```java
 import io.github.robertograham.fortniteapirestclient.FortniteApiRestClient;
 import io.github.robertograham.fortniteapirestclient.domain.Credentials;
-import io.github.robertograham.fortniteapirestclient.domain.constant.PartyType;
-import io.github.robertograham.fortniteapirestclient.domain.constant.Platform;
-import io.github.robertograham.fortniteapirestclient.domain.constant.StatWindow;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.PartyType;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.Platform;
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.StatWindow;
 
 import java.util.concurrent.ExecutionException;
 

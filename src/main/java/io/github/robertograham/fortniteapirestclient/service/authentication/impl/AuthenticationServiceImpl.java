@@ -1,25 +1,21 @@
 package io.github.robertograham.fortniteapirestclient.service.authentication.impl;
 
+import com.google.api.client.http.HttpHeaders;
+import com.google.api.client.http.HttpRequestFactory;
+import com.google.api.client.http.UrlEncodedContent;
+import io.github.robertograham.fortniteapirestclient.EpicGamesUrl;
 import io.github.robertograham.fortniteapirestclient.service.authentication.AuthenticationService;
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.ExchangeCode;
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.OAuthToken;
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.request.GetExchangeCodeRequest;
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.request.GetOAuthTokenRequest;
 import io.github.robertograham.fortniteapirestclient.service.authentication.model.request.KillSessionRequest;
-import io.github.robertograham.fortniteapirestclient.util.Endpoint;
-import io.github.robertograham.fortniteapirestclient.util.ResponseRequestUtil;
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -27,12 +23,10 @@ import java.util.stream.Stream;
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private static Logger LOG = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
-    private final CloseableHttpClient httpClient;
-    private final ResponseRequestUtil responseRequestUtil;
+    private final HttpRequestFactory httpRequestFactory;
 
-    public AuthenticationServiceImpl(CloseableHttpClient httpClient, ResponseRequestUtil responseRequestUtil) {
-        this.httpClient = httpClient;
-        this.responseRequestUtil = responseRequestUtil;
+    public AuthenticationServiceImpl(HttpRequestFactory httpRequestFactory) {
+        this.httpRequestFactory = httpRequestFactory;
     }
 
     @Override
@@ -43,23 +37,26 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             OAuthToken oAuthToken;
 
             try {
-                HttpPost httpPost = new HttpPost(Endpoint.OAUTH_TOKEN);
-                httpPost.setEntity(new UrlEncodedFormEntity(Stream.concat(Stream.of(
-                        new BasicNameValuePair("grant_type", getOAuthTokenRequest.getGrantType()),
-                        new BasicNameValuePair("includePerms", "true")
-                        ),
-                        Arrays.stream(getOAuthTokenRequest.getAdditionalFormEntries())
-                ).collect(Collectors.toList())));
-                httpPost.setHeader(HttpHeaders.AUTHORIZATION, getOAuthTokenRequest.getAuthHeaderValue());
+                Map<String, String> data = Stream.concat(
+                        getOAuthTokenRequest.getAdditionalFormEntries().entrySet().stream(),
+                        Stream.of(
+                                new SimpleEntry<>("grant_type", getOAuthTokenRequest.getGrantType()),
+                                new SimpleEntry<>("includePerms", "true")
+                        )
+                )
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-                oAuthToken = httpClient.execute(httpPost, responseRequestUtil.responseHandlerFor(OAuthToken.class));
+                oAuthToken = httpRequestFactory.buildPostRequest(EpicGamesUrl.oAuthToken(), new UrlEncodedContent(data))
+                        .setHeaders(new HttpHeaders().setAuthorization(getOAuthTokenRequest.getAuthorization()))
+                        .execute()
+                        .parseAs(OAuthToken.class);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
             return oAuthToken;
-        }).handle((oAuthToken, throwable) -> {
-            if (oAuthToken == null)
+        }).handleAsync((oAuthToken, throwable) -> {
+            if (throwable != null)
                 LOG.error("Failed to fetch oauth token for request {}", getOAuthTokenRequest, throwable);
 
             return oAuthToken;
@@ -73,18 +70,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return CompletableFuture.supplyAsync(() -> {
             ExchangeCode exchangeCode;
 
-            HttpGet httpGet = new HttpGet(Endpoint.OAUTH_EXCHANGE);
-            httpGet.addHeader(HttpHeaders.AUTHORIZATION, getExchangeCodeRequest.getAuthHeaderValue());
-
             try {
-                exchangeCode = httpClient.execute(httpGet, responseRequestUtil.responseHandlerFor(ExchangeCode.class));
+                exchangeCode = httpRequestFactory.buildGetRequest(EpicGamesUrl.oAuthExchange())
+                        .setHeaders(new HttpHeaders().setAuthorization(getExchangeCodeRequest.getAuthorization()))
+                        .execute()
+                        .parseAs(ExchangeCode.class);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
             return exchangeCode;
-        }).handle(((exchangeCode, throwable) -> {
-            if (exchangeCode == null)
+        }).handleAsync(((exchangeCode, throwable) -> {
+            if (throwable != null)
                 LOG.error("Failed to fetch exchange code for request {}", getExchangeCodeRequest, throwable);
 
             return exchangeCode;
@@ -92,23 +89,23 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public CompletableFuture<Boolean> killSession(KillSessionRequest killSessionRequest) {
-        killSessionRequest.log();
+    public CompletableFuture<Boolean> killSession(KillSessionRequest request) {
+        request.log();
 
         return CompletableFuture.supplyAsync(() -> {
-            HttpDelete httpDelete = new HttpDelete(Endpoint.killSession(killSessionRequest.getAccessToken()));
-            httpDelete.addHeader(HttpHeaders.AUTHORIZATION, killSessionRequest.getAuthHeaderValue());
-
             try {
-                httpClient.execute(httpDelete, responseRequestUtil.stringResponseHandler());
+                httpRequestFactory.buildDeleteRequest(EpicGamesUrl.killSession(request.getAccessToken()))
+                        .setHeaders(new HttpHeaders().setAuthorization(request.getAuthorization()))
+                        .execute()
+                        .parseAsString();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
             return "";
-        }).handle((response, throwable) -> {
-            if (response == null)
-                LOG.error("Failed to kill session for request {}", killSessionRequest, throwable);
+        }).handleAsync((response, throwable) -> {
+            if (throwable != null)
+                LOG.error("Failed to kill session for request {}", request, throwable);
 
             return response != null;
         });

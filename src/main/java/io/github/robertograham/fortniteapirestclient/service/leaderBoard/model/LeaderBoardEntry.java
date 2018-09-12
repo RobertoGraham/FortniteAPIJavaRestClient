@@ -1,9 +1,14 @@
 package io.github.robertograham.fortniteapirestclient.service.leaderBoard.model;
 
+import com.google.api.client.util.Key;
+
 public class LeaderBoardEntry {
 
+    @Key
     private String accountId;
+    @Key
     private Integer value;
+    @Key
     private Integer rank;
 
     public String getAccountId() {

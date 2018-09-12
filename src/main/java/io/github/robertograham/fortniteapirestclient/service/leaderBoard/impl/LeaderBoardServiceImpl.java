@@ -1,5 +1,10 @@
 package io.github.robertograham.fortniteapirestclient.service.leaderBoard.impl;
 
+import com.google.api.client.http.HttpHeaders;
+import com.google.api.client.http.HttpRequestFactory;
+import com.google.api.client.http.json.JsonHttpContent;
+import io.github.robertograham.fortniteapirestclient.EpicGamesRequestInitializer;
+import io.github.robertograham.fortniteapirestclient.EpicGamesUrl;
 import io.github.robertograham.fortniteapirestclient.domain.EnhancedLeaderBoard;
 import io.github.robertograham.fortniteapirestclient.domain.EnhancedLeaderBoardEntry;
 import io.github.robertograham.fortniteapirestclient.service.account.AccountService;
@@ -11,18 +16,10 @@ import io.github.robertograham.fortniteapirestclient.service.leaderBoard.model.L
 import io.github.robertograham.fortniteapirestclient.service.leaderBoard.model.LeaderBoardEntry;
 import io.github.robertograham.fortniteapirestclient.service.leaderBoard.model.request.GetCohortRequest;
 import io.github.robertograham.fortniteapirestclient.service.leaderBoard.model.request.GetWinsLeaderBoardRequest;
-import io.github.robertograham.fortniteapirestclient.util.Endpoint;
-import io.github.robertograham.fortniteapirestclient.util.ResponseRequestUtil;
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -33,13 +30,11 @@ import java.util.stream.Collectors;
 public class LeaderBoardServiceImpl implements LeaderBoardService {
 
     private static final Logger LOG = LoggerFactory.getLogger(LeaderBoardServiceImpl.class);
-    private final CloseableHttpClient httpClient;
-    private final ResponseRequestUtil responseRequestUtil;
+    private final HttpRequestFactory httpRequestFactory;
     private final AccountService accountService;
 
-    public LeaderBoardServiceImpl(CloseableHttpClient httpClient, ResponseRequestUtil responseRequestUtil, AccountService accountService) {
-        this.httpClient = httpClient;
-        this.responseRequestUtil = responseRequestUtil;
+    public LeaderBoardServiceImpl(HttpRequestFactory httpRequestFactory, AccountService accountService) {
+        this.httpRequestFactory = httpRequestFactory;
         this.accountService = accountService;
     }
 
@@ -55,7 +50,7 @@ public class LeaderBoardServiceImpl implements LeaderBoardService {
                 cohort = getCohort(
                         GetCohortRequest.builder()
                                 .inAppId(getWinsLeaderBoardRequest.getInAppId())
-                                .authHeaderValue(getWinsLeaderBoardRequest.getAuthHeaderValue())
+                                .authorization(getWinsLeaderBoardRequest.getAuthorization())
                                 .partyType(getWinsLeaderBoardRequest.getPartyType())
                                 .platform(getWinsLeaderBoardRequest.getPlatform())
                                 .build()
@@ -69,20 +64,21 @@ public class LeaderBoardServiceImpl implements LeaderBoardService {
                     .map(Cohort::getCohortAccounts)
                     .orElse(new ArrayList<>());
 
-            HttpPost httpPost = new HttpPost(Endpoint.winsLeaderBoard(getWinsLeaderBoardRequest.getPlatform(), getWinsLeaderBoardRequest.getPartyType(), getWinsLeaderBoardRequest.getWindow(), getWinsLeaderBoardRequest.getEntryCount()));
-            httpPost.setEntity(new StringEntity(Optional.ofNullable(responseRequestUtil.asJson(cohortAccounts)).orElse("[]"), StandardCharsets.UTF_8));
-            httpPost.setHeader(HttpHeaders.AUTHORIZATION, getWinsLeaderBoardRequest.getAuthHeaderValue());
-            httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
-
             try {
-                leaderBoard = httpClient.execute(httpPost, responseRequestUtil.responseHandlerFor(LeaderBoard.class));
+                leaderBoard = httpRequestFactory.buildPostRequest(
+                        EpicGamesUrl.winsLeaderBoard(getWinsLeaderBoardRequest.getPlatform(), getWinsLeaderBoardRequest.getPartyType(), getWinsLeaderBoardRequest.getWindow(), getWinsLeaderBoardRequest.getEntryCount()),
+                        new JsonHttpContent(EpicGamesRequestInitializer.JSON_FACTORY, cohortAccounts)
+                )
+                        .setHeaders(new HttpHeaders().setAuthorization(getWinsLeaderBoardRequest.getAuthorization()))
+                        .execute()
+                        .parseAs(LeaderBoard.class);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
             return leaderBoard;
-        }).handle(((leaderBoard, throwable) -> {
-            if (leaderBoard == null)
+        }).handleAsync(((leaderBoard, throwable) -> {
+            if (throwable != null)
                 LOG.error("Could not fetch leader board for {}", getWinsLeaderBoardRequest, throwable);
 
             return leaderBoard;
@@ -110,7 +106,7 @@ public class LeaderBoardServiceImpl implements LeaderBoardService {
                                                     .map(id -> id.replace("-", ""))
                                                     .collect(Collectors.toSet())
                                     )
-                                            .authHeaderValue(getWinsLeaderBoardRequest.getAuthHeaderValue())
+                                            .authorization(getWinsLeaderBoardRequest.getAuthorization())
                                             .build()
                             )
                                     .get()
@@ -145,18 +141,18 @@ public class LeaderBoardServiceImpl implements LeaderBoardService {
         return CompletableFuture.supplyAsync(() -> {
             Cohort cohort;
 
-            HttpGet httpGet = new HttpGet(Endpoint.cohort(getCohortRequest.getInAppId(), getCohortRequest.getPlatform(), getCohortRequest.getPartyType()));
-            httpGet.setHeader(HttpHeaders.AUTHORIZATION, getCohortRequest.getAuthHeaderValue());
-
             try {
-                cohort = httpClient.execute(httpGet, responseRequestUtil.responseHandlerFor(Cohort.class));
+                cohort = httpRequestFactory.buildGetRequest(EpicGamesUrl.cohort(getCohortRequest.getInAppId(), getCohortRequest.getPlatform(), getCohortRequest.getPartyType()))
+                        .setHeaders(new HttpHeaders().setAuthorization(getCohortRequest.getAuthorization()))
+                        .execute()
+                        .parseAs(Cohort.class);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
             return cohort;
-        }).handle(((cohort, throwable) -> {
-            if (cohort == null)
+        }).handleAsync(((cohort, throwable) -> {
+            if (throwable != null)
                 LOG.error("Could not fetch cohort for {}", getCohortRequest, throwable);
 
             return cohort;

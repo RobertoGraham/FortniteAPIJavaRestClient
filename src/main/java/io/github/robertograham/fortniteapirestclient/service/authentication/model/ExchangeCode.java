@@ -1,9 +1,14 @@
 package io.github.robertograham.fortniteapirestclient.service.authentication.model;
 
+import com.google.api.client.util.Key;
+
 public class ExchangeCode {
 
+    @Key
     private Integer expiresInSeconds;
+    @Key
     private String code;
+    @Key
     private String creatingClientId;
 
     public Integer getExpiresInSeconds() {

@@ -1,39 +1,40 @@
 package io.github.robertograham.fortniteapirestclient.service.authentication.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.api.client.util.Key;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public class OAuthToken {
 
-    @JsonProperty("access_token")
+    @Key("access_token")
     private String accessToken;
-    @JsonProperty("expires_in")
+    @Key("expires_in")
     private Long expiresIn;
-    @JsonProperty("expires_at")
-    private LocalDateTime expiresAt;
-    @JsonProperty("token_type")
+    @Key("expires_at")
+    private String expiresAt;
+    @Key("token_type")
     private String tokenType;
-    @JsonProperty("refresh_token")
+    @Key("refresh_token")
     private String refreshToken;
-    @JsonProperty("refresh_expires")
+    @Key("refresh_expires")
     private Long refreshExpires;
-    @JsonProperty("refresh_expires_at")
-    private LocalDateTime refreshExpiresAt;
-    @JsonProperty("account_id")
+    @Key("refresh_expires_at")
+    private String refreshExpiresAt;
+    @Key("account_id")
     private String accountId;
-    @JsonProperty("client_id")
+    @Key("client_id")
     private String clientId;
-    @JsonProperty("internal_client")
+    @Key("internal_client")
     private Boolean internalClient;
-    @JsonProperty("client_service")
+    @Key("client_service")
     private String clientService;
-    private LocalDateTime lastPasswordValidation;
-    @JsonProperty("perms")
+    @Key
+    private String lastPasswordValidation;
+    @Key("perms")
     private List<Permission> perms;
+    @Key
     private String app;
-    @JsonProperty("in_app_id")
+    @Key("in_app_id")
     private String inAppId;
 
     public List<Permission> getPerms() {
@@ -60,11 +61,11 @@ public class OAuthToken {
         this.expiresIn = expiresIn;
     }
 
-    public LocalDateTime getExpiresAt() {
+    public String getExpiresAt() {
         return expiresAt;
     }
 
-    public void setExpiresAt(LocalDateTime expiresAt) {
+    public void setExpiresAt(String expiresAt) {
         this.expiresAt = expiresAt;
     }
 
@@ -92,11 +93,11 @@ public class OAuthToken {
         this.refreshExpires = refreshExpires;
     }
 
-    public LocalDateTime getRefreshExpiresAt() {
+    public String getRefreshExpiresAt() {
         return refreshExpiresAt;
     }
 
-    public void setRefreshExpiresAt(LocalDateTime refreshExpiresAt) {
+    public void setRefreshExpiresAt(String refreshExpiresAt) {
         this.refreshExpiresAt = refreshExpiresAt;
     }
 
@@ -132,11 +133,11 @@ public class OAuthToken {
         this.clientService = clientService;
     }
 
-    public LocalDateTime getLastPasswordValidation() {
+    public String getLastPasswordValidation() {
         return lastPasswordValidation;
     }
 
-    public void setLastPasswordValidation(LocalDateTime lastPasswordValidation) {
+    public void setLastPasswordValidation(String lastPasswordValidation) {
         this.lastPasswordValidation = lastPasswordValidation;
     }
 

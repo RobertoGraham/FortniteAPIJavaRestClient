@@ -8,11 +8,11 @@ import java.util.Set;
 public class GetAccountsRequest extends Request {
 
     private final Set<String> accountIds;
-    private final String authHeaderValue;
+    private final String authorization;
 
-    GetAccountsRequest(Set<String> accountIds, String authHeaderValue) {
+    GetAccountsRequest(Set<String> accountIds, String authorization) {
         this.accountIds = accountIds;
-        this.authHeaderValue = authHeaderValue;
+        this.authorization = authorization;
     }
 
     public static GetAccountsRequestBuilder builder(Set<String> accountIds) {
@@ -23,15 +23,15 @@ public class GetAccountsRequest extends Request {
         return accountIds;
     }
 
-    public String getAuthHeaderValue() {
-        return authHeaderValue;
+    public String getAuthorization() {
+        return authorization;
     }
 
     @Override
     public String toString() {
         return "GetAccountsRequest{" +
                 "accountIds=" + accountIds +
-                ", authHeaderValue='" + authHeaderValue + '\'' +
+                ", authorization='" + authorization + '\'' +
                 "} " + super.toString();
     }
 
@@ -46,11 +46,11 @@ public class GetAccountsRequest extends Request {
         GetAccountsRequest getAccountsRequest = (GetAccountsRequest) object;
 
         return Objects.equals(accountIds, getAccountsRequest.accountIds) &&
-                Objects.equals(authHeaderValue, getAccountsRequest.authHeaderValue);
+                Objects.equals(authorization, getAccountsRequest.authorization);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(accountIds, authHeaderValue);
+        return Objects.hash(accountIds, authorization);
     }
 }

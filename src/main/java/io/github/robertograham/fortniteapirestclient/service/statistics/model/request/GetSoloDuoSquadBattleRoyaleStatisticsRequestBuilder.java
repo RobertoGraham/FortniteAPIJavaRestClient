@@ -1,12 +1,13 @@
 package io.github.robertograham.fortniteapirestclient.service.statistics.model.request;
 
+import io.github.robertograham.fortniteapirestclient.domain.enumeration.StatWindow;
 import io.github.robertograham.fortniteapirestclient.util.Builder;
 
 public class GetSoloDuoSquadBattleRoyaleStatisticsRequestBuilder implements Builder<GetSoloDuoSquadBattleRoyaleStatisticsRequest> {
 
     private String accountId;
-    private String window;
-    private String authHeaderValue;
+    private StatWindow window;
+    private String authorization;
 
     GetSoloDuoSquadBattleRoyaleStatisticsRequestBuilder() {
     }
@@ -17,14 +18,14 @@ public class GetSoloDuoSquadBattleRoyaleStatisticsRequestBuilder implements Buil
         return this;
     }
 
-    public GetSoloDuoSquadBattleRoyaleStatisticsRequestBuilder window(String window) {
+    public GetSoloDuoSquadBattleRoyaleStatisticsRequestBuilder window(StatWindow window) {
         this.window = window;
 
         return this;
     }
 
-    public GetSoloDuoSquadBattleRoyaleStatisticsRequestBuilder authHeaderValue(String authHeaderValue) {
-        this.authHeaderValue = authHeaderValue;
+    public GetSoloDuoSquadBattleRoyaleStatisticsRequestBuilder authorization(String authorization) {
+        this.authorization = authorization;
 
         return this;
     }
@@ -34,7 +35,7 @@ public class GetSoloDuoSquadBattleRoyaleStatisticsRequestBuilder implements Buil
         return new GetSoloDuoSquadBattleRoyaleStatisticsRequest(
                 accountId,
                 window,
-                authHeaderValue
+                authorization
         );
     }
 }

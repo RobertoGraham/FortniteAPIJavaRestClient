@@ -6,24 +6,24 @@ import java.util.Objects;
 
 public class GetExchangeCodeRequest extends Request {
 
-    private final String authHeaderValue;
+    private final String authorization;
 
-    GetExchangeCodeRequest(String authHeaderValue) {
-        this.authHeaderValue = authHeaderValue;
+    GetExchangeCodeRequest(String authorization) {
+        this.authorization = authorization;
     }
 
     public static GetExchangeCodeRequestBuilder builder() {
         return new GetExchangeCodeRequestBuilder();
     }
 
-    public String getAuthHeaderValue() {
-        return authHeaderValue;
+    public String getAuthorization() {
+        return authorization;
     }
 
     @Override
     public String toString() {
         return "GetExchangeCodeRequest{" +
-                "authHeaderValue='" + authHeaderValue + '\'' +
+                "authorization='" + authorization + '\'' +
                 "} " + super.toString();
     }
 
@@ -37,11 +37,11 @@ public class GetExchangeCodeRequest extends Request {
 
         GetExchangeCodeRequest that = (GetExchangeCodeRequest) object;
 
-        return Objects.equals(authHeaderValue, that.authHeaderValue);
+        return Objects.equals(authorization, that.authorization);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(authHeaderValue);
+        return Objects.hash(authorization);
     }
 }

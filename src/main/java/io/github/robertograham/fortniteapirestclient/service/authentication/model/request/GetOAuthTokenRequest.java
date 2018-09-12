@@ -2,20 +2,19 @@ package io.github.robertograham.fortniteapirestclient.service.authentication.mod
 
 
 import io.github.robertograham.fortniteapirestclient.util.Request;
-import org.apache.http.NameValuePair;
 
-import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 
 public class GetOAuthTokenRequest extends Request {
 
     private final String grantType;
-    private final String authHeaderValue;
-    private final NameValuePair[] additionalFormEntries;
+    private final String authorization;
+    private final Map<String, String> additionalFormEntries;
 
-    GetOAuthTokenRequest(String grantType, String authHeaderValue, NameValuePair[] additionalFormEntries) {
+    GetOAuthTokenRequest(String grantType, String authorization, Map<String, String> additionalFormEntries) {
         this.grantType = grantType;
-        this.authHeaderValue = authHeaderValue;
+        this.authorization = authorization;
         this.additionalFormEntries = additionalFormEntries;
     }
 
@@ -27,11 +26,11 @@ public class GetOAuthTokenRequest extends Request {
         return grantType;
     }
 
-    public String getAuthHeaderValue() {
-        return authHeaderValue;
+    public String getAuthorization() {
+        return authorization;
     }
 
-    public NameValuePair[] getAdditionalFormEntries() {
+    public Map<String, String> getAdditionalFormEntries() {
         return additionalFormEntries;
     }
 
@@ -39,8 +38,8 @@ public class GetOAuthTokenRequest extends Request {
     public String toString() {
         return "GetOAuthTokenRequest{" +
                 "grantType='" + grantType + '\'' +
-                ", authHeaderValue='" + authHeaderValue + '\'' +
-                ", additionalFormEntries=" + Arrays.toString(additionalFormEntries) +
+                ", authorization='" + authorization + '\'' +
+                ", additionalFormEntries=" + additionalFormEntries +
                 "} " + super.toString();
     }
 
@@ -49,20 +48,18 @@ public class GetOAuthTokenRequest extends Request {
         if (this == object)
             return true;
 
-        if (object == null || getClass() != object.getClass())
+        if (!(object instanceof GetOAuthTokenRequest))
             return false;
 
         GetOAuthTokenRequest getOAuthTokenRequest = (GetOAuthTokenRequest) object;
 
         return Objects.equals(grantType, getOAuthTokenRequest.grantType) &&
-                Objects.equals(authHeaderValue, getOAuthTokenRequest.authHeaderValue) &&
-                Arrays.equals(additionalFormEntries, getOAuthTokenRequest.additionalFormEntries);
+                Objects.equals(authorization, getOAuthTokenRequest.authorization) &&
+                Objects.equals(additionalFormEntries, getOAuthTokenRequest.additionalFormEntries);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(grantType, authHeaderValue);
-        result = 31 * result + Arrays.hashCode(additionalFormEntries);
-        return result;
+        return Objects.hash(grantType, authorization, additionalFormEntries);
     }
 }

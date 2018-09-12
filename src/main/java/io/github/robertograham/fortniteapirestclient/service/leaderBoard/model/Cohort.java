@@ -1,14 +1,19 @@
 package io.github.robertograham.fortniteapirestclient.service.leaderBoard.model;
 
-import java.time.LocalDateTime;
+import com.google.api.client.util.Key;
+
 import java.util.List;
 
 public class Cohort {
 
+    @Key
     private String accountId;
+    @Key
     private String playlist;
+    @Key
     private List<String> cohortAccounts;
-    private LocalDateTime expiresAt;
+    @Key
+    private String expiresAt;
 
     public String getAccountId() {
         return accountId;
@@ -34,11 +39,11 @@ public class Cohort {
         this.cohortAccounts = cohortAccounts;
     }
 
-    public LocalDateTime getExpiresAt() {
+    public String getExpiresAt() {
         return expiresAt;
     }
 
-    public void setExpiresAt(LocalDateTime expiresAt) {
+    public void setExpiresAt(String expiresAt) {
         this.expiresAt = expiresAt;
     }
 

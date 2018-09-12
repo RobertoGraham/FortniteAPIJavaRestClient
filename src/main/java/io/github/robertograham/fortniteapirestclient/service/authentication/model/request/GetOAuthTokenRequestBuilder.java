@@ -1,15 +1,16 @@
 package io.github.robertograham.fortniteapirestclient.service.authentication.model.request;
 
 import io.github.robertograham.fortniteapirestclient.util.Builder;
-import org.apache.http.NameValuePair;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class GetOAuthTokenRequestBuilder implements Builder<GetOAuthTokenRequest> {
 
     private String grantType;
-    private String authHeaderValue;
-    private NameValuePair[] additionalFormEntries;
+    private String authorization;
+    private Map<String, String> additionalFormEntries;
 
     GetOAuthTokenRequestBuilder() {
     }
@@ -20,17 +21,14 @@ public class GetOAuthTokenRequestBuilder implements Builder<GetOAuthTokenRequest
         return this;
     }
 
-    public GetOAuthTokenRequestBuilder authHeaderValue(String authHeaderValue) {
-        this.authHeaderValue = authHeaderValue;
+    public GetOAuthTokenRequestBuilder authorization(String authorization) {
+        this.authorization = authorization;
 
         return this;
     }
 
-    public GetOAuthTokenRequestBuilder additionalFormEntries(NameValuePair... additionalFormEntries) {
+    public GetOAuthTokenRequestBuilder additionalFormEntries(Map<String, String> additionalFormEntries) {
         Objects.requireNonNull(additionalFormEntries, "Additional form entries cannot be null");
-
-        for (NameValuePair nameValuePair : additionalFormEntries)
-            Objects.requireNonNull(nameValuePair, "Additional form entry cannot be null");
 
         this.additionalFormEntries = additionalFormEntries;
 
@@ -40,11 +38,11 @@ public class GetOAuthTokenRequestBuilder implements Builder<GetOAuthTokenRequest
     @Override
     public GetOAuthTokenRequest build() {
         if (additionalFormEntries == null)
-            additionalFormEntries();
+            additionalFormEntries(new HashMap<>());
 
         return new GetOAuthTokenRequest(
                 grantType,
-                authHeaderValue,
+                authorization,
                 additionalFormEntries
         );
     }

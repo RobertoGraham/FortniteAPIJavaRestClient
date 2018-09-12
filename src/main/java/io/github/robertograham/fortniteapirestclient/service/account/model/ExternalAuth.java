@@ -1,14 +1,22 @@
 package io.github.robertograham.fortniteapirestclient.service.account.model;
 
+import com.google.api.client.util.Key;
+
 import java.util.List;
 
 public class ExternalAuth {
 
+    @Key
     private String type;
+    @Key
     private String externalAuthId;
+    @Key
     private String externalAuthIdType;
+    @Key
     private String accountId;
+    @Key
     private String externalDisplayName;
+    @Key
     private List<AuthId> authIds;
 
     public String getExternalAuthIdType() {
